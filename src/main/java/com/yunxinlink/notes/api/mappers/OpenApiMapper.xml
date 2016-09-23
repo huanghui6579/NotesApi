@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.OpenApiDao">
+	<!-- 定义数据库字段与实体对象的映射关系  -->  
+    <resultMap type="OpenApi" id="openApiResultMap">
+    	<id column="id" property="id" />
+    	<result column="openUserId" property="openUserId" />
+    	<result column="token" property="token" />
+    	<result column="expiresTime" property="expiresTime" />
+    	<result column="type" property="type" />
+    	<result column="createTime" property="createTime" />
+    	<result column="modifyTime" property="modifyTime" />
+    	<!-- 一对一的关系 -->  
+        <!-- property: 指的是属性的值, javaType：指的是元素的类型 -->  
+        <association property="user" column="userId" javaType="User">  
+            <id column="userId" property="id" />
+            <!-- 如有重名的列名，此处应写查询时各自的别名 -->
+            <result column="username" property="username"/>
+            <result column="mobile" property="mobile"/>
+            <result column="sid" property="sid"/>
+            <result column="avatar" property="avatar"/>
+            <result column="gender" property="gender"/>
+            <result column="state" property="state"/>
+        </association>
+    </resultMap>
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="OpenApi" useGeneratedKeys="true" keyProperty="id">
+	    insert into t_open_api (userId, openUserId, token, expiresTime, type, createTime, modifyTime) values (#{userId}, #{openUserId}, #{token}, #{expiresTime}, #{type}, #{createTime}, #{modifyTime}) 
+	    ON DUPLICATE KEY UPDATE token=values(token), expiresTime=values(expiresTime), modifyTime=values(modifyTime)
+	</insert>
+	
+	<delete id="delete" parameterType="OpenApi">
+	    delete from t_open_api where id = #{id}
+	</delete>
+	
+	<update id="update" parameterType="OpenApi">
+		update t_open_api set 
+		<trim prefixOverrides=",">
+            <if test="token != null">
+                token = #{token}
+            </if>
+            <if test="expiresTime != null">
+                expiresTime = #{expiresTime}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+		</trim>            
+	    where id = #{id}
+	</update>
+	
+	<select id="selectOpenApis" resultType="OpenApi">
+	    select * from t_open_api
+	</select>
+	
+	<select id="selectById" resultType="OpenApi" parameterType="OpenApi">
+		select * from t_open_api where id = #{id}
+	</select>
+	
+	<select id="selectByOpenUserId" resultMap="openApiResultMap" parameterType="OpenApi">
+		SELECT o.*, u.id uid, u.username, u.mobile, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state from t_open_api o, t_user u 
+		WHERE o.userId = u.id AND o.openUserId = #{openUserId}
+	</select>
+	
+	<select id="selectByUserId" resultMap="openApiResultMap" parameterType="User">
+		SELECT o.*, u.id uid, u.username, u.mobile, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state from t_open_api o, t_user u 
+		WHERE o.userId = u.id AND o.userId = #{id}
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_open_api limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

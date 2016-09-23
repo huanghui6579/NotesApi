@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.DeviceInfoDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="DeviceInfo" useGeneratedKeys="true" keyProperty="id">
+	    insert into t_device_info (imei, os, osVersion, phoneModel, brand, createTime, modifyTime) values (#{imei}, #{os}, #{osVersion}, #{phoneModel}, #{brand}, #{createTime}, #{modifyTime}) 
+	    ON DUPLICATE KEY UPDATE osVersion=values(osVersion), phoneModel=values(phoneModel), brand=values(brand), modifyTime=values(modifyTime)
+	</insert>
+	
+	<delete id="delete" parameterType="DeviceInfo">
+	    delete from t_device_info where id = #{id}
+	</delete>
+	
+	<update id="update" parameterType="DeviceInfo">
+		update t_device_info set 
+		<trim prefixOverrides=",">
+            <if test="osVersion != null">
+                osVersion = #{osVersion}
+            </if>
+            <if test="phoneModel != null">
+                phoneModel = #{phoneModel}
+            </if>
+            <if test="brand != null">
+                brand = #{brand}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+		</trim>            
+	    where id = #{id}
+	</update>
+	
+	<select id="selectDeviceInfos" resultType="DeviceInfo">
+	    select * from t_device_info
+	</select>
+	
+	<select id="selectById" resultType="DeviceInfo" parameterType="DeviceInfo">
+		select * from t_device_info where id = #{id}
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_device_info limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>
