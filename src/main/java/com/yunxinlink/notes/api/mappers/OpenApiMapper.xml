@@ -27,7 +27,7 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="OpenApi" useGeneratedKeys="true" keyProperty="id">
-	    insert into t_open_api (userId, openUserId, token, expiresTime, type, createTime, modifyTime) values (#{userId}, #{openUserId}, #{token}, #{expiresTime}, #{type}, #{createTime}, #{modifyTime}) 
+	    insert into t_open_api (userId, openUserId, token, expiresTime, type, createTime, modifyTime) values (#{user.id}, #{openUserId}, #{token}, #{expiresTime}, #{type}, #{createTime}, #{modifyTime}) 
 	    ON DUPLICATE KEY UPDATE token=values(token), expiresTime=values(expiresTime), modifyTime=values(modifyTime)
 	</insert>
 	
@@ -42,10 +42,10 @@
                 token = #{token}
             </if>
             <if test="expiresTime != null">
-                expiresTime = #{expiresTime}
+                , expiresTime = #{expiresTime}
             </if>
             <if test="modifyTime != null">
-                modifyTime = #{modifyTime}
+                , modifyTime = #{modifyTime}
             </if>
 		</trim>            
 	    where id = #{id}

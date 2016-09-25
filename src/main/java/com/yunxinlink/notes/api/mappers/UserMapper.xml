@@ -5,8 +5,8 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="User" useGeneratedKeys="true" keyProperty="id">
-	    insert into t_user (username, password, mobile, email, nickname, userId, avatar, gender, createTime, state) values 
-	    (#{username}, #{password}, #{mobile}, #{email}, #{nickname}, #{userId}, #{avatar}, #{gender}, #{createTime}, #{state})
+	    insert into t_user (username, password, mobile, email, nickname, sid, avatar, gender, createTime, state) values 
+	    (#{username}, #{password}, #{mobile}, #{email}, #{nickname}, #{sid}, #{avatar}, #{gender}, #{createTime}, #{state})
 	</insert>
 	
 	<delete id="delete" parameterType="User">
@@ -20,25 +20,25 @@
                 username = #{username}
             </if>
             <if test="password != null">
-                password = #{password}
+                , password = #{password}
             </if>
             <if test="mobile != null">
-                mobile = #{mobile}
+                , mobile = #{mobile}
             </if>
             <if test="email != null">
-                email = #{email}
+                , email = #{email}
             </if>
             <if test="nickname != null">
-                nickname = #{nickname}
+                , nickname = #{nickname}
             </if>
             <if test="avatar != null">
-                avatar = #{avatar}
+                , avatar = #{avatar}
             </if>
             <if test="gender != null">
-                gender = #{gender}
+                , gender = #{gender}
             </if>
             <if test="state != null">
-                state = #{state}
+                , state = #{state}
             </if>
 		</trim>            
 	    where id = #{id}
@@ -52,8 +52,12 @@
 		select * from t_user where id = #{id}
 	</select>
 	
-	<select id="selectUserByMobile" resultType="User" parameterType="User">
-		select * from t_user where mobile = #{mobile} and password = #{password}
+	<select id="selectUserByAccount" resultType="User" parameterType="Map">
+		select * from t_user where (mobile = #{account} or email = #{account}) and password = #{password}
+	</select>
+	
+	<select id="selectCount" resultType="int" parameterType="User">
+		select count(*) from t_user where mobile = #{mobile} or email = #{email}
 	</select>
 	
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >

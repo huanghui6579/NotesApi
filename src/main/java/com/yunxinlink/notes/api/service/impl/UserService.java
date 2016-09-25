@@ -1,7 +1,12 @@
 package com.yunxinlink.notes.api.service.impl;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +30,18 @@ public class UserService implements IUserService {
 	@Override
 	public boolean addUser(User user) {
 		int id = 0;
+		String password = user.getPassword();
 		try {
+			Date date = new Date();
+			String encodePwd = DigestUtils.md5Hex(password);
+			user.setPassword(encodePwd);
+			user.setCreateTime(date);
 			user.setSid(IdGenerator.generateUUID());
 			id = userDao.add(user);
-			user.setId(id);
 		} catch (Exception e) {
 			logger.error("addUser error:" + e.getMessage());
 		}
+		user.setPassword(password);
 		return id > 0;
 	}
 
@@ -63,11 +73,35 @@ public class UserService implements IUserService {
 	@Override
 	public User getUserByAccount(User user) {
 		try {
-			return userDao.selectUserByMobile(user);
+			String mobile = user.getMobile();
+			String email = user.getEmail();
+			String password = user.getPassword();
+			Map<String, String> map = new HashMap<>();
+			String encodePwd = DigestUtils.md5Hex(password);
+			map.put("password", encodePwd);
+			if (StringUtils.isNotBlank(mobile)) {
+				map.put("account", user.getMobile());
+			} else if (StringUtils.isNotBlank(email)) {
+				map.put("account", user.getEmail());
+			} else {
+				return null;
+			}
+			return userDao.selectUserByAccount(map);
 		} catch (Exception e) {
 			logger.error("get user by account error:" + e.getMessage());
 		}
 		return null;
+	}
+
+	@Override
+	public boolean hasUser(User user) {
+		int count = 0;
+		try {
+			count = userDao.selectCount(user);
+		} catch (Exception e) {
+			logger.error("has user error:" + e.getMessage());
+		}
+		return count > 0;
 	}
 
 }

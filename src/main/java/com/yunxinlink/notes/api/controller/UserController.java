@@ -66,9 +66,15 @@ public class UserController extends BaseController {
 			OpenApi openApi = openApiService.getByOpenUserId(openUserId);
 			if (openApi == null && autoCreate != null && autoCreate == 1) {	//没有该账号，且自动创建
 				logger.info("login open api not exists will add");
+				
+				User user = userDto.getUser();
+				if (user == null) {
+					user = new User();
+				}
+				
 				Date date = new Date();
 				openApi = new OpenApi();
-				openApi.setUser(userDto.getUser());
+				openApi.setUser(user);
 				openApi.setCreateTime(date);
 				openApi.setModifyTime(date);
 				openApi.setExpiresTime(userDto.getExpiresTime());
@@ -152,6 +158,64 @@ public class UserController extends BaseController {
 		}
 		actionResult.setResultCode(code);
 		actionResult.setReason(reason);
+		return actionResult;
+	}
+	
+	/**
+	 * 用户注册
+	 * @param userDto
+	 * @param confirmPassword 确认密码
+	 * @return
+	 */
+	@RequestMapping(value = {"register"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<UserDto> register(UserDto userDto, String confirmPassword) {
+		ActionResult<UserDto> actionResult = new ActionResult<>();
+		if (userDto == null || userDto.getUser() == null || StringUtils.isBlank(confirmPassword)) {	//参数错误
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		User user = userDto.getUser();
+		String password = user.getPassword();
+		String email = user.getEmail();
+		String mobile = user.getMobile();
+		if (StringUtils.isBlank(email) && StringUtils.isBlank(mobile)) {	//账号为空
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("账号不能为空");
+			return actionResult;
+		}
+		if (StringUtils.isBlank(password)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("密码不能为空或者空格");
+			return actionResult;
+		}
+		
+		if (!password.equals(confirmPassword)) {	//两次输入的密码不等
+			actionResult.setResultCode(ActionResult.RESULT_NOT_EQUALS);
+			actionResult.setReason("两次输入的密码不相等");
+			return actionResult;
+		}
+		
+		boolean hasUser = userService.hasUser(user);
+		logger.info("register user has user:" + hasUser);
+		if (hasUser) {
+			actionResult.setResultCode(ActionResult.RESULT_DATA_REPEAT);
+			actionResult.setReason("该用户已存在了");
+			return actionResult;
+		}
+		boolean success = userService.addUser(user);
+		if (success) {
+			UserDto resultDto = new UserDto();
+			resultDto.setType(AccountType.TYPE_LOCAL);
+			resultDto.setUser(user);
+			actionResult.setData(resultDto);
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("注册失败，请稍后再试");
+		}
+		logger.info("register user result:" + actionResult);
 		return actionResult;
 	}
 }

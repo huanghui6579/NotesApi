@@ -35,17 +35,11 @@ public class OpenApiService implements IOpenApiService {
 		}
 		//1、先添加用户
 		User user = openApi.getUser();
-		int rowId = 0;
-		try {
-			user.setSid(IdGenerator.generateUUID());
-			rowId = userDao.add(user);
-			if (rowId > 0) {	//添加成功
-				user.setId(rowId);
-				rowId = openApiDao.add(openApi);
-				openApi.setId(rowId);
-			}
-		} catch (Exception e) {
-			logger.error("add open api error:" + e.getMessage());
+		user.setSid(IdGenerator.generateUUID());
+		int rowId = userDao.add(user);
+		if (rowId > 0) {	//添加成功
+			rowId = openApiDao.add(openApi);
+			openApi.setId(rowId);
 		}
 		return rowId > 0;
 	}
@@ -69,15 +63,10 @@ public class OpenApiService implements IOpenApiService {
 		if (openApi == null) {
 			logger.info("delete open api failed open api is null");
 		}
-		int rowId = 0;
-		try {
-			rowId = openApiDao.delete(openApi);
-			if (rowId > 0 && openApi.getUser() != null) {
-				//删除该open API 对应的用户
-				userDao.delete(openApi.getUser());
-			}
-		} catch (Exception e) {
-			logger.error("delete open api error:" + e.getMessage());
+		int	rowId = openApiDao.delete(openApi);
+		if (rowId > 0 && openApi.getUser() != null) {
+			//删除该open API 对应的用户
+			userDao.delete(openApi.getUser());
 		}
 		return rowId > 0;
 	}

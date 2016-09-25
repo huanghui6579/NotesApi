@@ -10,6 +10,12 @@
 	<form action="login" method="post">
 		手机号：<input type="text" name="user.mobile"><br>
 		密 码：<input type="password" name="user.password"><br>
+		<button type="submit">登录</button>
+	</form>
+	<hr>
+	<form action="register" method="post">
+		手机号：<input type="text" name="user.mobile"><br>
+		密 码：<input type="password" name="user.password"><br>
 		<button type="submit">注册</button>
 	</form>
 </body>

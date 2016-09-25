@@ -31,6 +31,11 @@ public class User implements Serializable {
 	private String password;
 	
 	/**
+	 * 用户昵称
+	 */
+	private String nickname;
+	
+	/**
 	 * 用户电话，可登录用
 	 */
 	private String mobile;
@@ -145,6 +150,14 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
 	/**
 	 * 检查该用户是否可用
 	 * @return
@@ -155,8 +168,8 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", password=" + password + ", mobile=" + mobile
-				+ ", email=" + email + ", sid=" + sid + ", avatar=" + avatar + ", gender=" + gender + ", createTime="
-				+ createTime + ", state=" + state + "]";
+		return "User [id=" + id + ", username=" + username + ", password=" + password + ", nickname=" + nickname
+				+ ", mobile=" + mobile + ", email=" + email + ", sid=" + sid + ", avatar=" + avatar + ", gender="
+				+ gender + ", createTime=" + createTime + ", state=" + state + "]";
 	}
 }

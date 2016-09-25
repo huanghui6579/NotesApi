@@ -50,4 +50,11 @@ public interface IUserService {
 	 * @return
 	 */
 	public List<User> getUsers();
+	
+	/**
+	 * 根据邮箱或者手机号判断该用户是否已存在
+	 * @param user
+	 * @return
+	 */
+	public boolean hasUser(User user);
 }

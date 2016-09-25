@@ -2,6 +2,8 @@ package com.yunxinlink.notes.api.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.yunxinlink.notes.api.model.User;
 
 /**
@@ -9,6 +11,7 @@ import com.yunxinlink.notes.api.model.User;
  * @author huanghui1
  *
  */
+@JsonInclude(Include.NON_NULL)
 public class UserDto implements Serializable {
 	private static final long serialVersionUID = -5406889512822580897L;
 	

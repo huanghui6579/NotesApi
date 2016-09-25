@@ -36,6 +36,16 @@ public class ActionResult<T> {
 	public static final int RESULT_ERROR = 204;
 	
 	/**
+	 * 数据不等
+	 */
+	public static final int RESULT_NOT_EQUALS = 205;
+	
+	/**
+	 * 数据重复了
+	 */
+	public static final int RESULT_DATA_REPEAT = 206;
+	
+	/**
 	 * 返回码
 	 */
 	private int resultCode = RESULT_ERROR;
