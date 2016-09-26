@@ -267,13 +267,13 @@
 					</configuration>
 				</plugin>
 				
-				<plugin>
+				<!-- <plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.7</version>
 					<executions>
 						<execution>
 							<id>copy-resources-folder</id>
-							<!-- here the phase you need -->
+							here the phase you need
 							<phase>install</phase>
 							<goals>
 								<goal>copy-resources</goal>
@@ -289,7 +289,7 @@
 								</resources>
 							</configuration>
 						</execution>
-						<!-- <execution>
+						<execution>
 							<id>copy-resources-war</id>
 							here the phase you need
 							<phase>install</phase>
@@ -309,9 +309,9 @@
 									</resource>
 								</resources>
 							</configuration>
-						</execution> -->
+						</execution>
 					</executions>
-				</plugin>
+				</plugin> -->
 			</plugins>
 		</pluginManagement>
 	</build>
