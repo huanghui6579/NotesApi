@@ -53,11 +53,31 @@
 	</select>
 	
 	<select id="selectUserByAccount" resultType="User" parameterType="Map">
-		select * from t_user where (mobile = #{account} or email = #{account}) and password = #{password}
+		select * from t_user where 
+		<choose>
+			<when test="email != null">
+				email = #{email}
+			</when>
+			<otherwise>
+				mobile = #{mobile}
+			</otherwise>
+		</choose>
+		and password = #{password}
 	</select>
 	
 	<select id="selectCount" resultType="int" parameterType="User">
-		select count(*) from t_user where mobile = #{mobile} or email = #{email}
+		select count(*) from t_user where 
+		<choose>
+			<when test="email != null">
+				email = #{email}
+			</when>
+			<when test="username != null">
+				username = #{username}
+			</when>
+			<otherwise>
+				mobile = #{mobile}
+			</otherwise>
+		</choose>
 	</select>
 	
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >

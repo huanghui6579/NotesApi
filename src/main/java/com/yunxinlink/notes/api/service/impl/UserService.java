@@ -80,13 +80,17 @@ public class UserService implements IUserService {
 			String encodePwd = DigestUtils.md5Hex(password);
 			map.put("password", encodePwd);
 			if (StringUtils.isNotBlank(mobile)) {
-				map.put("account", user.getMobile());
+				map.put("mobile", mobile);
 			} else if (StringUtils.isNotBlank(email)) {
-				map.put("account", user.getEmail());
+				map.put("email", user.getEmail());
 			} else {
 				return null;
 			}
-			return userDao.selectUserByAccount(map);
+			User u = userDao.selectUserByAccount(map);
+			if (u != null) {
+				u.setPassword(password);
+			}
+			return u;
 		} catch (Exception e) {
 			logger.error("get user by account error:" + e.getMessage());
 		}
