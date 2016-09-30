@@ -6,7 +6,7 @@
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="User" useGeneratedKeys="true" keyProperty="id">
 	    insert into t_user (username, password, mobile, email, nickname, sid, avatar, gender, createTime, state) values 
-	    (#{username}, #{password}, #{mobile}, #{email}, #{nickname}, #{sid}, #{avatar}, #{gender}, #{createTime}, #{state})
+	    (#{username}, #{password}, #{mobile}, #{email}, #{nickname}, #{sid}, #{avatar}, #{avatarHash}, #{gender}, #{createTime}, #{state})
 	</insert>
 	
 	<delete id="delete" parameterType="User">
@@ -34,14 +34,26 @@
             <if test="avatar != null">
                 , avatar = #{avatar}
             </if>
+            <if test="avatarHash != null">
+                , avatarHash = #{avatarHash}
+            </if>
             <if test="gender != null">
                 , gender = #{gender}
             </if>
             <if test="state != null">
                 , state = #{state}
             </if>
-		</trim>            
-	    where id = #{id}
+		</trim>
+		where 
+		<choose>
+			<when test="id != null">
+				id = #{id}
+			</when>
+			<otherwise>
+				sid = #{sid}
+			</otherwise>
+		</choose>
+	     
 	</update>
 	
 	<select id="selectUsers" resultType="User">
@@ -49,7 +61,15 @@
 	</select>
 	
 	<select id="selectById" resultType="User" parameterType="User">
-		select * from t_user where id = #{id}
+		select * from t_user where 
+		<choose>
+			<when test="id != null">
+				id = #{id}
+			</when>
+			<otherwise>
+				sid = #{sid}
+			</otherwise>
+		</choose>
 	</select>
 	
 	<select id="selectUserByAccount" resultType="User" parameterType="Map">
@@ -76,6 +96,18 @@
 			</when>
 			<otherwise>
 				mobile = #{mobile}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="selectAvatar" resultType="java.lang.String" parameterType="User">
+		select avatar from t_user where 
+		<choose>
+			<when test="id != null">
+				id = #{id}
+			</when>
+			<otherwise>
+				sid = #{sid}
 			</otherwise>
 		</choose>
 	</select>

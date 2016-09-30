@@ -1,21 +1,40 @@
 package com.yunxinlink.notes.api.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.dto.UserDto;
+import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.AccountType;
 import com.yunxinlink.notes.api.model.OpenApi;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IOpenApiService;
 import com.yunxinlink.notes.api.service.IUserService;
+import com.yunxinlink.notes.api.util.SystemUtil;
 
 /**
  * 用户的控制器
@@ -217,5 +236,194 @@ public class UserController extends BaseController {
 		}
 		logger.info("register user result:" + actionResult);
 		return actionResult;
+	}
+	
+	/**
+	 * 修改用户信息
+	 * @param sid 用户的sid
+	 * @param userDto
+	 * @param files
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = {"modify/{sid}"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<Void> modifyUser(@PathVariable String sid, UserDto userDto, @RequestParam(value = "avatarFile", required = false) MultipartFile[] files, HttpServletRequest request) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(sid) || userDto == null || userDto.getUser() == null) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		User user = userDto.getUser();
+		if (files != null && files.length == 1) {	//有头像,且只处理一个头像
+			logger.info("modify user has avatar and will save file");
+			MultipartFile file = files[0];
+			if (!file.isEmpty()) {
+				String originalFilename = file.getOriginalFilename();
+				//文件的后缀
+				String ext = FilenameUtils.getExtension(originalFilename);
+				String avatarFilename = SystemUtil.generateAvatarFilename(sid, ext);
+				File saveFile = getAvatarSaveFile(avatarFilename, sid, ext);
+				boolean saveResult = false;
+				if (saveFile != null) {
+					saveResult = saveFile(file, saveFile);
+				}
+				if (saveResult) {	//保存成功
+					user.setAvatar(avatarFilename);
+					String fileMd5 = user.getAvatarHash();
+					if (StringUtils.isBlank(fileMd5)) {	//参数中没有MD5,则生成
+						fileMd5 = SystemUtil.md5FileHex(saveFile);
+						if (fileMd5 != null) {
+							user.setAvatarHash(fileMd5);
+						}
+					}
+				}
+				logger.info("modify user has avatar and save result:" + saveResult + ", save file is:" + saveFile);
+			} else {
+				logger.info("modify user has avatar but file is empty:" + file);
+			}
+		} else {
+			logger.info("modify user avatar file is null or more than 1");
+		}
+		user.setSid(sid);
+		boolean success = false;
+		try {
+			success = userService.updateUser(user);
+		} catch (Exception e) {
+			actionResult.setResultCode(ActionResult.RESULT_ERROR);
+			actionResult.setReason("服务器错误，请稍后再试");
+			logger.error("modify user save user info error:" + e.getMessage());
+		}
+		if (success) {	//成功
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("保存成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("保存失败");
+		}
+		logger.info("modify user result:" + success + ", user:" + user);
+		return actionResult;
+	}
+	
+	/**
+	 * 获取用户基本信息
+	 * @param sid 用户的sid
+	 * @return
+	 */
+	@RequestMapping(value = {"info/{sid}"})
+	@ResponseBody
+	public ActionResult<User> getUserInfo(@PathVariable String sid) {
+		ActionResult<User> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(sid)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+		} else {
+			User param = new User();
+			param.setSid(sid);
+			User user = userService.getUserById(param);
+			if (user != null) {	//用户可用
+				if (user.checkState()) {
+					user.setPassword(null);
+					user.setAvatar(null);
+					actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+					actionResult.setData(user);
+					actionResult.setReason("获取用户信息成功");
+				} else {
+					actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
+					actionResult.setReason("该用户已被禁用");
+				}
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_FAILED);
+				actionResult.setReason("该用户不存在");
+			}
+		}
+		return actionResult;
+	}
+	
+	/**
+	 * 下载用户头像
+	 * @param sid
+	 * @return
+	 */
+	@RequestMapping("/avatar/{sid}")
+    @ResponseBody
+	public ResponseEntity<InputStreamResource> downloadAvatar(@PathVariable String sid, HttpServletRequest request) {
+		//1、先根据用户sid获取用户头像
+		User param = new User();
+		param.setSid(sid);
+		String avatarName = userService.getUserAvatar(param);
+		boolean hasContent = false;
+		InputStreamResource inputStreamResource = null;
+		HttpHeaders headers = new HttpHeaders();
+		if (!StringUtils.isBlank(avatarName)) {	//用户头像存在
+			File file = getAvatarFile(avatarName);
+			if (file != null && file.exists()) {	//文件存在
+				String filePath = file.getAbsolutePath();
+				String filename = file.getName();
+				String encodeFilename = null;
+				try {
+					encodeFilename = URLEncoder.encode(filename, "UTF-8");
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+					encodeFilename = filename;
+				}
+				ServletContext context = request.getServletContext();
+		        MediaType mediaType = null;
+		        try {
+		            mediaType = MediaType.parseMediaType(context.getMimeType(filePath));
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		        if (mediaType == null) {
+		            mediaType = MediaType.IMAGE_PNG;
+		        }
+		        
+		        headers.setContentType(mediaType);
+		        headers.setContentLength(file.length());
+		        StringBuilder sb = new StringBuilder();
+		        sb.append("attachment;filename=").append(encodeFilename).append(";filename*=UTF-8''").append(encodeFilename);
+		        headers.add(HttpHeaders.CONTENT_DISPOSITION, sb.toString());
+		        try {
+					inputStreamResource = new InputStreamResource(new FileInputStream(file));
+					hasContent = true;
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+		if (hasContent) {
+			httpStatus = HttpStatus.OK;
+		}
+		return new ResponseEntity<InputStreamResource>(inputStreamResource, headers, httpStatus);
+	}
+	
+	/**
+	 * @param avatarPath 头像的相对路径，存在数据库里的
+	 * @param sid
+	 * @param ext 文件的后缀，不带.
+	 * @return
+	 */
+	private File getAvatarSaveFile(String avatarFilename, String sid, String ext) {
+		String rootDir = SystemCache.getUploadPath();
+		File file = new File(rootDir, SystemUtil.generateAvatarFilePath(avatarFilename));
+		File parent = file.getParentFile();
+		if (parent != null && !parent.exists()) {
+			parent.mkdirs();
+		}
+		logger.info("user controller get avatar save file:" + file);
+		return file;
+	}
+	
+	/**
+	 * 根据头像名称获取头像在本地磁盘的物理地址
+	 * @param avatarFilename
+	 * @return
+	 */
+	private File getAvatarFile(String avatarFilename) {
+		String rootDir = SystemCache.getUploadPath();
+		File file = new File(rootDir, SystemUtil.generateAvatarFilePath(avatarFilename));
+		return file;
 	}
 }

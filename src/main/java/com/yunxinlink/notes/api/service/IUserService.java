@@ -57,4 +57,11 @@ public interface IUserService {
 	 * @return
 	 */
 	public boolean hasUser(User user);
+	
+	/**
+	 * 获取用户的头像信息
+	 * @param user
+	 * @return
+	 */
+	public String getUserAvatar(User user);
 }

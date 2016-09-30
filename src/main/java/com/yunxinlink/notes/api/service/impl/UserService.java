@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.yunxinlink.notes.api.dao.UserDao;
 import com.yunxinlink.notes.api.init.IdGenerator;
+import com.yunxinlink.notes.api.model.State;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IUserService;
 
@@ -24,6 +25,7 @@ import com.yunxinlink.notes.api.service.IUserService;
 @Service
 public class UserService implements IUserService {
 	private static final Logger logger = Logger.getLogger(UserService.class);
+	
 	@Autowired
 	private UserDao userDao;
 
@@ -32,6 +34,10 @@ public class UserService implements IUserService {
 		int id = 0;
 		String password = user.getPassword();
 		try {
+			Integer state = user.getState();
+			if (state == null) {
+				state = State.NORMAL;
+			}
 			Date date = new Date();
 			String encodePwd = DigestUtils.md5Hex(password);
 			user.setPassword(encodePwd);
@@ -106,6 +112,17 @@ public class UserService implements IUserService {
 			logger.error("has user error:" + e.getMessage());
 		}
 		return count > 0;
+	}
+
+	@Override
+	public String getUserAvatar(User user) {
+		String avatar = null;
+		try {
+			avatar = userDao.selectAvatar(user);
+		} catch (Exception e) {
+			logger.error("get user avatar error:" + e.getMessage());
+		}
+		return avatar;
 	}
 
 }

@@ -31,4 +31,11 @@ public interface UserDao extends BaseDao<User> {
 	 * @return
 	 */
 	public int selectCount(User user);
+	
+	/**
+	 * 用户用户id或者sid获取用户的头像
+	 * @param user
+	 * @return
+	 */
+	public String selectAvatar(User user);
 }
