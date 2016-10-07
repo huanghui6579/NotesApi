@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.FolderDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="Folder" keyProperty="id">
+	    insert into t_folder (sid, userId, name, isLock, sort, deleteState, createTime, modifyTime, count) values 
+	    (#{sid}, #{userId}, #{name}, #{isLock}, #{sort}, #{deleteState}, #{createTime}, #{modifyTime}, #{count}) 
+	    ON DUPLICATE KEY UPDATE name=values(name), isLock=values(isLock), sort=values(sort), deleteState=values(deleteState), 
+	    modifyTime=values(modifyTime), count=values(count)
+	</insert>
+	
+	<delete id="delete" parameterType="Folder">
+	    delete from t_folder where id = #{id}
+	</delete>
+	
+	<update id="update" parameterType="Folder">
+		update t_folder set 
+		<trim prefixOverrides=",">
+            <if test="name != null">
+                name = #{name}
+            </if>
+            <if test="isLock != null">
+                isLock = #{isLock}
+            </if>
+            <if test="sort != null">
+                sort = #{sort}
+            </if>
+            <if test="deleteState != null">
+                deleteState = #{deleteState}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+            <if test="count != null">
+                count = #{count}
+            </if>
+		</trim>
+	    where 
+	    <choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</update>
+	
+	<select id="selectFolders" resultType="Folder">
+	    select * from t_folder
+	</select>
+	
+	<select id="selectBasic" resultType="Folder">
+	    select userId, name, deleteState, count from t_folder where sid = #{sid}
+	</select>
+	
+	<select id="selectById" resultType="Folder" parameterType="Folder">
+		select * from t_folder 
+		where 
+		<choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_folder limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

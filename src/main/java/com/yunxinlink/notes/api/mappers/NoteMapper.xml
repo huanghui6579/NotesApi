@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.NoteDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="NoteInfo" keyProperty="id">
+	    insert into t_note_info (sid, userId, title, content, remindId, remindTime, folderSid, kind, deleteState, createTime, modifyTime, hash) values 
+	    (#{sid}, #{userId}, #{title}, #{content}, #{remindId}, #{remindTime}, #{folderSid}, #{kind}, #{deleteState}, #{createTime}, #{modifyTime}, #{hash}) 
+	    ON DUPLICATE KEY UPDATE title=values(title), content=values(content), remindTime=values(remindTime), folderId=values(folderId), kind=values(kind),
+	    deleteState=values(deleteState), modifyTime=values(modifyTime), hash=values(hash)
+	</insert>
+	
+	<insert id="addBatch" parameterType="java.util.List" keyProperty="id">
+	    insert into t_note_info (sid, userId, title, content, remindId, remindTime, folderSid, kind, deleteState, createTime, modifyTime, hash) values 
+	    <foreach collection="list" item="item" index="index" separator="," >
+		    (#{item.sid}, #{item.userId}, #{item.title}, #{item.content}, #{item.remindId}, #{item.remindTime}, #{item.folderSid}, #{item.kind}, 
+		    #{item.deleteState}, #{item.createTime}, #{item.modifyTime}, #{item.hash})
+	    </foreach>
+	</insert>
+	
+	<delete id="delete" parameterType="NoteInfo">
+	    delete from t_note_info where id = #{id}
+	</delete>
+	
+	<update id="update" parameterType="NoteInfo">
+		update t_note_info set 
+		<trim prefixOverrides=",">
+            <if test="title != null">
+                title = #{title}
+            </if>
+            <if test="content != null">
+                content = #{content}
+            </if>
+            <if test="remindTime != null">
+                remindTime = #{remindTime}
+            </if>
+            <if test="folderSid != null">
+                folderSid = #{folderSid}
+            </if>
+            <if test="kind != null">
+                kind = #{kind}
+            </if>
+            <if test="deleteState != null">
+                deleteState = #{deleteState}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+            <if test="hash != null">
+                hash = #{hash}
+            </if>
+		</trim>
+	    where 
+	    <choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</update>
+	
+	<select id="selectNoteInfos" resultType="NoteInfo">
+	    select * from t_note_info
+	</select>
+	
+	<select id="selectById" resultType="NoteInfo" parameterType="NoteInfo">
+		select * from t_note_info 
+		where 
+		<choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_note_info limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

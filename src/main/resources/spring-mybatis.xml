@@ -40,7 +40,7 @@
 	<!-- session 工厂 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="apiDataSource" />
-		<!-- <property name="configLocation" value="classpath:sqlMapConfig.xml" /> -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
 		<property name="mapperLocations" value="classpath:com/yunxinlink/notes/api/mappers/*.xml" />
 		<property name="typeAliasesPackage" value="com.yunxinlink.notes.api.model, com.yunxinlink.notes.api.dto" />
 		<property name="typeHandlersPackage" value="com.yunxinlink.notes.api.typehandler" />

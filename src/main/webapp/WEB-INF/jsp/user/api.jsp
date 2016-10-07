@@ -22,7 +22,7 @@
 	</form>
 	<hr>
 	<span>用户信息修改测试</span>
-	<form action="modify/1561164709011390464" method="post" enctype="multipart/form-data">
+	<form action="1561164709011390464/modify" method="post" enctype="multipart/form-data">
 		选择头像：<input type="file" name="avatarFile"><br>
 		昵称：<input type="text" name="user.nickname"><br>
 		<button type="submit">修改</button>

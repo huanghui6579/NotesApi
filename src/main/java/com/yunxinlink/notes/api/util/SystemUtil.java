@@ -12,10 +12,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SystemUtil {
-	private static final Logger logger = Logger.getLogger(SystemUtil.class);
+	private final static Logger logger = LoggerFactory.getLogger(SystemUtil.class);
 	
 	/**
      * 文件保存路根目录

@@ -6,8 +6,8 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 
-public class BaseController {
-	protected static Logger logger = null;
+public abstract class BaseController {
+	protected Logger logger = null;
 	
 	public BaseController() {
 		logger = Logger.getLogger(getClass());

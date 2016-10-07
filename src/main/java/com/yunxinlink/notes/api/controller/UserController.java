@@ -162,6 +162,8 @@ public class UserController extends BaseController {
 				code = ActionResult.RESULT_FAILED;
 				reason = "用户账号或密码错误";
 			} else {
+				u.setAvatar(null);
+				u.setPassword(null);
 				if (!u.checkState()) {	//用户不可用
 					code = ActionResult.RESULT_STATE_DISABLE;
 					reason = "当前账号已被禁用";
@@ -225,6 +227,8 @@ public class UserController extends BaseController {
 		}
 		boolean success = userService.addUser(user);
 		if (success) {
+			user.setAvatar(null);
+			user.setPassword(null);
 			UserDto resultDto = new UserDto();
 			resultDto.setType(AccountType.TYPE_LOCAL);
 			resultDto.setUser(user);
@@ -246,7 +250,7 @@ public class UserController extends BaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"modify/{sid}"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/{sid}/modify"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ActionResult<Void> modifyUser(@PathVariable String sid, UserDto userDto, @RequestParam(value = "avatarFile", required = false) MultipartFile[] files, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
@@ -311,7 +315,7 @@ public class UserController extends BaseController {
 	 * @param sid 用户的sid
 	 * @return
 	 */
-	@RequestMapping(value = {"info/{sid}"})
+	@RequestMapping(value = {"/{sid}/info"})
 	@ResponseBody
 	public ActionResult<User> getUserInfo(@PathVariable String sid) {
 		ActionResult<User> actionResult = new ActionResult<>();
@@ -346,7 +350,7 @@ public class UserController extends BaseController {
 	 * @param sid
 	 * @return
 	 */
-	@RequestMapping("/avatar/{sid}")
+	@RequestMapping("/{sid}/avatar")
     @ResponseBody
 	public ResponseEntity<InputStreamResource> downloadAvatar(@PathVariable String sid, HttpServletRequest request) {
 		//1、先根据用户sid获取用户头像

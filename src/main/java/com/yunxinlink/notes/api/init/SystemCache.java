@@ -4,7 +4,8 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.yunxinlink.notes.api.util.SystemUtil;
@@ -16,7 +17,7 @@ import com.yunxinlink.notes.api.util.SystemUtil;
  */
 @Component
 public class SystemCache {
-	private static final Logger logger = Logger.getLogger(SystemCache.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
 	 * 上传文件的存放路径

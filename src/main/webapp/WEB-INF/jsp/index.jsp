@@ -19,7 +19,7 @@
 		<button type="submit">登录</button>
 	</form>
 	<hr>
-	<form action="device/registerDevice" method="post">
+	<form action="device/activate" method="post">
 		手机厂商：<input type="text" name="brand"><br>
 		手机型号：<input type="text" name="phoneModel"><br>
 		OS：<input type="text" name="os"><br>

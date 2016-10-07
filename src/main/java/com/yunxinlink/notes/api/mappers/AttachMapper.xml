@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.AttachDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="Attach" keyProperty="id">
+	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType) values 
+	    (#{sid}, #{noteSid}, #{filename}, #{type}, #{localPath}, #{description}, #{deleteState}, #{createTime}, #{modifyTime}, #{size}, #{mimeType}) 
+	    ON DUPLICATE KEY UPDATE filename=values(filename), localPath=values(localPath), description=values(description), deleteState=values(deleteState), 
+	    modifyTime=values(modifyTime), size=values(size)
+	</insert>
+	
+	<insert id="addBatch" parameterType="java.util.List" keyProperty="id">
+	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType) values 
+	    <foreach collection="list" item="item" index="index" separator="," >
+		    (#{item.sid}, #{item.noteSid}, #{item.filename}, #{item.type}, #{item.localPath}, #{item.description}, #{item.deleteState}, #{item.createTime}, 
+		    #{item.modifyTime}, #{item.size}, #{item.mimeType})
+	    </foreach>
+	</insert>
+	
+	<delete id="delete" parameterType="Attach">
+	    delete from t_attach where id = #{id}
+	</delete>
+	
+	<delete id="deleteByNote" parameterType="int">
+	    delete from t_attach where noteId = #{noteId}
+	</delete>
+	
+	<delete id="deleteBatch">
+	    delete from t_attach where id in 
+	    <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</delete>
+	
+	<update id="update" parameterType="Attach">
+		update t_attach set 
+		<trim prefixOverrides=",">
+            <if test="filename != null">
+                filename = #{filename}
+            </if>
+            <if test="localPath != null">
+                localPath = #{localPath}
+            </if>
+            <if test="description != null">
+                description = #{description}
+            </if>
+            <if test="deleteState != null">
+                deleteState = #{deleteState}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+            <if test="size != null">
+                size = #{size}
+            </if>
+		</trim>
+	    where 
+	    <choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</update>
+	
+	<select id="selectAttachs" resultType="Attach">
+	    select * from t_attach
+	</select>
+	
+	<select id="selectById" resultType="Attach" parameterType="Attach">
+		select * from t_attach 
+		where 
+		<choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</select>
+	
+	<select id="selectByNote" resultType="Attach" parameterType="int">
+		select * from t_attach where noteId = #{noteId}
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_attach limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

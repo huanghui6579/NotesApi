@@ -4,7 +4,8 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.yunxinlink.notes.api.util.CustomUUID;
@@ -17,7 +18,7 @@ import com.yunxinlink.notes.api.util.SystemUtil;
  */
 @Component
 public class IdGenerator {
-	private static final Logger logger = Logger.getLogger(IdGenerator.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private static CustomUUID customUUID = null;
 	

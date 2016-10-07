@@ -74,11 +74,6 @@ public class User implements Serializable {
      * 头像的hash值
      */
     private String avatarHash;
-    
-    /**
-     * 同步的状态
-     */
-    private Integer syncState;
 	
 	public Integer getId() {
 		return id;
@@ -176,14 +171,6 @@ public class User implements Serializable {
 		this.avatarHash = avatarHash;
 	}
 
-	public Integer getSyncState() {
-		return syncState;
-	}
-
-	public void setSyncState(Integer syncState) {
-		this.syncState = syncState;
-	}
-
 	/**
 	 * 检查该用户是否可用
 	 * @return
@@ -197,6 +184,6 @@ public class User implements Serializable {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", nickname=" + nickname
 				+ ", mobile=" + mobile + ", email=" + email + ", sid=" + sid + ", avatar=" + avatar + ", gender="
 				+ gender + ", createTime=" + createTime + ", state=" + state + ", avatarHash=" + avatarHash
-				+ ", syncState=" + syncState + "]";
+				+ "]";
 	}
 }

@@ -2,7 +2,8 @@ package com.yunxinlink.notes.api.service.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import com.yunxinlink.notes.api.service.IDeviceInfoService;
 @Service
 public class DeviceInfoService implements IDeviceInfoService {
 	
-	private static final Logger logger = Logger.getLogger(DeviceInfoService.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
 	private DeviceInfoDao deviceInfoDao;

@@ -2,7 +2,10 @@ package com.yunxinlink.notes.api.controller;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,10 +31,11 @@ public class DeviceController extends BaseController {
 	 * @param deviceInfo
 	 * @return
 	 */
-	@RequestMapping(value = {"registerDevice"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"activate"}, method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<Void> addDevice(DeviceInfo deviceInfo) {
+	public ActionResult<Void> addDevice(DeviceInfo deviceInfo, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
+		getClientInfo(request);
 		if (deviceInfo == null) {
 			actionResult.setReason("添加失败，设备信息为空");
 			logger.info("device info is null");
@@ -53,5 +57,18 @@ public class DeviceController extends BaseController {
 			}
 		}
 		return actionResult;
+	}
+	
+	private void getClientInfo(HttpServletRequest request) {
+		String agent = request.getHeader(HttpHeaders.USER_AGENT);
+		logger.info("agent:" + agent);
+//		StringTokenizer st = new StringTokenizer(agent, ";");   
+//		st.nextToken();
+//		//得到用户的浏览器名   
+//		String userbrowser = st.nextToken(); 
+//		logger.info("userbrowser:" + userbrowser);
+//		//得到用户的操作系统名   
+//		String useros = st.nextToken();
+//		logger.info("useros:" + useros);
 	}
 }

@@ -7,7 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ import com.yunxinlink.notes.api.service.IUserService;
  */
 @Service
 public class UserService implements IUserService {
-	private static final Logger logger = Logger.getLogger(UserService.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
 	private UserDao userDao;

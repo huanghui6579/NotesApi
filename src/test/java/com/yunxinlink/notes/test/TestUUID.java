@@ -2,6 +2,8 @@ package com.yunxinlink.notes.test;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
@@ -36,6 +38,19 @@ public class TestUUID {
 		String md5 = getMD5(password);
 		logger.info("ecode:" + md5);
 	}
+	
+	@Test
+	public void testFilename() {
+		String encodeFilename = "47447545778754.png";
+		String contentDesc = "attachment;filename=" + encodeFilename + ";filename*=UTF-8''" + encodeFilename;
+//		String contentDesc = "aaa2223bb";
+		logger.info("contentDesc:" + contentDesc);
+		String regex = "(filename=\\S+);";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(contentDesc);
+		logger.info("matches:" + matcher.find());
+		logger.info("matches:" + matcher.group(1));
+	}
 
 	/**
 	 * 对字符串md5加密
@@ -58,3 +73,4 @@ public class TestUUID {
 	    return null;
 	}
 }
+

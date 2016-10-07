@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.DetailListDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="DetailList" keyProperty="id">
+	    insert into t_detail_list (sid, noteSid, title, sort, checked, deleteState, createTime, modifyTime, hash) values 
+	    (#{sid}, #{noteSid}, #{title}, #{sort}, #{checked}, #{deleteState}, #{createTime}, #{modifyTime}, #{hash}) 
+	    ON DUPLICATE KEY UPDATE title=values(title), sort=values(sort), checked=values(checked), deleteState=values(deleteState), 
+	    modifyTime=values(modifyTime), hash=values(hash)
+	</insert>
+	
+	<insert id="addBatch" parameterType="java.util.List" keyProperty="id">
+		insert into t_detail_list (sid, noteSid, title, sort, checked, deleteState, createTime, modifyTime, hash) values 
+		<foreach collection="list" item="item" index="index" separator=",">
+		    (#{item.sid}, #{item.noteSid}, #{item.title}, #{item.sort}, #{item.checked}, #{item.deleteState}, #{item.createTime}, #{item.modifyTime}, #{item.hash})
+		</foreach>
+	</insert>
+	
+	<delete id="delete" parameterType="DetailList">
+	    delete from t_detail_list where id = #{id}
+	</delete>
+	
+	<delete id="deleteByNote" parameterType="int">
+	    delete from t_detail_list where noteId = #{noteId}
+	</delete>
+	
+	<delete id="deleteBatch">
+	    delete from t_detail_list where id in 
+	    <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</delete>
+	
+	<update id="update" parameterType="DetailList">
+		update t_detail_list set 
+		<trim prefixOverrides=",">
+            <if test="title != null">
+                title = #{title}
+            </if>
+            <if test="sort != null">
+                sort = #{sort}
+            </if>
+            <if test="checked != null">
+                checked = #{checked}
+            </if>
+            <if test="deleteState != null">
+                deleteState = #{deleteState}
+            </if>
+            <if test="modifyTime != null">
+                modifyTime = #{modifyTime}
+            </if>
+            <if test="hash != null">
+                hash = #{hash}
+            </if>
+		</trim>
+	    where 
+	    <choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</update>
+	
+	<select id="selectDetailLists" resultType="DetailList">
+	    select * from t_detail_list
+	</select>
+	
+	<select id="selectById" resultType="DetailList" parameterType="DetailList">
+		select * from t_detail_list 
+		where 
+		<choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</select>
+	
+	<select id="selectByNote" resultType="DetailList" parameterType="int">
+		select * from t_detail_list where noteId = #{noteId}
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_detail_list limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>
