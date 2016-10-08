@@ -7,7 +7,7 @@
 	<insert id="add" parameterType="NoteInfo" keyProperty="id">
 	    insert into t_note_info (sid, userId, title, content, remindId, remindTime, folderSid, kind, deleteState, createTime, modifyTime, hash) values 
 	    (#{sid}, #{userId}, #{title}, #{content}, #{remindId}, #{remindTime}, #{folderSid}, #{kind}, #{deleteState}, #{createTime}, #{modifyTime}, #{hash}) 
-	    ON DUPLICATE KEY UPDATE title=values(title), content=values(content), remindTime=values(remindTime), folderId=values(folderId), kind=values(kind),
+	    ON DUPLICATE KEY UPDATE title=values(title), content=values(content), remindTime=values(remindTime), folderSid=values(folderSid), kind=values(kind),
 	    deleteState=values(deleteState), modifyTime=values(modifyTime), hash=values(hash)
 	</insert>
 	

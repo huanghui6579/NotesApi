@@ -176,7 +176,7 @@ public class User implements Serializable {
 	 * @return
 	 */
 	public boolean checkState() {
-		return State.NORMAL == state;
+		return state == null || State.NORMAL == state;
 	}
 
 	@Override

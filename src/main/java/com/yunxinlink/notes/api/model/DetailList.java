@@ -4,12 +4,16 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * 清单实体
  * @author huanghui1
  * @update 2016/7/28 20:25
  * @version: 0.0.1
  */
+@JsonInclude(Include.NON_NULL)
 public class DetailList implements Serializable, Comparator<DetailList> {
 	private static final long serialVersionUID = 8474621238576264781L;
 

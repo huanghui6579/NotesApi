@@ -6,12 +6,16 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * 笔记的分类文件夹
  * @author huanghui1
  * @update 2016/2/24 18:23
  * @version: 0.0.1
  */
+@JsonInclude(Include.NON_NULL)
 public class Folder implements Cloneable, Comparator<Folder>, Serializable {
 	private static final long serialVersionUID = 2650283428254685146L;
 

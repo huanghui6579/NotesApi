@@ -39,6 +39,13 @@ public interface IFolderService {
 	public Folder getById(Folder folder);
 	
 	/**
+	 * 根据sid获取笔记本的基本信息
+	 * @param sid
+	 * @return
+	 */
+	public Folder getBasicInfo(String sid);
+	
+	/**
 	 * 根据用户id查询该用户下的笔记
 	 * @param userId
 	 * @return

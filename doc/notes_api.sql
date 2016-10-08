@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : MySQL
-Source Server Version : 50621
+Source Server         : mysql
+Source Server Version : 50625
 Source Host           : localhost:3306
 Source Database       : notes_api
 
 Target Server Type    : MYSQL
-Target Server Version : 50621
+Target Server Version : 50625
 File Encoding         : 65001
 
-Date: 2016-10-08 00:04:31
+Date: 2016-10-08 19:14:05
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -99,7 +99,7 @@ CREATE TABLE `t_folder` (
 -- ----------------------------
 DROP TABLE IF EXISTS `t_note_info`;
 CREATE TABLE `t_note_info` (
-  `id` int(11) NOT NULL COMMENT '主键',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `sid` varchar(255) NOT NULL COMMENT '实际唯一标识',
   `userId` int(11) DEFAULT NULL COMMENT '关联用户的id',
   `title` varchar(255) DEFAULT NULL COMMENT '笔记标题',
@@ -158,14 +158,14 @@ CREATE TABLE `t_user` (
   UNIQUE KEY `mobile` (`mobile`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `sid` (`sid`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 DROP TRIGGER IF EXISTS `tri_trash_folder`;
 DELIMITER ;;
 CREATE TRIGGER `tri_trash_folder` AFTER UPDATE ON `t_folder` FOR EACH ROW BEGIN
 	IF (OLD.deleteState IS NULL OR OLD.deleteState != 1) AND NEW.deleteState = 1 THEN
-		UPDATE t_note_info SET deleteState = 1, modify_time = NEW.modifyTime WHERE folderId = NEW.id;
+		UPDATE t_note_info SET deleteState = 1, modify_time = NEW.modifyTime WHERE folderSid = NEW.id;
 	ELSEIF (OLD.deleteState IS NULL AND OLD.deleteState != 0) AND NEW.deleteState = 0 THEN
-		UPDATE t_note_info SET deleteState = 0, modify_time = NEW.modifyTime WHERE folderId = NEW.id;
+		UPDATE t_note_info SET deleteState = 0, modify_time = NEW.modifyTime WHERE folderSid = NEW.id;
 	END IF;
 END
 ;;
@@ -173,8 +173,8 @@ DELIMITER ;
 DROP TRIGGER IF EXISTS `tri_insert_note`;
 DELIMITER ;;
 CREATE TRIGGER `tri_insert_note` AFTER INSERT ON `t_note_info` FOR EACH ROW BEGIN  
-         IF NEW.folderId IS NOT NULL or NEW.folderId != 0 THEN 
-                   UPDATE t_folder SET modifyTime = NEW.createTime, count = count + 1 WHERE id = NEW.folderId;
+         IF NEW.folderSid IS NOT NULL or NEW.folderSid != 0 THEN 
+                   UPDATE t_folder SET modifyTime = NEW.createTime, count = count + 1 WHERE id = NEW.folderSid;
          END IF;
 END
 ;;
@@ -182,12 +182,12 @@ DELIMITER ;
 DROP TRIGGER IF EXISTS `tri_update_folder`;
 DELIMITER ;;
 CREATE TRIGGER `tri_update_folder` AFTER UPDATE ON `t_note_info` FOR EACH ROW BEGIN 
-	IF NEW.folderId IS NOT NULL AND OLD.deleteState != 0 AND NEW.deleteState = 0 THEN
-		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count + 1 WHERE id = NEW.folderId;
-	ELSEIF NEW.folderId IS NOT NULL AND OLD.deleteState = 0 AND NEW.deleteState != 0 THEN
-		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count - 1 WHERE id = NEW.folderId;
+	IF NEW.folderSid IS NOT NULL AND OLD.deleteState != 0 AND NEW.deleteState = 0 THEN
+		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count + 1 WHERE id = NEW.folderSid;
+	ELSEIF NEW.folderSid IS NOT NULL AND OLD.deleteState = 0 AND NEW.deleteState != 0 THEN
+		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count - 1 WHERE id = NEW.folderSid;
 	ELSE 
-		UPDATE t_folder SET modifyTime = NEW.modifyTime WHERE id = NEW.folderId;
+		UPDATE t_folder SET modifyTime = NEW.modifyTime WHERE id = NEW.folderSid;
 	END IF;
 END
 ;;

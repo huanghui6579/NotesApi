@@ -234,6 +234,7 @@ public class UserController extends BaseController {
 			resultDto.setUser(user);
 			actionResult.setData(resultDto);
 			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("注册成功");
 		} else {
 			actionResult.setResultCode(ActionResult.RESULT_FAILED);
 			actionResult.setReason("注册失败，请稍后再试");

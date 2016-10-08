@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -14,6 +15,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SystemUtil {
 	private final static Logger logger = LoggerFactory.getLogger(SystemUtil.class);
@@ -182,4 +189,53 @@ public class SystemUtil {
 		}
 		return md5;
     }
+    
+    private static JsonFactory factory;
+	private static ObjectMapper mapper;
+	
+	static {
+		getFactory();
+		getMapper();
+	}
+	
+	public static JsonFactory getFactory() {
+		if(factory == null) {
+			factory = new JsonFactory();
+		}
+		return factory;
+	}
+	
+	public static ObjectMapper getMapper() {
+		if(mapper == null) {
+			mapper = new ObjectMapper();
+		}
+		return mapper;
+	}
+	
+	public static <T> String obj2json(T obj) {
+		StringWriter out = new StringWriter();
+		JsonGenerator generator = null;
+		try {
+			generator = factory.createGenerator(out);
+			mapper.writeValue(generator, obj);
+			return out.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(generator != null) {
+				try {
+					generator.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static <T> T json2obj(String json, Class<T> clazz) throws JsonParseException, JsonMappingException, IOException {
+		T t = mapper.readValue(json, clazz);
+		return t;
+	}
+
 }

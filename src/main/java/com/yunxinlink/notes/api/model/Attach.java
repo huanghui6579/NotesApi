@@ -3,12 +3,16 @@ package com.yunxinlink.notes.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * 附件
  * @author huanghui1
  * @update 2016/7/6 16:01
  * @version: 0.0.1
  */
+@JsonInclude(Include.NON_NULL)
 public class Attach implements Serializable {
 	private static final long serialVersionUID = 1293179669775569141L;
 	/**
@@ -227,7 +231,7 @@ public class Attach implements Serializable {
      * @return
      */
     public boolean isImage() {
-        return type == IMAGE || type == PAINT;
+        return type != null && (type == IMAGE || type == PAINT);
     }
 
 	@Override

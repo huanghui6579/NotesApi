@@ -66,11 +66,22 @@ public class FolderService implements IFolderService {
 		}
 		return result;
 	}
-
+	
 	@Override
 	public List<Folder> getFolders(int userId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Folder getBasicInfo(String sid) {
+		Folder result = null;
+		try {
+			result = folderDao.selectBasic(sid);
+		} catch (Exception e) {
+			logger.error("select folder basic info by sid error:" + e.getMessage());
+		}
+		return result;
 	}
 
 }

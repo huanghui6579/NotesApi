@@ -6,11 +6,15 @@ import java.util.List;
 
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * 笔记的基本信息
  * @author tiger
  *
  */
+@JsonInclude(Include.NON_NULL)
 public class NoteInfo implements Serializable {
 	private static final long serialVersionUID = 5242858406072116301L;
 	
@@ -65,8 +69,9 @@ public class NoteInfo implements Serializable {
 
     /**
      * 删除的状态
+     * @see DeleteState
      */
-    private Integer deleteState = DeleteState.DELETE_NONE;
+    private Integer deleteState;
 
     /**
      * 创建时间

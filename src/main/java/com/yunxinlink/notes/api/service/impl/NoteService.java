@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,30 +48,15 @@ public class NoteService implements INoteService {
 	public boolean addNote(NoteDto noteDto) {
 		int rowCount = 0;
 		Folder folder = noteDto.getFolder();
-		boolean hasFolder = true;
-		if (folder == null || folder.isDefaultFolder()) {	//这一组笔记没有指定所属笔记本，则为“所有”笔记本
-			hasFolder = false;
-		}
-		Folder localFolder = null;
-		boolean createFolder = false;
-		if (hasFolder) {	//有指定笔记本
-			//先检查笔记本是否存在
-			localFolder = folderDao.selectBasic(folder.getSid());
-			//是否需要创建笔记本
-			createFolder = localFolder == null;
-		}
-		String folderSid = null;
+		String folderSid = folder.getSid();
 		Date date = new Date();
-		if (createFolder) {	//需要创建笔记本
+		if (!folder.isDefaultFolder()) {	//需要创建笔记本
 			folder.setCreateTime(date);
 			folder.setModifyTime(date);
 			folderDao.add(folder);
-			folderSid = folder.getSid();
 			logger.info("add note but add folder first folder sid is:" + folderSid);
 		} else {
 			//设置folder的id
-			folderSid = localFolder.getSid();
-			folder.setId(localFolder.getId());
 			logger.info("add note and not need create folder set folder sid:" + folderSid);
 		}
 		//添加笔记
@@ -88,9 +75,26 @@ public class NoteService implements INoteService {
 					attachNotes.addAll(info.getAttachs());
 				}
 			}
+			
+			Date createTime = info.getCreateTime();
+			if (createTime == null) {
+				createTime = date;
+				info.setCreateTime(createTime);
+			}
+			
+			Date modifyTime = info.getModifyTime();
+			if (modifyTime == null) {
+				modifyTime = date;
+				info.setModifyTime(modifyTime);
+			}
+			
 			info.setFolderSid(folderSid);
 			//该用户的id在controller层已设置好
 			info.setUserId(folder.getUserId());
+			if (StringUtils.isEmpty(info.getHash())) {
+				String hash = DigestUtils.md5Hex(info.getContent());
+				info.setHash(hash);
+			}
 		}
 		if (list.size() == 1) {	//只有一个笔记
 			NoteInfo info = list.get(0);

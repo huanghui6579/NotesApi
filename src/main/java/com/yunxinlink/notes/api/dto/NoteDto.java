@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
@@ -13,6 +15,7 @@ import com.yunxinlink.notes.api.model.NoteInfo;
  * @author tiger
  * @date 2016年10月6日 上午11:20:55
  */
+@JsonInclude(Include.NON_NULL)
 public class NoteDto implements Serializable {
 	private static final long serialVersionUID = -6445076440185638728L;
 
@@ -59,7 +62,7 @@ public class NoteDto implements Serializable {
 	 * 是否可用
 	 * @return
 	 */
-	public boolean isEmpty() {
+	public boolean checkEmpty() {
 		return StringUtils.isEmpty(userSid) || noteInfos == null || noteInfos.size() == 0;
 	}
 
