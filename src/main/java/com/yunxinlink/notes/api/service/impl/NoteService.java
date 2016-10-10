@@ -17,6 +17,7 @@ import com.yunxinlink.notes.api.dao.DetailListDao;
 import com.yunxinlink.notes.api.dao.FolderDao;
 import com.yunxinlink.notes.api.dao.NoteDao;
 import com.yunxinlink.notes.api.dto.NoteDto;
+import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Attach;
 import com.yunxinlink.notes.api.model.DetailList;
 import com.yunxinlink.notes.api.model.Folder;
@@ -50,14 +51,14 @@ public class NoteService implements INoteService {
 		Folder folder = noteDto.getFolder();
 		String folderSid = folder.getSid();
 		Date date = new Date();
-		if (!folder.isDefaultFolder()) {	//需要创建笔记本
+		if (StringUtils.isNoneBlank(folderSid)) {	//需要创建或者更新笔记
+			logger.info("add note and update folder sid:" + folderSid);
 			folder.setCreateTime(date);
-			folder.setModifyTime(date);
-			folderDao.add(folder);
-			logger.info("add note but add folder first folder sid is:" + folderSid);
-		} else {
-			//设置folder的id
-			logger.info("add note and not need create folder set folder sid:" + folderSid);
+			if (folder.getModifyTime() == null) {
+				folder.setModifyTime(date);
+			}
+			//在sql语句里进行了添加或者更新操作
+			rowCount = folderDao.add(folder);
 		}
 		//添加笔记
 		List<NoteInfo> list = noteDto.getNoteInfos();
@@ -71,9 +72,9 @@ public class NoteService implements INoteService {
 				if (!CollectionUtils.isEmpty(detailLists)) {
 					detailNotes.addAll(detailLists);
 				}
-				if (info.hasAttachs()) {
-					attachNotes.addAll(info.getAttachs());
-				}
+			}
+			if (info.hasAttachs()) {
+				attachNotes.addAll(info.getAttachs());
 			}
 			
 			Date createTime = info.getCreateTime();
@@ -115,7 +116,7 @@ public class NoteService implements INoteService {
 		
 		//如果有附件，则添加附件信息
 		if (!CollectionUtils.isEmpty(attachNotes)) {
-			int size = detailNotes.size();
+			int size = attachNotes.size();
 			logger.info("add note and has attach notes will insert size:" + size);
 			if (size == 1) {
 				rowCount = attachDao.add(attachNotes.get(0));
@@ -157,6 +158,21 @@ public class NoteService implements INoteService {
 			logger.error("get note by id error:" + e.getMessage());
 		}
 		return result;
+	}
+
+	@Override
+	public List<NoteInfo> getNoteInfos(NoteDto noteDto) {
+		Folder folder = noteDto.getFolder();
+		if (folder == null || folder.getUserId() == null) {
+			return null;
+		}
+		
+		PageInfo pageInfo = noteDto.convert2PageInfo();
+		
+		int offset = pageInfo.getPageOffset();
+		noteDto.setOffset(offset);
+		noteDto.setLimit(pageInfo.getPageSize());
+		return noteDao.selectNoteInfos(noteDto);
 	}
 
 }

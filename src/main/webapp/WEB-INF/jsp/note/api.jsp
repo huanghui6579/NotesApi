@@ -9,7 +9,7 @@
 </head>
 <body>
 	<span>添加笔记</span>
-	<form action="create" method="post">
+	<form action="up" method="post">
 		用户sid：<input type="text" name="userSid"><br>
 		笔记sid：<input type="text" name="noteInfos[0].sid"><br>
 		笔记内容：<textarea name="noteInfos[0].content"></textarea><br>
@@ -26,6 +26,18 @@
 			<option value="3">彻底删除</option>
 		</select><br>
 		<button type="button">添加</button>
+	</form>
+	
+	<hr>
+	获取笔记本列表
+	<form action="1569298489463013383/folders" method="get">
+		<button type="submit">获取笔记本列表</button>
+	</form>
+	
+	<hr>
+	获取笔记列表
+	<form action="1569298489463013383/list" method="get">
+		<button type="submit">获取笔记列表</button>
 	</form>
 </body>
 </html>

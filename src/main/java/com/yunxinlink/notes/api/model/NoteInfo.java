@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * @author tiger
  *
  */
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class NoteInfo implements Serializable {
 	private static final long serialVersionUID = 5242858406072116301L;
 	

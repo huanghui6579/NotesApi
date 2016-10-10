@@ -1,12 +1,22 @@
 package com.yunxinlink.notes.test;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +38,7 @@ public class NoteControllerTest {
 	
 	@Test
 	public void testCreateNote() {
-//		CloseableHttpClient httpClient = HttpClients.createDefault();
+		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
 		User user = new User();
 		user.setSid("1569298489463013383");
@@ -79,6 +89,40 @@ public class NoteControllerTest {
 		
 		String json = SystemUtil.obj2json(noteDto);
 		logger.info("json:" + json);
+		
+		String url = BASE_URL + "create";
+		// 创建httppost    
+        HttpPost httppost = new HttpPost(url);
+        try {
+			StringEntity entity = new StringEntity(json);
+			entity.setContentEncoding("UTF-8");
+			entity.setContentType("application/json");
+			httppost.setEntity(entity);
+			
+			HttpResponse response = httpClient.execute(httppost);
+			if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				HttpEntity httpEntity = response.getEntity();
+				String result = EntityUtils.toString(httpEntity);
+				logger.info("result:" + result);
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (httpClient != null) {  
+                try {  
+                	httpClient.close();  
+                } catch (IOException e) {  
+                    e.printStackTrace();  
+                }  
+            }  
+		}
 	}
 
 }

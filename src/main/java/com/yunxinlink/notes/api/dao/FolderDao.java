@@ -1,5 +1,8 @@
 package com.yunxinlink.notes.api.dao;
 
+import java.util.List;
+
+import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.model.Folder;
 
 /**
@@ -14,4 +17,11 @@ public interface FolderDao extends BaseDao<Folder> {
 	 * @return
 	 */
 	public Folder selectBasic(String sid);
+	
+	/**
+	 * 查询笔记本列表
+	 * @param folderDto
+	 * @return
+	 */
+	public List<Folder> selectFolders(FolderDto folderDto);
 }

@@ -8,7 +8,7 @@
 	    insert into t_folder (sid, userId, name, isLock, sort, deleteState, createTime, modifyTime, count) values 
 	    (#{sid}, #{userId}, #{name}, #{isLock}, #{sort}, #{deleteState}, #{createTime}, #{modifyTime}, #{count}) 
 	    ON DUPLICATE KEY UPDATE name=values(name), isLock=values(isLock), sort=values(sort), deleteState=values(deleteState), 
-	    modifyTime=values(modifyTime), count=values(count)
+	    modifyTime=values(modifyTime)
 	</insert>
 	
 	<delete id="delete" parameterType="Folder">
@@ -48,8 +48,16 @@
 	    </choose>
 	</update>
 	
-	<select id="selectFolders" resultType="Folder">
-	    select * from t_folder
+	<select id="selectFolders" resultType="Folder" parameterType="FolderDto">
+	    select * from t_folder 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="folder != null and folder.userId != null">
+	    		and userId = #{folder.userId}
+	    	</if>
+	    </trim>
+	    <if test="offset != null and limit !=null">
+             limit #{offset},#{limit}
+        </if>
 	</select>
 	
 	<select id="selectBasic" resultType="Folder">

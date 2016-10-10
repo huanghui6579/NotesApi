@@ -1,5 +1,7 @@
 package com.yunxinlink.notes.api.service;
 
+import java.util.List;
+
 import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
@@ -37,4 +39,11 @@ public interface INoteService {
 	 * @return
 	 */
 	public NoteInfo getById(NoteInfo noteInfo);
+	
+	/**
+	 * 获取用户的笔记，每次加载20条
+	 * @param noteDto
+	 * @return
+	 */
+	public List<NoteInfo> getNoteInfos(NoteDto noteDto);
 }

@@ -5,18 +5,20 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="Attach" keyProperty="id">
-	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType) values 
-	    (#{sid}, #{noteSid}, #{filename}, #{type}, #{localPath}, #{description}, #{deleteState}, #{createTime}, #{modifyTime}, #{size}, #{mimeType}) 
+	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType, hash) values 
+	    (#{sid}, #{noteSid}, #{filename}, #{type}, #{localPath}, #{description}, #{deleteState}, #{createTime}, #{modifyTime}, #{size}, #{mimeType}, #{hash}) 
 	    ON DUPLICATE KEY UPDATE filename=values(filename), localPath=values(localPath), description=values(description), deleteState=values(deleteState), 
-	    modifyTime=values(modifyTime), size=values(size)
+	    modifyTime=values(modifyTime), size=values(size), hash=values(hash)
 	</insert>
 	
 	<insert id="addBatch" parameterType="java.util.List" keyProperty="id">
-	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType) values 
+	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType, hash) values 
 	    <foreach collection="list" item="item" index="index" separator="," >
 		    (#{item.sid}, #{item.noteSid}, #{item.filename}, #{item.type}, #{item.localPath}, #{item.description}, #{item.deleteState}, #{item.createTime}, 
-		    #{item.modifyTime}, #{item.size}, #{item.mimeType})
+		    #{item.modifyTime}, #{item.size}, #{item.mimeType}, #{hash})
 	    </foreach>
+	    ON DUPLICATE KEY UPDATE filename=values(filename), localPath=values(localPath), description=values(description), deleteState=values(deleteState), 
+	    modifyTime=values(modifyTime), size=values(size), hash=values(hash)
 	</insert>
 	
 	<delete id="delete" parameterType="Attach">
@@ -54,6 +56,9 @@
             </if>
             <if test="size != null">
                 size = #{size}
+            </if>
+            <if test="hash != null">
+                hash = #{hash}
             </if>
 		</trim>
 	    where 

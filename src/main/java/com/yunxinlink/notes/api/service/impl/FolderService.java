@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yunxinlink.notes.api.dao.FolderDao;
+import com.yunxinlink.notes.api.dto.FolderDto;
+import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.service.IFolderService;
 
@@ -68,12 +70,6 @@ public class FolderService implements IFolderService {
 	}
 	
 	@Override
-	public List<Folder> getFolders(int userId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Folder getBasicInfo(String sid) {
 		Folder result = null;
 		try {
@@ -82,6 +78,16 @@ public class FolderService implements IFolderService {
 			logger.error("select folder basic info by sid error:" + e.getMessage());
 		}
 		return result;
+	}
+
+	@Override
+	public List<Folder> getFolders(FolderDto folderDto) {
+		PageInfo pageInfo = folderDto.convert2PageInfo();
+		
+		int offset = pageInfo.getPageOffset();
+		folderDto.setOffset(offset);
+		folderDto.setLimit(pageInfo.getPageSize());
+		return folderDao.selectFolders(folderDto);
 	}
 
 }

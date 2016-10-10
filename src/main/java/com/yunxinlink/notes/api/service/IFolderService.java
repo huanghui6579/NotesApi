@@ -2,6 +2,7 @@ package com.yunxinlink.notes.api.service;
 
 import java.util.List;
 
+import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.model.Folder;
 
 /**
@@ -47,8 +48,8 @@ public interface IFolderService {
 	
 	/**
 	 * 根据用户id查询该用户下的笔记
-	 * @param userId
+	 * @param folderDto
 	 * @return
 	 */
-	public List<Folder> getFolders(int userId);
+	public List<Folder> getFolders(FolderDto folderDto);
 }

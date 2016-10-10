@@ -2,6 +2,7 @@ package com.yunxinlink.notes.api.dao;
 
 import java.util.List;
 
+import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
 /**
@@ -16,4 +17,11 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	 * @return
 	 */
 	public int addBatch(List<NoteInfo> list);
+	
+	/**
+	 * 获取用户的笔记
+	 * @param noteDto 参数
+	 * @return
+	 */
+	public List<NoteInfo> selectNoteInfos(NoteDto noteDto);
 }

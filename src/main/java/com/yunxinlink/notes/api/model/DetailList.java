@@ -60,7 +60,7 @@ public class DetailList implements Serializable, Comparator<DetailList> {
     /**
      * 删除的状态
      */
-    private Integer deleteState = DeleteState.DELETE_NONE;
+    private Integer deleteState;
 
     /**
      * 该清单的hash，主要用来检测更新

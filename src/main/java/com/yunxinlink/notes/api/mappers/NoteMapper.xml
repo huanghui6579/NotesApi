@@ -2,6 +2,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yunxinlink.notes.api.dao.NoteDao">
+
+	<!-- 定义数据库字段与实体对象的映射关系  -->  
+	<resultMap type="Attach" id="attachResultMap">
+		<id column="a_id" property="id" />
+    	<result column="a_sid" property="sid" />
+    	<!-- <result column="a_noteSid" property="noteSid" /> -->
+    	<result column="filename" property="filename" />
+    	<result column="type" property="type" />
+    	<!-- <result column="localPath" property="localPath" /> -->
+    	<result column="description" property="description" />
+    	<result column="a_deleteState" property="deleteState" />
+    	<result column="a_createTime" property="createTime" />
+    	<result column="a_modifyTime" property="modifyTime" />
+    	<!-- <result column="size" property="size" /> -->
+    	<result column="mimeType" property="mimeType" />
+    	<result column="a_hash" property="hash" />
+	</resultMap>
+	
+	<resultMap type="DetailList" id="detailListResultMap">
+		<id column="d_id" property="id" />
+    	<result column="d_sid" property="sid" />
+    	<!-- <result column="d_noteSid" property="noteSid" /> -->
+    	<result column="d_title" property="title" />
+    	<result column="sort" property="sort" />
+    	<result column="checked" property="checked" />
+    	<result column="d_deleteState" property="deleteState" />
+    	<result column="d_createTime" property="createTime" />
+    	<result column="d_modifyTime" property="modifyTime" />
+    	<result column="d_hash" property="hash" />
+	</resultMap>
+	
+    <resultMap type="NoteInfo" id="noteInfoResultMap">
+    	<id column="id" property="id" />
+    	<result column="sid" property="sid" />
+    	<result column="userId" property="userId" />
+    	<result column="title" property="title" />
+    	<result column="content" property="content" />
+    	<result column="remindId" property="remindId" />
+    	<result column="remindTime" property="remindTime" />
+    	<result column="folderSid" property="folderSid" />
+    	<result column="kind" property="kind" />
+    	<result column="deleteState" property="deleteState" />
+    	<result column="createTime" property="createTime" />
+    	<result column="modifyTime" property="modifyTime" />
+    	<result column="hash" property="hash" />
+    	
+    	<collection property="attachs" resultMap="attachResultMap" />
+    	<collection property="details" resultMap="detailListResultMap" />
+    </resultMap>
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="NoteInfo" keyProperty="id">
@@ -15,8 +64,10 @@
 	    insert into t_note_info (sid, userId, title, content, remindId, remindTime, folderSid, kind, deleteState, createTime, modifyTime, hash) values 
 	    <foreach collection="list" item="item" index="index" separator="," >
 		    (#{item.sid}, #{item.userId}, #{item.title}, #{item.content}, #{item.remindId}, #{item.remindTime}, #{item.folderSid}, #{item.kind}, 
-		    #{item.deleteState}, #{item.createTime}, #{item.modifyTime}, #{item.hash})
+		    #{item.deleteState}, #{item.createTime}, #{item.modifyTime}, #{item.hash}) 
 	    </foreach>
+	    ON DUPLICATE KEY UPDATE title=values(title), content=values(content), remindTime=values(remindTime), folderSid=values(folderSid), kind=values(kind),
+    	deleteState=values(deleteState), modifyTime=values(modifyTime), hash=values(hash)
 	</insert>
 	
 	<delete id="delete" parameterType="NoteInfo">
@@ -62,8 +113,19 @@
 	    </choose>
 	</update>
 	
-	<select id="selectNoteInfos" resultType="NoteInfo">
-	    select * from t_note_info
+	<select id="selectNoteInfos" resultMap="noteInfoResultMap" parameterType="NoteDto">
+	    SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
+	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
+	    d.deleteState d_deleteState, d.hash d_hash, d.modifyTime d_modifyTime, d.sid d_sid, d.sort, d.title d_title 
+		FROM t_note_info n LEFT JOIN t_attach a ON n.sid = a.noteSid LEFT JOIN t_detail_list d on a.sid = d.noteSid 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="folder != null and folder.userId != null">
+	    		and userId = #{folder.userId}
+	    	</if>
+	    </trim>
+	    <if test="offset != null and limit !=null">
+             limit #{offset},#{limit}
+        </if>
 	</select>
 	
 	<select id="selectById" resultType="NoteInfo" parameterType="NoteInfo">
