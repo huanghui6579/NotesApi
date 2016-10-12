@@ -5,9 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+
+import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +26,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yunxinlink.notes.api.model.Attach;
 
 public class SystemUtil {
 	private final static Logger logger = LoggerFactory.getLogger(SystemUtil.class);
@@ -33,7 +39,7 @@ public class SystemUtil {
     /**
      * 头像文件夹的时间格式化，格式为:yyyy/MM/dd
      */
-    private static SimpleDateFormat avatarFormat = new SimpleDateFormat("yyyy/MM/dd");
+    private static SimpleDateFormat attachFormat = new SimpleDateFormat("yyyy/MM/dd");
 	
 	/**
      * 获取系统的system.properties文件
@@ -146,17 +152,32 @@ public class SystemUtil {
      * @return
      */
     public static String generateAvatarFilePath(String sid, String ext) {
-    	return generateAvatarFilePath(generateAvatarFilename(sid, ext));
+    	return generateAttachFilePath(AttachUsage.AVATAR, generateAttachFilename(sid, ext));
     }
     
     /**
      * 根据用户的sid获取用户存储的本地路径,这里只是相对路径，如:icon/2016/09/30/45754527857.png
-     * @param sid
-     * @param ext 文件的后缀名，不带.
+     * @param usage 附件的用途，主要是用户头像和笔记的附件
+     * @param filename 文件的后缀名，不带.
+     * @see AttachUsage
      * @return
      */
-    public static String generateAvatarFilePath(String filename) {
-    	return Constant.AVATAR_ROOT + File.separator + filename;
+    public static String generateAttachFilePath(AttachUsage usage, String filename) {
+    	if (usage == null) {
+			return null;
+		}
+    	String dir = "";
+    	switch (usage) {
+		case AVATAR:	//头像
+			dir = Constant.AVATAR_ROOT + File.separator;
+			break;
+		case ATTACH:
+			dir = Constant.ATTACH_ROOT + File.separator;
+			break;
+		default:
+			break;
+		}
+    	return dir + filename;
     }
     
     /**
@@ -165,8 +186,8 @@ public class SystemUtil {
      * @param ext 文件的后缀名，不带.
      * @return
      */
-    public static String generateAvatarFilename(String sid, String ext) {
-    	String dateDir = avatarFormat.format(new Date());
+    public static String generateAttachFilename(String sid, String ext) {
+    	String dateDir = attachFormat.format(new Date());
     	String suffix = ext == null ? "" : "." + ext;
     	return dateDir + "/" + sid + suffix;
     }
@@ -236,6 +257,49 @@ public class SystemUtil {
 	public static <T> T json2obj(String json, Class<T> clazz) throws JsonParseException, JsonMappingException, IOException {
 		T t = mapper.readValue(json, clazz);
 		return t;
+	}
+	
+	/**
+	 * 根据文件的全路径获取mime类型
+	 * @param filePath
+	 * @return
+	 */
+	public static String getMime(String filePath) {
+		String mime = null;
+		Path source = Paths.get(filePath);
+		try {
+			mime = Files.probeContentType(source);
+			if (mime == null) {
+				mime = new MimetypesFileTypeMap().getContentType(filePath);
+			}
+		} catch (IOException e) {
+			logger.error("get mime error:" + e.getMessage());
+		}
+		return mime;
+	}
+	
+	/**
+	 * 获取附件的类型
+	 * @param mimeType
+	 * @return
+	 */
+	public static int getAttachType(String mimeType) {
+		if (mimeType == null) {
+			return 0;
+		}
+		int type = 0;
+		if (mimeType.startsWith("image/")) {
+			type = Attach.IMAGE;
+		} else if (mimeType.startsWith("audio/")) {
+			type = Attach.VOICE;
+		} else if (mimeType.startsWith("video/")) {
+			type = Attach.VIDEO;
+		} else if (mimeType.startsWith("application/x-gzip") || mimeType.startsWith("application/x-tar")) {
+			type = Attach.ARCHIVE;
+		} else {
+			type = Attach.FILE;
+		}
+		return type;
 	}
 
 }

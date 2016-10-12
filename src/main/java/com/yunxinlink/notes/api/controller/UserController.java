@@ -34,6 +34,7 @@ import com.yunxinlink.notes.api.model.OpenApi;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IOpenApiService;
 import com.yunxinlink.notes.api.service.IUserService;
+import com.yunxinlink.notes.api.util.AttachUsage;
 import com.yunxinlink.notes.api.util.SystemUtil;
 
 /**
@@ -251,7 +252,7 @@ public class UserController extends BaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = {"/{sid}/modify"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"{sid}/modify"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ActionResult<Void> modifyUser(@PathVariable String sid, UserDto userDto, @RequestParam(value = "avatarFile", required = false) MultipartFile[] files, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
@@ -268,8 +269,8 @@ public class UserController extends BaseController {
 				String originalFilename = file.getOriginalFilename();
 				//文件的后缀
 				String ext = FilenameUtils.getExtension(originalFilename);
-				String avatarFilename = SystemUtil.generateAvatarFilename(sid, ext);
-				File saveFile = getAvatarSaveFile(avatarFilename, sid, ext);
+				String avatarFilename = SystemUtil.generateAttachFilename(sid, ext);
+				File saveFile = getAvatarSaveFile(avatarFilename);
 				boolean saveResult = false;
 				if (saveFile != null) {
 					saveResult = saveFile(file, saveFile);
@@ -316,7 +317,7 @@ public class UserController extends BaseController {
 	 * @param sid 用户的sid
 	 * @return
 	 */
-	@RequestMapping(value = {"/{sid}/info"})
+	@RequestMapping(value = {"{sid}/info"})
 	@ResponseBody
 	public ActionResult<User> getUserInfo(@PathVariable String sid) {
 		ActionResult<User> actionResult = new ActionResult<>();
@@ -351,7 +352,7 @@ public class UserController extends BaseController {
 	 * @param sid
 	 * @return
 	 */
-	@RequestMapping("/{sid}/avatar")
+	@RequestMapping("{sid}/avatar")
     @ResponseBody
 	public ResponseEntity<InputStreamResource> downloadAvatar(@PathVariable String sid, HttpServletRequest request) {
 		//1、先根据用户sid获取用户头像
@@ -410,9 +411,9 @@ public class UserController extends BaseController {
 	 * @param ext 文件的后缀，不带.
 	 * @return
 	 */
-	private File getAvatarSaveFile(String avatarFilename, String sid, String ext) {
+	private File getAvatarSaveFile(String avatarFilename) {
 		String rootDir = SystemCache.getUploadPath();
-		File file = new File(rootDir, SystemUtil.generateAvatarFilePath(avatarFilename));
+		File file = new File(rootDir, SystemUtil.generateAttachFilePath(AttachUsage.AVATAR, avatarFilename));
 		File parent = file.getParentFile();
 		if (parent != null && !parent.exists()) {
 			parent.mkdirs();
@@ -428,7 +429,7 @@ public class UserController extends BaseController {
 	 */
 	private File getAvatarFile(String avatarFilename) {
 		String rootDir = SystemCache.getUploadPath();
-		File file = new File(rootDir, SystemUtil.generateAvatarFilePath(avatarFilename));
+		File file = new File(rootDir, SystemUtil.generateAttachFilePath(AttachUsage.AVATAR, avatarFilename));
 		return file;
 	}
 }

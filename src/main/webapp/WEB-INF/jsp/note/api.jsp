@@ -39,5 +39,14 @@
 	<form action="1569298489463013383/list" method="get">
 		<button type="submit">获取笔记列表</button>
 	</form>
+	
+	<hr>
+	上传附件
+	<form action="att/upload" method="post" enctype="multipart/form-data">
+		附件的sid:<input type="text" name="sid"><br>
+		笔记的sid:<input type="text" name="noteSid"><br>
+		笔记的附件:<input type="file" name="attFile"><br>
+		<button type="submit">上传附件</button>
+	</form>
 </body>
 </html>

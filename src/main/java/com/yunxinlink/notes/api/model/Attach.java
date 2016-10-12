@@ -113,6 +113,11 @@ public class Attach implements Serializable {
      * 文件的mime类型
      */
     private String mimeType;
+    
+    /**
+     * 文件的MD5值
+     */
+    private String hash;
 
     public Integer getId() {
 		return id;
@@ -226,6 +231,14 @@ public class Attach implements Serializable {
 		this.mimeType = mimeType;
 	}
 
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
 	/**
      * 附件的文件类型是否是图片类型，包含图片文件和涂鸦
      * @return
@@ -260,9 +273,8 @@ public class Attach implements Serializable {
 	public String toString() {
 		return "Attach [id=" + id + ", sid=" + sid + ", noteSid=" + noteSid + ", userId=" + userId + ", filename="
 				+ filename + ", type=" + type + ", localPath=" + localPath + ", description=" + description
-				+ ", serverPath=" + serverPath + ", deleteState=" + deleteState
-				+ ", createTime=" + createTime + ", modifyTime=" + modifyTime + ", size=" + size + ", mimeType="
-				+ mimeType + "]";
+				+ ", serverPath=" + serverPath + ", deleteState=" + deleteState + ", createTime=" + createTime
+				+ ", modifyTime=" + modifyTime + ", size=" + size + ", mimeType=" + mimeType + ", hash=" + hash + "]";
 	}
 
 }
