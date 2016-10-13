@@ -92,7 +92,7 @@ public class Attach implements Serializable {
     /**
      * 删除状态
      */
-    private int deleteState;
+    private Integer deleteState;
 
     /**
      * 文件的创建时间
@@ -191,11 +191,11 @@ public class Attach implements Serializable {
 		this.serverPath = serverPath;
 	}
 
-	public int getDeleteState() {
+	public Integer getDeleteState() {
 		return deleteState;
 	}
 
-	public void setDeleteState(int deleteState) {
+	public void setDeleteState(Integer deleteState) {
 		this.deleteState = deleteState;
 	}
 

@@ -121,6 +121,8 @@ public class NoteController extends BaseController {
 		user = userService.getUserById(user);
 		boolean isOk = checkUser(actionResult, user);
 		if (!isOk) {
+			actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
+			actionResult.setReason("用户不存在或者被禁用");
 			return actionResult;
 		}
 		

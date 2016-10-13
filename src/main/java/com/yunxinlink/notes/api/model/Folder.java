@@ -49,7 +49,7 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
     /**
      * 删除的状态
      */
-    private Integer deleteState = DeleteState.DELETE_NONE;
+    private Integer deleteState;
 
     /**
      * 创建时间
