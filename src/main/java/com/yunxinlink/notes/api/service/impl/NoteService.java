@@ -93,7 +93,12 @@ public class NoteService implements INoteService {
 			//该用户的id在controller层已设置好
 			info.setUserId(folder.getUserId());
 			if (StringUtils.isEmpty(info.getHash())) {
-				String hash = DigestUtils.md5Hex(info.getContent());
+				String hash = null;
+				if (info.isDetailListNote()) {	//清单笔记
+					hash = DigestUtils.md5Hex(info.getTitle());
+				} else {
+					hash = DigestUtils.md5Hex(info.getContent());
+				}
 				info.setHash(hash);
 			}
 		}
