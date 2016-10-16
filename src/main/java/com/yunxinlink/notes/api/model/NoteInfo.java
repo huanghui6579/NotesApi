@@ -55,7 +55,7 @@ public class NoteInfo implements Serializable {
     /**
      * 提醒的时间
      */
-    private Long remindTime;
+    private Date remindTime;
 
     /**
      * 文件夹的sid
@@ -146,11 +146,11 @@ public class NoteInfo implements Serializable {
 		this.remindId = remindId;
 	}
 
-	public Long getRemindTime() {
+	public Date getRemindTime() {
 		return remindTime;
 	}
 
-	public void setRemindTime(Long remindTime) {
+	public void setRemindTime(Date remindTime) {
 		this.remindTime = remindTime;
 	}
 

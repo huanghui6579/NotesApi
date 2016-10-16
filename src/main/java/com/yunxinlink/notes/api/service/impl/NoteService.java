@@ -51,7 +51,7 @@ public class NoteService implements INoteService {
 		Folder folder = noteDto.getFolder();
 		String folderSid = folder.getSid();
 		Date date = new Date();
-		if (StringUtils.isNoneBlank(folderSid)) {	//需要创建或者更新笔记
+		if (StringUtils.isNotBlank(folderSid)) {	//需要创建或者更新笔记
 			logger.info("add note and update folder sid:" + folderSid);
 			folder.setCreateTime(date);
 			if (folder.getModifyTime() == null) {

@@ -145,6 +145,7 @@ public class NoteController extends BaseController {
 			if (success) {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 				actionResult.setReason("添加成功");
+				logger.info("upda note add success:" + noteDto);
 			} else {
 				actionResult.setResultCode(ActionResult.RESULT_FAILED);
 				actionResult.setReason("添加失败");
