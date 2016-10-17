@@ -15,7 +15,7 @@
 	    insert into t_attach (sid, noteSid, filename, type, localPath, description, deleteState, createTime, modifyTime, size, mimeType, hash) values 
 	    <foreach collection="list" item="item" index="index" separator="," >
 		    (#{item.sid}, #{item.noteSid}, #{item.filename}, #{item.type}, #{item.localPath}, #{item.description}, #{item.deleteState}, #{item.createTime}, 
-		    #{item.modifyTime}, #{item.size}, #{item.mimeType}, #{hash})
+		    #{item.modifyTime}, #{item.size}, #{item.mimeType}, #{item.hash})
 	    </foreach>
 	    ON DUPLICATE KEY UPDATE filename=values(filename), localPath=values(localPath), description=values(description), deleteState=values(deleteState), 
 	    modifyTime=values(modifyTime), size=values(size), hash=values(hash)

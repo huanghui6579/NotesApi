@@ -3,14 +3,15 @@ package com.yunxinlink.notes.api.controller;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 public abstract class BaseController {
 	protected Logger logger = null;
 	
 	public BaseController() {
-		logger = Logger.getLogger(getClass());
+		logger = LoggerFactory.getLogger(getClass());
 	}
 	
 	/**

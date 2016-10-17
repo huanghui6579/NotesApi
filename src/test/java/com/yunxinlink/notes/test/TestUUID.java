@@ -6,14 +6,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.util.IdGenerator;
 import org.springframework.util.SimpleIdGenerator;
 
 public class TestUUID {
-	private static final Logger logger = Logger.getLogger(TestUUID.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestUUID.class);
 
 	@Test
 	public void test() {

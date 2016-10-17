@@ -89,6 +89,11 @@ public class NoteService implements INoteService {
 				info.setModifyTime(modifyTime);
 			}
 			
+			Date remindTime = info.getRemindTime();
+			if (remindTime != null && remindTime.getTime() == 0) {	//起始时间，则认为是没有设置提醒时间
+				info.setRemindTime(null);
+			}
+						
 			info.setFolderSid(folderSid);
 			//该用户的id在controller层已设置好
 			info.setUserId(folder.getUserId());
