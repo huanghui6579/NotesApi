@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.yunxinlink.notes.api.dto.ActionResult;
+import com.yunxinlink.notes.api.dto.AttachDto;
 import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.init.SystemCache;
@@ -141,11 +142,10 @@ public class NoteController extends BaseController {
 		boolean success = false;
 		try {
 			success = noteService.addNote(noteDto);
-			logger.info("add note success:" + noteDto);
+			logger.info("add note result:" + success + ", note:" + noteDto);
 			if (success) {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 				actionResult.setReason("添加成功");
-				logger.info("upda note add success:" + noteDto);
 			} else {
 				actionResult.setResultCode(ActionResult.RESULT_FAILED);
 				actionResult.setReason("添加失败");
@@ -278,13 +278,14 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = {"att/upload"}, method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<Void> uploadAttach(Attach attach, @RequestParam(name = "attFile", required = true) MultipartFile partFile) {
+	public ActionResult<Void> uploadAttach(AttachDto attachDto, @RequestParam(name = "attFile", required = true) MultipartFile partFile) {
 		ActionResult<Void> actionResult = new ActionResult<>();
-		if (attach == null || StringUtils.isBlank(attach.getSid()) || StringUtils.isBlank(attach.getNoteSid()) || partFile == null || partFile.isEmpty()) {
+		if (attachDto == null || StringUtils.isBlank(attachDto.getSid()) || StringUtils.isBlank(attachDto.getNoteSid()) || partFile == null || partFile.isEmpty()) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
 		}
+		Attach attach = attachDto.convert2Attach();
 		String attachSid = attach.getSid();
 		String originalFilename = partFile.getOriginalFilename();
 		//文件的后缀
