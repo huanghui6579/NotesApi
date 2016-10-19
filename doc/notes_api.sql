@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50625
 File Encoding         : 65001
 
-Date: 2016-10-08 19:14:05
+Date: 2016-10-19 17:51:20
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -32,10 +32,11 @@ CREATE TABLE `t_attach` (
   `modifyTime` datetime DEFAULT NULL COMMENT '文件的修改时间',
   `size` double DEFAULT NULL COMMENT '文件的大小',
   `mimeType` varchar(255) DEFAULT NULL COMMENT '文件的mime类型',
+  `hash` varchar(255) DEFAULT NULL COMMENT '文件的hash值',
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `noteSid` (`noteSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='附件表';
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COMMENT='附件表';
 
 -- ----------------------------
 -- Table structure for t_detail_list
@@ -55,7 +56,7 @@ CREATE TABLE `t_detail_list` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `noteSid` (`noteSid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='清单表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='清单表';
 
 -- ----------------------------
 -- Table structure for t_device_info
@@ -72,7 +73,7 @@ CREATE TABLE `t_device_info` (
   `modifyTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `imei` (`imei`)
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for t_folder
@@ -82,17 +83,18 @@ CREATE TABLE `t_folder` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `sid` varchar(255) DEFAULT NULL COMMENT '唯一值',
   `userId` int(11) DEFAULT NULL COMMENT '关联用户表的id',
-  `name` varchar(255) DEFAULT NULL COMMENT '文件夹的名称',
+  `name` varchar(255) NOT NULL COMMENT '文件夹的名称',
   `isLock` tinyint(4) DEFAULT NULL COMMENT '是否被锁定',
   `sort` tinyint(4) DEFAULT NULL COMMENT '排序',
   `deleteState` tinyint(4) DEFAULT NULL COMMENT '删除状态，0：没有删除,1:删除到垃圾桶，2：隐藏，3：完全删除',
   `createTime` datetime DEFAULT NULL COMMENT '创建时时间',
   `modifyTime` datetime DEFAULT NULL COMMENT '修改时间',
-  `count` int(11) DEFAULT NULL COMMENT '改文件夹下可用笔记的数量',
+  `count` int(11) DEFAULT '0' COMMENT '改文件夹下可用笔记的数量',
+  `hash` varchar(255) DEFAULT NULL COMMENT '笔记本的hash值，由name;isLock;sort;deleteState的格式组成，顺序不能错',
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `userId` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='笔记本的表';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COMMENT='笔记本的表';
 
 -- ----------------------------
 -- Table structure for t_note_info
@@ -116,7 +118,7 @@ CREATE TABLE `t_note_info` (
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `userId` (`userId`),
   KEY `folderSid` (`folderSid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='笔记表';
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COMMENT='笔记表';
 
 -- ----------------------------
 -- Table structure for t_open_api
@@ -133,7 +135,7 @@ CREATE TABLE `t_open_api` (
   `modifyTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `openUserId` (`openUserId`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for t_user
@@ -163,9 +165,9 @@ DROP TRIGGER IF EXISTS `tri_trash_folder`;
 DELIMITER ;;
 CREATE TRIGGER `tri_trash_folder` AFTER UPDATE ON `t_folder` FOR EACH ROW BEGIN
 	IF (OLD.deleteState IS NULL OR OLD.deleteState != 1) AND NEW.deleteState = 1 THEN
-		UPDATE t_note_info SET deleteState = 1, modify_time = NEW.modifyTime WHERE folderSid = NEW.id;
+		UPDATE t_note_info SET deleteState = 1, modify_time = NEW.modifyTime WHERE folderSid = NEW.sid;
 	ELSEIF (OLD.deleteState IS NULL AND OLD.deleteState != 0) AND NEW.deleteState = 0 THEN
-		UPDATE t_note_info SET deleteState = 0, modify_time = NEW.modifyTime WHERE folderSid = NEW.id;
+		UPDATE t_note_info SET deleteState = 0, modify_time = NEW.modifyTime WHERE folderSid = NEW.sid;
 	END IF;
 END
 ;;
@@ -173,8 +175,8 @@ DELIMITER ;
 DROP TRIGGER IF EXISTS `tri_insert_note`;
 DELIMITER ;;
 CREATE TRIGGER `tri_insert_note` AFTER INSERT ON `t_note_info` FOR EACH ROW BEGIN  
-         IF NEW.folderSid IS NOT NULL or NEW.folderSid != 0 THEN 
-                   UPDATE t_folder SET modifyTime = NEW.createTime, count = count + 1 WHERE id = NEW.folderSid;
+         IF NEW.folderSid IS NOT NULL THEN 
+                   UPDATE t_folder SET modifyTime = NEW.createTime, count = if(count is null, 1, count + 1) WHERE sid = NEW.folderSid;
          END IF;
 END
 ;;
@@ -183,11 +185,11 @@ DROP TRIGGER IF EXISTS `tri_update_folder`;
 DELIMITER ;;
 CREATE TRIGGER `tri_update_folder` AFTER UPDATE ON `t_note_info` FOR EACH ROW BEGIN 
 	IF NEW.folderSid IS NOT NULL AND OLD.deleteState != 0 AND NEW.deleteState = 0 THEN
-		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count + 1 WHERE id = NEW.folderSid;
+		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = if(count is null, 1, count + 1)  WHERE sid = NEW.folderSid;
 	ELSEIF NEW.folderSid IS NOT NULL AND OLD.deleteState = 0 AND NEW.deleteState != 0 THEN
-		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = count - 1 WHERE id = NEW.folderSid;
+		UPDATE t_folder SET modifyTime = NEW.modifyTime, count = if(count > 0, count - 1, 0)  WHERE sid = NEW.folderSid;
 	ELSE 
-		UPDATE t_folder SET modifyTime = NEW.modifyTime WHERE id = NEW.folderSid;
+		UPDATE t_folder SET modifyTime = NEW.modifyTime WHERE sid = NEW.folderSid;
 	END IF;
 END
 ;;

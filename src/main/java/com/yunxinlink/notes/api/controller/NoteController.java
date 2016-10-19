@@ -122,14 +122,12 @@ public class NoteController extends BaseController {
 		user = userService.getUserById(user);
 		boolean isOk = checkUser(actionResult, user);
 		if (!isOk) {
-			actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
-			actionResult.setReason("用户不存在或者被禁用");
 			return actionResult;
 		}
 		
 		//笔记所属的笔记本，文件夹
 		Folder folder = noteDto.getFolder();
-		if (folder == null || folder.isDefaultFolder()) {	//这一组笔记没有指定所属笔记本，则为“所有”笔记本
+		if (folder == null || folder.checkDefaultFolder()) {	//这一组笔记没有指定所属笔记本，则为“所有”笔记本
 			if (folder == null) {
 				folder = new Folder();
 				noteDto.setFolder(folder);
@@ -211,6 +209,59 @@ public class NoteController extends BaseController {
 			e.printStackTrace();
 		}
 		
+		return actionResult;
+	}
+	
+	/**
+	 * 获取制定用户的文件夹的hash值
+	 * @param userSid
+	 * @return
+	 */
+	@RequestMapping(value = "{userSid}/folder/sids", method = RequestMethod.GET)
+	@ResponseBody
+	public ActionResult<List<Folder>> listFolderSids(@PathVariable String userSid, FolderDto folderDto) {
+		ActionResult<List<Folder>> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		
+		User user = new User();
+		user.setSid(userSid);
+		user = userService.getUserById(user);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {
+			return actionResult;
+		}
+		
+		if (folderDto == null) {
+			folderDto = new FolderDto();
+		}
+		
+		Folder folder = new Folder();
+		folder.setUserId(user.getId());
+		
+		folderDto.setFolder(folder);
+		
+		try {
+			List<Folder> folders = folderService.getFolderSids(folderDto);
+			
+			if (CollectionUtils.isEmpty(folders)) {
+				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+				actionResult.setReason("没有笔记本");
+				logger.info("list folder sids this user not has folder :" + userSid);
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+				actionResult.setData(folders);
+				actionResult.setReason("获取成功");
+			}
+		} catch (Exception e) {
+			actionResult.setResultCode(ActionResult.RESULT_ERROR);
+			actionResult.setReason("服务器错误");
+			logger.error("list folder sids get folders error:" + e.getMessage());
+			e.printStackTrace();
+		}
 		return actionResult;
 	}
 	

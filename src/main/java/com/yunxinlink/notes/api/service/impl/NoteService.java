@@ -66,6 +66,10 @@ public class NoteService implements INoteService {
 		List<DetailList> detailNotes = new ArrayList<>();
 		//有附件的笔记
 		List<Attach> attachNotes = new ArrayList<>();
+		if (CollectionUtils.isEmpty(list)) {	//没有笔记
+			logger.info("add note and update folder not has notes sid:" + folderSid);
+			return rowCount > 0;
+		}
 		for (NoteInfo info : list) {
 			if (info.isDetailListNote()) {
 				List<DetailList> detailLists = info.getDetails();

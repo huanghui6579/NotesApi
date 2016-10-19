@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -65,6 +66,11 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
      * 该文件夹下笔记的数量
      */
     private Integer count;
+    
+    /**
+     * 笔记本的hash值，该hash值由name;isLock;sort;deleteState的格式组成，顺序不能错
+     */
+    private String hash;
 
     public Integer getId() {
 		return id;
@@ -146,6 +152,14 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
 		this.count = count;
 	}
 
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -189,7 +203,28 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
 			return 0;
 		}
 	}
-
+	
+	/**
+	 * 生成hash值
+	 * 该hash值由name;isLock;sort;deleteState的格式组成，顺序不能错
+	 * @return
+	 */
+	public String generateHash() {
+		if (StringUtils.isBlank(name)) {
+			return null;
+		}
+		String spliter = ";";
+		boolean isLock = this.isLock == null ? false : this.isLock;
+		int sort = this.sort == null ? 0 : this.sort;
+		int deleteState = this.deleteState == null ? 0 : this.deleteState;
+		StringBuilder builder = new StringBuilder();
+		builder.append(name).append(spliter)
+				.append(isLock).append(spliter)
+				.append(sort).append(spliter)
+				.append(deleteState);
+		return DigestUtils.md5Hex(builder.toString());
+	}
+	
 	@Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -199,15 +234,15 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
 	 * 是否是所有笔记本，即没有归类的笔记都放在此笔记本中
 	 * @return
 	 */
-	public boolean isDefaultFolder() {
+	public boolean checkDefaultFolder() {
 		return (id != null && id == 0) || StringUtils.isBlank(sid);
 	}
 
 	@Override
 	public String toString() {
 		return "Folder [id=" + id + ", sid=" + sid + ", userId=" + userId + ", name=" + name + ", isLock=" + isLock
-				+ ", sort=" + sort + ", deleteState=" + deleteState + ", createTime="
-				+ createTime + ", modifyTime=" + modifyTime + ", count=" + count + "]";
+				+ ", sort=" + sort + ", deleteState=" + deleteState + ", createTime=" + createTime + ", modifyTime="
+				+ modifyTime + ", count=" + count + ", hash=" + hash + "]";
 	}
 
 }

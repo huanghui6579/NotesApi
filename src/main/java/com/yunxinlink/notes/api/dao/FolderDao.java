@@ -24,4 +24,10 @@ public interface FolderDao extends BaseDao<Folder> {
 	 * @return
 	 */
 	public List<Folder> selectFolders(FolderDto folderDto);
+	
+	/**
+	 * 查询笔记的基本sid、hash、deletestate
+	 * @return
+	 */
+	public List<Folder> selectSids(FolderDto folderDto);
 }

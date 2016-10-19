@@ -29,6 +29,8 @@ public class FolderService implements IFolderService {
 	public boolean addFolder(Folder folder) {
 		int rowCount = 0;
 		try {
+			String hash = folder.generateHash();
+			folder.setHash(hash);
 			rowCount = folderDao.add(folder);
 		} catch (Exception e) {
 			logger.error("add folder error:" + e.getMessage());
@@ -40,6 +42,8 @@ public class FolderService implements IFolderService {
 	public boolean updateFolder(Folder folder) {
 		int rowCount = 0;
 		try {
+			String hash = folder.generateHash();
+			folder.setHash(hash);
 			rowCount = folderDao.update(folder);
 		} catch (Exception e) {
 			logger.error("update folder error:" + e.getMessage());
@@ -90,4 +94,13 @@ public class FolderService implements IFolderService {
 		return folderDao.selectFolders(folderDto);
 	}
 
+	@Override
+	public List<Folder> getFolderSids(FolderDto folderDto) {
+		PageInfo pageInfo = folderDto.convert2PageInfo();
+		
+		int offset = pageInfo.getPageOffset();
+		folderDto.setOffset(offset);
+		folderDto.setLimit(pageInfo.getPageSize());
+		return folderDao.selectSids(folderDto);
+	}
 }

@@ -52,4 +52,11 @@ public interface IFolderService {
 	 * @return
 	 */
 	public List<Folder> getFolders(FolderDto folderDto);
+	
+	/**
+	 * 获取笔记基本的sid、hash、deletestate
+	 * @param folderDto
+	 * @return
+	 */
+	public List<Folder> getFolderSids(FolderDto folderDto);
 }
