@@ -85,22 +85,55 @@ public class FolderService implements IFolderService {
 	}
 
 	@Override
-	public List<Folder> getFolders(FolderDto folderDto) {
-		PageInfo pageInfo = folderDto.convert2PageInfo();
+	public PageInfo<List<Folder>> getFolders(FolderDto folderDto) {
+		PageInfo<Void> paramPageInfo = folderDto.convert2PageInfo();
 		
-		int offset = pageInfo.getPageOffset();
+		int offset = paramPageInfo.calcPageOffset();
 		folderDto.setOffset(offset);
-		folderDto.setLimit(pageInfo.getPageSize());
-		return folderDao.selectFolders(folderDto);
+		folderDto.setLimit(paramPageInfo.getPageSize());
+		List<Folder> list = folderDao.selectFolders(folderDto);
+		
+		Folder folder = folderDto.getFolder();
+		long count = folderDao.selectCount(folder.getUserId());
+		
+		PageInfo<List<Folder>> pageInfo = new PageInfo<>();
+		pageInfo.setData(list);
+		pageInfo.setPageNumber(paramPageInfo.getPageNumber());
+		pageInfo.setPageSize(paramPageInfo.getPageSize());
+		pageInfo.setCount(count);
+		
+		return pageInfo;
 	}
 
 	@Override
-	public List<Folder> getFolderSids(FolderDto folderDto) {
-		PageInfo pageInfo = folderDto.convert2PageInfo();
+	public PageInfo<List<Folder>> getFolderSids(FolderDto folderDto) {
+		PageInfo<Void> paramPageInfo = folderDto.convert2PageInfo();
 		
-		int offset = pageInfo.getPageOffset();
+		int offset = paramPageInfo.calcPageOffset();
 		folderDto.setOffset(offset);
-		folderDto.setLimit(pageInfo.getPageSize());
-		return folderDao.selectSids(folderDto);
+		folderDto.setLimit(paramPageInfo.getPageSize());
+		List<Folder> list = folderDao.selectSids(folderDto);
+		
+		Folder folder = folderDto.getFolder();
+		long count = folderDao.selectCount(folder.getUserId());
+		
+		PageInfo<List<Folder>> pageInfo = new PageInfo<>();
+		pageInfo.setData(list);
+		pageInfo.setPageNumber(paramPageInfo.getPageNumber());
+		pageInfo.setPageSize(paramPageInfo.getPageSize());
+		pageInfo.setCount(count);
+		
+		return pageInfo;
+	}
+
+	@Override
+	public long getFolderCount(int userId) {
+		long count = 0;
+		try {
+			count = folderDao.selectCount(userId);
+		} catch (Exception e) {
+			logger.error("select folder count by user id:" + userId + ", error:" + e.getMessage());
+		}
+		return count;
 	}
 }

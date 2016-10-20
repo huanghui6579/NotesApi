@@ -2,6 +2,8 @@ package com.yunxinlink.notes.api.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.model.Folder;
 
@@ -30,4 +32,11 @@ public interface FolderDao extends BaseDao<Folder> {
 	 * @return
 	 */
 	public List<Folder> selectSids(FolderDto folderDto);
+	
+	/**
+	 * 获取用户笔记本的数量
+	 * @param userId
+	 * @return
+	 */
+	public long selectCount(@Param(value="userId") int userId);
 }

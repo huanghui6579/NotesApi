@@ -7,13 +7,33 @@ import com.yunxinlink.notes.api.util.Constant;
  * @author huanghui1
  * @date 2016年10月10日 下午6:07:24
  */
-public class PageInfo {
+public class PageInfo<T> {
 	/**
 	 * 第几页，从1开始
 	 */
 	private Integer pageNumber;
 	
 	private Integer pageSize = Constant.PAGE_SIZE_DEFAULT;
+	
+	private long count;
+	
+	private T data;
+
+	public T getData() {
+		return data;
+	}
+
+	public void setData(T data) {
+		this.data = data;
+	}
+
+	public long getCount() {
+		return count;
+	}
+
+	public void setCount(long count) {
+		this.count = count;
+	}
 
 	public Integer getPageNumber() {
 		return pageNumber;
@@ -35,7 +55,7 @@ public class PageInfo {
 	 * 获取数据库查询的开始索引，从0开始
 	 * @return
 	 */
-	public int getPageOffset() {
+	public int calcPageOffset() {
 		pageNumber = (pageNumber == null || pageNumber < 1) ? 1 : pageNumber;
 		int offset = (pageNumber - 1) * pageSize;
 		return offset;

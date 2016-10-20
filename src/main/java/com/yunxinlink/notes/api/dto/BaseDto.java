@@ -38,8 +38,8 @@ public abstract class BaseDto {
 	 * 用户从页面传过来的参数，offset 相当于pageNumber, 即第几页，默认从1开始，当到数据库查询时，又根据pageinfo来转换，将offset设置为从0开始的索引
 	 * @return
 	 */
-	public PageInfo convert2PageInfo() {
-		PageInfo pageInfo = new PageInfo();
+	public PageInfo<Void> convert2PageInfo() {
+		PageInfo<Void> pageInfo = new PageInfo<>();
 		pageInfo.setPageNumber(offset);
 		pageInfo.setPageSize(limit);
 		return pageInfo;

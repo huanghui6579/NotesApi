@@ -32,6 +32,7 @@ import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.dto.AttachDto;
 import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.dto.NoteDto;
+import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.Attach;
 import com.yunxinlink.notes.api.model.Folder;
@@ -77,7 +78,7 @@ public class NoteController extends BaseController {
 	 */
 	private boolean checkUser(ActionResult<?> actionResult, User user) {
 		boolean isok = false;
-		if (user == null) {	//用户不存在
+		if (user == null || user.getId() == null) {	//用户不存在
 			actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
 			actionResult.setReason("该用户不存在");
 		} else if (!user.checkState()) {//用户被禁用了
@@ -164,8 +165,8 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/folders", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<List<Folder>> listFolders(@PathVariable String userSid, FolderDto folderDto) {
-		ActionResult<List<Folder>> actionResult = new ActionResult<>();
+	public ActionResult<PageInfo<List<Folder>>> listFolders(@PathVariable String userSid, FolderDto folderDto) {
+		ActionResult<PageInfo<List<Folder>>> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
@@ -191,7 +192,8 @@ public class NoteController extends BaseController {
 		folderDto.setFolder(folder);
 		
 		try {
-			List<Folder> folders = folderService.getFolders(folderDto);
+			PageInfo<List<Folder>> pageInfo = folderService.getFolders(folderDto);
+			List<Folder> folders = pageInfo.getData();
 			
 			if (CollectionUtils.isEmpty(folders)) {
 				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
@@ -199,7 +201,7 @@ public class NoteController extends BaseController {
 				logger.info("list folders this user not has folder :" + userSid);
 			} else {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
-				actionResult.setData(folders);
+				actionResult.setData(pageInfo);
 				actionResult.setReason("获取成功");
 			}
 		} catch (Exception e) {
@@ -219,8 +221,8 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/folder/sids", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<List<Folder>> listFolderSids(@PathVariable String userSid, FolderDto folderDto) {
-		ActionResult<List<Folder>> actionResult = new ActionResult<>();
+	public ActionResult<PageInfo<List<Folder>>> listFolderSids(@PathVariable String userSid, FolderDto folderDto) {
+		ActionResult<PageInfo<List<Folder>>> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
@@ -234,18 +236,17 @@ public class NoteController extends BaseController {
 		if (!isOk) {
 			return actionResult;
 		}
-		
 		if (folderDto == null) {
 			folderDto = new FolderDto();
 		}
-		
 		Folder folder = new Folder();
 		folder.setUserId(user.getId());
 		
 		folderDto.setFolder(folder);
 		
 		try {
-			List<Folder> folders = folderService.getFolderSids(folderDto);
+			PageInfo<List<Folder>> pageInfo = folderService.getFolderSids(folderDto);
+			List<Folder> folders = pageInfo.getData();
 			
 			if (CollectionUtils.isEmpty(folders)) {
 				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
@@ -253,7 +254,7 @@ public class NoteController extends BaseController {
 				logger.info("list folder sids this user not has folder :" + userSid);
 			} else {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
-				actionResult.setData(folders);
+				actionResult.setData(pageInfo);
 				actionResult.setReason("获取成功");
 			}
 		} catch (Exception e) {

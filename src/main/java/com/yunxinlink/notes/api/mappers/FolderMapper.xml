@@ -91,6 +91,15 @@
 	    	</otherwise>
 	    </choose>
 	</select>
+	
+	<select id="selectCount" resultType="long" parameterType="int">
+		select count(*) from t_folder 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="userId != null or userId != 0">
+	    		and userId = #{userId}
+	    	</if>
+	    </trim>
+	</select>
 		
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
 	    select * from t_folder limit #{pageOffset}, #{pageSize}

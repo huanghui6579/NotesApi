@@ -181,9 +181,9 @@ public class NoteService implements INoteService {
 			return null;
 		}
 		
-		PageInfo pageInfo = noteDto.convert2PageInfo();
+		PageInfo<Void> pageInfo = noteDto.convert2PageInfo();
 		
-		int offset = pageInfo.getPageOffset();
+		int offset = pageInfo.calcPageOffset();
 		noteDto.setOffset(offset);
 		noteDto.setLimit(pageInfo.getPageSize());
 		return noteDao.selectNoteInfos(noteDto);

@@ -3,6 +3,7 @@ package com.yunxinlink.notes.api.service;
 import java.util.List;
 
 import com.yunxinlink.notes.api.dto.FolderDto;
+import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Folder;
 
 /**
@@ -51,12 +52,19 @@ public interface IFolderService {
 	 * @param folderDto
 	 * @return
 	 */
-	public List<Folder> getFolders(FolderDto folderDto);
+	public PageInfo<List<Folder>> getFolders(FolderDto folderDto);
 	
 	/**
 	 * 获取笔记基本的sid、hash、deletestate
 	 * @param folderDto
 	 * @return
 	 */
-	public List<Folder> getFolderSids(FolderDto folderDto);
+	public PageInfo<List<Folder>> getFolderSids(FolderDto folderDto);
+	
+	/**
+	 * 根据用户的id或者该用户的笔记本数量
+	 * @param userId
+	 * @return
+	 */
+	public long getFolderCount(int userId);
 }
