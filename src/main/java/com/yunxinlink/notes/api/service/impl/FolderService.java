@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.yunxinlink.notes.api.dao.FolderDao;
 import com.yunxinlink.notes.api.dto.FolderDto;
@@ -114,9 +115,14 @@ public class FolderService implements IFolderService {
 		folderDto.setLimit(paramPageInfo.getPageSize());
 		List<Folder> list = folderDao.selectSids(folderDto);
 		
-		Folder folder = folderDto.getFolder();
-		long count = folderDao.selectCount(folder.getUserId());
-		
+		long count = 0;
+		if (!CollectionUtils.isEmpty(list)) {
+			count = list.size();
+			if (paramPageInfo.getPageSize() >= count ) {	//可能还有数据，则查询总记录数
+				Folder folder = folderDto.getFolder();
+				count = folderDao.selectCount(folder.getUserId());
+			}
+		}
 		PageInfo<List<Folder>> pageInfo = new PageInfo<>();
 		pageInfo.setData(list);
 		pageInfo.setPageNumber(paramPageInfo.getPageNumber());
