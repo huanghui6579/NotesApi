@@ -52,10 +52,17 @@ public class NoteService implements INoteService {
 		String folderSid = folder.getSid();
 		Date date = new Date();
 		if (StringUtils.isNotBlank(folderSid)) {	//需要创建或者更新笔记
-			logger.info("add note and update folder sid:" + folderSid);
+			logger.info("add or update folder sid:" + folderSid);
 			folder.setCreateTime(date);
-			if (folder.getModifyTime() == null) {
-				folder.setModifyTime(date);
+			Date modifyTime = folder.getModifyTime();
+			if (modifyTime == null || modifyTime.getTime() == 0) {
+				modifyTime = date;
+				folder.setModifyTime(modifyTime);
+			}
+			String hash = folder.getHash();
+			if (StringUtils.isBlank(hash)) {
+				hash = folder.generateHash();
+				folder.setHash(hash);
 			}
 			//在sql语句里进行了添加或者更新操作
 			rowCount = folderDao.add(folder);

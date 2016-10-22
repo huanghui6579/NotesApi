@@ -5,7 +5,7 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="Folder" keyProperty="id">
-	    insert into t_folder (sid, userId, name, isLock, sort, deleteState, createTime, modifyTime, count) values 
+	    insert into t_folder (sid, userId, name, isLock, sort, deleteState, createTime, modifyTime, count, hash) values 
 	    (#{sid}, #{userId}, #{name}, #{isLock}, #{sort}, #{deleteState}, #{createTime}, #{modifyTime}, #{count}, #{hash}) 
 	    ON DUPLICATE KEY UPDATE name=values(name), isLock=values(isLock), sort=values(sort), deleteState=values(deleteState), 
 	    modifyTime=values(modifyTime),hash=values(hash)
@@ -63,12 +63,19 @@
         </if>
 	</select>
 	
+	<select id="selectFilterFolders" resultType="Folder">
+	    select * from t_folder where id in 
+	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</select>
+	
 	<select id="selectBasic" resultType="Folder">
 	    select userId, name, deleteState, count from t_folder where sid = #{sid}
 	</select>
 	
 	<select id="selectSids" resultType="Folder" parameterType="FolderDto">
-	    select sid, hash from t_folder 
+	    select id, sid, hash from t_folder 
 	    <trim prefix="where" prefixOverrides="AND | OR">
 	    	<if test="folder != null and folder.userId != null">
 	    		and userId = #{folder.userId}

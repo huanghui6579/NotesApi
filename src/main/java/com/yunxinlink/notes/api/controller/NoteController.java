@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +45,7 @@ import com.yunxinlink.notes.api.service.IFolderService;
 import com.yunxinlink.notes.api.service.INoteService;
 import com.yunxinlink.notes.api.service.IUserService;
 import com.yunxinlink.notes.api.util.AttachUsage;
+import com.yunxinlink.notes.api.util.Constant;
 import com.yunxinlink.notes.api.util.SystemUtil;
 
 /**
@@ -208,6 +211,76 @@ public class NoteController extends BaseController {
 			actionResult.setResultCode(ActionResult.RESULT_ERROR);
 			actionResult.setReason("服务器错误");
 			logger.error("down folder get folders error:" + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return actionResult;
+	}
+	
+	/**
+	 * 获取指定笔记本的数据
+	 * @param userSid
+	 * @param idStr 笔记本的id列表字符串，之间用,分隔
+	 * @return
+	 */
+	@RequestMapping(value = "{userSid}/folders/filter", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<List<Folder>> filterFolders(@PathVariable String userSid, String idStr) {
+		ActionResult<List<Folder>> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		User user = new User();
+		user.setSid(userSid);
+		
+		user = userService.getUserById(user);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {
+			return actionResult;
+		}
+		
+		try {
+			//id之间用,分隔
+			String[] idStrs = idStr.split(Constant.TAG_COMMA);
+			if (idStrs == null) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			
+			List<Integer> idList = new ArrayList<>();
+			for (String str : idStrs) {
+				try {
+					int id = Integer.parseInt(str);
+					idList.add(id);
+				} catch (Exception e) {
+					logger.error("down folder filter folders parse id:" + str + ", error:" + e.getMessage());
+				}
+			}
+			
+			if (idList.size() == 0) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			
+			List<Folder> folderList = folderService.getFolders(idList);
+			
+			if (CollectionUtils.isEmpty(folderList)) {
+				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+				actionResult.setReason("没有笔记本");
+				logger.info("filter folders this user not has folder :" + userSid);
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+				actionResult.setData(folderList);
+				actionResult.setReason("获取成功");
+			}
+		} catch (Exception e) {
+			actionResult.setResultCode(ActionResult.RESULT_ERROR);
+			actionResult.setReason("服务器错误");
+			logger.error("down folder filter folders error:" + e.getMessage());
 			e.printStackTrace();
 		}
 		

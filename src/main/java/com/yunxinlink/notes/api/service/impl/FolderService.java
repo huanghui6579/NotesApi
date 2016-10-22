@@ -1,5 +1,6 @@
 package com.yunxinlink.notes.api.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -94,8 +95,16 @@ public class FolderService implements IFolderService {
 		folderDto.setLimit(paramPageInfo.getPageSize());
 		List<Folder> list = folderDao.selectFolders(folderDto);
 		
-		Folder folder = folderDto.getFolder();
-		long count = folderDao.selectCount(folder.getUserId());
+		long count = 0;
+		if (!CollectionUtils.isEmpty(list)) {
+			count = list.size();
+			if (paramPageInfo.getPageSize() == count ) {	//可能还有数据，则查询总记录数
+				Folder folder = folderDto.getFolder();
+				count = folderDao.selectCount(folder.getUserId());
+			} else {
+				logger.info("get folders no more folders count:" + count);
+			}
+		}
 		
 		PageInfo<List<Folder>> pageInfo = new PageInfo<>();
 		pageInfo.setData(list);
@@ -118,9 +127,11 @@ public class FolderService implements IFolderService {
 		long count = 0;
 		if (!CollectionUtils.isEmpty(list)) {
 			count = list.size();
-			if (paramPageInfo.getPageSize() >= count ) {	//可能还有数据，则查询总记录数
+			if (paramPageInfo.getPageSize() == count ) {	//可能还有数据，则查询总记录数
 				Folder folder = folderDto.getFolder();
 				count = folderDao.selectCount(folder.getUserId());
+			} else {
+				logger.info("get folder sids no more folders count:" + count);
 			}
 		}
 		PageInfo<List<Folder>> pageInfo = new PageInfo<>();
@@ -141,5 +152,26 @@ public class FolderService implements IFolderService {
 			logger.error("select folder count by user id:" + userId + ", error:" + e.getMessage());
 		}
 		return count;
+	}
+
+	@Override
+	public List<Folder> getFolders(List<Integer> idList) {
+		List<Folder> fodlers = null;
+		try {
+			if (idList.size() == 1) {	//只有一条记录
+				Folder param = new Folder();
+				param.setId(idList.get(0));
+				Folder folder = getById(param);
+				if (folder != null) {
+					fodlers = new ArrayList<>();
+					fodlers.add(folder);
+				}
+			} else {
+				fodlers = folderDao.selectFilterFolders(idList);
+			}
+		} catch (Exception e) {
+			logger.error("get folders by id list error:" + e.getMessage());
+		}
+		return fodlers;
 	}
 }

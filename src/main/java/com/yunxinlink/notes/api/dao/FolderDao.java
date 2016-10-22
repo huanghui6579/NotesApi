@@ -39,4 +39,11 @@ public interface FolderDao extends BaseDao<Folder> {
 	 * @return
 	 */
 	public long selectCount(@Param(value="userId") int userId);
+	
+	/**
+	 * 获取指定id集合的笔记本信息
+	 * @param list
+	 * @return
+	 */
+	public List<Folder> selectFilterFolders(@Param(value="list") List<Integer> list);
 }

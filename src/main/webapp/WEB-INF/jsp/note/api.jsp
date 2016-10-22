@@ -48,5 +48,13 @@
 		笔记的附件:<input type="file" name="attFile"><br>
 		<button type="submit">上传附件</button>
 	</form>
+	
+	<hr>
+	获取笔记本列表
+	<form action="1569298489463013383/folders/filter" method="post">
+		笔记本的id:<input type="text" name="idList[0]"><br>
+		笔记本的id:<input type="text" name="idList[1]"><br>
+		<button type="submit">获取笔记本列表</button>
+	</form>
 </body>
 </html>

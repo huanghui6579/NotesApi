@@ -60,7 +60,7 @@ public class NoteDto extends BaseDto implements Serializable {
 	 * @return
 	 */
 	public boolean checkEmpty() {
-		return noteInfos == null || noteInfos.size() == 0;
+		return folder == null && (noteInfos == null || noteInfos.size() == 0);
 	}
 
 	@Override

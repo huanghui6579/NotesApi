@@ -67,4 +67,11 @@ public interface IFolderService {
 	 * @return
 	 */
 	public long getFolderCount(int userId);
+	
+	/**
+	 * 获取指定id集合的笔记本数据
+	 * @param idList
+	 * @return
+	 */
+	public List<Folder> getFolders(List<Integer> idList);
 }

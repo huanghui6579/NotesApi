@@ -20,4 +20,9 @@ public class Constant {
 	 * 默认的每页记录条数，默认20条
 	 */
 	public static final int PAGE_SIZE_DEFAULT = 20;
+	
+	/**
+	 * 分隔符:","
+	 */
+	public static final String TAG_COMMA = ",";
 }
