@@ -2,6 +2,8 @@ package com.yunxinlink.notes.api.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
@@ -24,4 +26,11 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	 * @return
 	 */
 	public List<NoteInfo> selectNoteInfos(NoteDto noteDto);
+	
+	/**
+	 * 获取对应用户的笔记数量
+	 * @param userId
+	 * @return
+	 */
+	public long selectCount(@Param(value="userId") int userId);
 }

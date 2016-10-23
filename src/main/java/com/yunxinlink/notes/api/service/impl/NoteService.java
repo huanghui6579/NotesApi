@@ -182,18 +182,32 @@ public class NoteService implements INoteService {
 	}
 
 	@Override
-	public List<NoteInfo> getNoteInfos(NoteDto noteDto) {
+	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto) {
 		Folder folder = noteDto.getFolder();
 		if (folder == null || folder.getUserId() == null) {
 			return null;
 		}
+		int userId = folder.getUserId();
+		PageInfo<Void> paramPageInfo = noteDto.convert2PageInfo();
 		
-		PageInfo<Void> pageInfo = noteDto.convert2PageInfo();
-		
-		int offset = pageInfo.calcPageOffset();
+		int offset = paramPageInfo.calcPageOffset();
 		noteDto.setOffset(offset);
-		noteDto.setLimit(pageInfo.getPageSize());
-		return noteDao.selectNoteInfos(noteDto);
+		noteDto.setLimit(paramPageInfo.getPageSize());
+		List<NoteInfo> noteInfos = noteDao.selectNoteInfos(noteDto);
+		
+		long count = 0;
+		if (!CollectionUtils.isEmpty(noteInfos) && offset == 0 && paramPageInfo.getPageSize() == noteInfos.size()) {	//有笔记,且只有第一页才加载笔记的总数量
+			count = noteDao.selectCount(userId);
+			logger.info("get notes count:" + count);
+		}
+		
+		PageInfo<List<NoteInfo>> pageInfo = new PageInfo<>();
+		pageInfo.setData(noteInfos);
+		pageInfo.setPageNumber(paramPageInfo.getPageNumber());
+		pageInfo.setPageSize(paramPageInfo.getPageSize());
+		pageInfo.setCount(count);
+		
+		return pageInfo;
 	}
 
 }

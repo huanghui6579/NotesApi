@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -347,8 +346,8 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<List<NoteInfo>> listNotes(@PathVariable String userSid, NoteDto noteDto) {
-		ActionResult<List<NoteInfo>> actionResult = new ActionResult<>();
+	public ActionResult<PageInfo<List<NoteInfo>>> listNotes(@PathVariable String userSid, NoteDto noteDto) {
+		ActionResult<PageInfo<List<NoteInfo>>> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
@@ -373,15 +372,14 @@ public class NoteController extends BaseController {
 		
 		noteDto.setFolder(folder);
 		try {
-			List<NoteInfo> infos = noteService.getNoteInfos(noteDto);
-			logger.info("infos:" + infos);
-			if (CollectionUtils.isEmpty(infos)) {
+			PageInfo<List<NoteInfo>> pageInfo = noteService.getNoteInfos(noteDto);
+			if (pageInfo != null && CollectionUtils.isEmpty(pageInfo.getData())) {
 				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
 				actionResult.setReason("没有笔记");
 				logger.info("list note info this user not has note :" + userSid);
 			} else {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
-				actionResult.setData(infos);
+				actionResult.setData(pageInfo);
 				actionResult.setReason("获取成功");
 			}
 		} catch (Exception e) {

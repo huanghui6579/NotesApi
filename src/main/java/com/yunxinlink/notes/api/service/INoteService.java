@@ -3,6 +3,7 @@ package com.yunxinlink.notes.api.service;
 import java.util.List;
 
 import com.yunxinlink.notes.api.dto.NoteDto;
+import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
 /**
@@ -45,5 +46,5 @@ public interface INoteService {
 	 * @param noteDto
 	 * @return
 	 */
-	public List<NoteInfo> getNoteInfos(NoteDto noteDto);
+	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto);
 }
