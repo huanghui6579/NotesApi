@@ -44,7 +44,8 @@ public interface INoteService {
 	/**
 	 * 获取用户的笔记，每次加载20条
 	 * @param noteDto
+	 * @param countSize 是否查询总记录
 	 * @return
 	 */
-	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto);
+	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto, boolean countSize);
 }

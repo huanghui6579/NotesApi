@@ -182,7 +182,7 @@ public class NoteService implements INoteService {
 	}
 
 	@Override
-	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto) {
+	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto, boolean countSize) {
 		Folder folder = noteDto.getFolder();
 		if (folder == null || folder.getUserId() == null) {
 			return null;
@@ -196,7 +196,7 @@ public class NoteService implements INoteService {
 		List<NoteInfo> noteInfos = noteDao.selectNoteInfos(noteDto);
 		
 		long count = 0;
-		if (!CollectionUtils.isEmpty(noteInfos) && offset == 0 && paramPageInfo.getPageSize() == noteInfos.size()) {	//有笔记,且只有第一页才加载笔记的总数量
+		if (countSize && !CollectionUtils.isEmpty(noteInfos)) {	//有笔记,加载笔记的总数量
 			count = noteDao.selectCount(userId);
 			logger.info("get notes count:" + count);
 		}

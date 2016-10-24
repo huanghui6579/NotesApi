@@ -342,11 +342,12 @@ public class NoteController extends BaseController {
 	 * 加载笔记的列表，每次加载20条记录
 	 * @param userSid 用户的sid
 	 * @param noteDto 参数
+	 * @param countSize 是否查询总记录数,1:需要查询
 	 * @return
 	 */
 	@RequestMapping(value = "{userSid}/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<PageInfo<List<NoteInfo>>> listNotes(@PathVariable String userSid, NoteDto noteDto) {
+	public ActionResult<PageInfo<List<NoteInfo>>> listNotes(@PathVariable String userSid, NoteDto noteDto, Integer countSize) {
 		ActionResult<PageInfo<List<NoteInfo>>> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
@@ -372,7 +373,8 @@ public class NoteController extends BaseController {
 		
 		noteDto.setFolder(folder);
 		try {
-			PageInfo<List<NoteInfo>> pageInfo = noteService.getNoteInfos(noteDto);
+			boolean needCount = (countSize != null && countSize == 1) ? false : true;
+			PageInfo<List<NoteInfo>> pageInfo = noteService.getNoteInfos(noteDto, needCount);
 			if (pageInfo != null && CollectionUtils.isEmpty(pageInfo.getData())) {
 				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
 				actionResult.setReason("没有笔记");
