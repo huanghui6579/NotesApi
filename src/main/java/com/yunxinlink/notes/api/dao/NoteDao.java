@@ -28,9 +28,23 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	public List<NoteInfo> selectNoteInfos(NoteDto noteDto);
 	
 	/**
+	 * 分页获取笔记的sid信息
+	 * @param noteDto
+	 * @return
+	 */
+	public List<NoteInfo> selectNoteSids(NoteDto noteDto);
+	
+	/**
 	 * 获取对应用户的笔记数量
 	 * @param userId
 	 * @return
 	 */
 	public long selectCount(@Param(value="userId") int userId);
+	
+	/**
+	 * 获取指定的笔记信息
+	 * @param list
+	 * @return
+	 */
+	public List<NoteInfo> selectFilterNotes(@Param(value="list") List<Integer> list);
 }

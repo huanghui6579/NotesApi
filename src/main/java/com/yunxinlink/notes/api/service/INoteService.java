@@ -48,4 +48,19 @@ public interface INoteService {
 	 * @return
 	 */
 	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto, boolean countSize);
+	
+	/**
+	 * 获取用户的笔记的sid，每次加载20条
+	 * @param noteDto
+	 * @param countSize 是否查询总记录
+	 * @return
+	 */
+	public PageInfo<List<NoteInfo>> getNoteSids(NoteDto noteDto, boolean countSize);
+	
+	/**
+	 * 获取指定的笔记信息
+	 * @param idList
+	 * @return
+	 */
+	public List<NoteInfo> getNotes(List<Integer> idList);
 }

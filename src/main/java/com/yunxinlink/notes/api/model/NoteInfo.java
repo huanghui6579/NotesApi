@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -225,12 +226,33 @@ public class NoteInfo implements Serializable {
 	public boolean hasAttachs() {
 		return !CollectionUtils.isEmpty(attachs);
 	}
+	
+	/**
+	 * 生成hash值
+	 * 该hash值由title;content;folderSid;kind;deleteState的格式组成，顺序不能错,如果为null,则用""代替
+	 * @return
+	 */
+	public String generateHash() {
+		String spliter = ";";
+		String title = this.title == null ? "" : this.title;
+		String content = this.content == null ? "" : this.content;
+		String folderSid = this.folderSid == null ? "" : this.folderSid;
+		int kind = this.kind == null ? NoteKind.TEXT : this.kind;
+		int deleteState = this.deleteState == null ? 0 : this.deleteState;
+		StringBuilder builder = new StringBuilder();
+		builder.append(title).append(spliter)
+				.append(content).append(spliter)
+				.append(folderSid).append(spliter)
+				.append(kind).append(spliter)
+				.append(deleteState);
+		return DigestUtils.md5Hex(builder.toString());
+	}
 
 	/**
 	 * 是否是清单笔记，true：是
 	 * @return
 	 */
-	public boolean isDetailListNote() {
+	public boolean checkDetailListNote() {
 		return kind != null && kind == NoteKind.DETAILED_LIST;
 	}
 

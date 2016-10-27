@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +77,7 @@ public class NoteService implements INoteService {
 			return rowCount > 0;
 		}
 		for (NoteInfo info : list) {
-			if (info.isDetailListNote()) {
+			if (info.checkDetailListNote()) {
 				List<DetailList> detailLists = info.getDetails();
 				if (!CollectionUtils.isEmpty(detailLists)) {
 					detailNotes.addAll(detailLists);
@@ -109,12 +108,7 @@ public class NoteService implements INoteService {
 			//该用户的id在controller层已设置好
 			info.setUserId(folder.getUserId());
 			if (StringUtils.isEmpty(info.getHash())) {
-				String hash = null;
-				if (info.isDetailListNote()) {	//清单笔记
-					hash = DigestUtils.md5Hex(info.getTitle());
-				} else {
-					hash = DigestUtils.md5Hex(info.getContent());
-				}
+				String hash = info.generateHash();
 				info.setHash(hash);
 			}
 		}
@@ -183,6 +177,23 @@ public class NoteService implements INoteService {
 
 	@Override
 	public PageInfo<List<NoteInfo>> getNoteInfos(NoteDto noteDto, boolean countSize) {
+		return getNoteForPage(false, noteDto, countSize);
+	}
+
+	@Override
+	public PageInfo<List<NoteInfo>> getNoteSids(NoteDto noteDto, boolean countSize) {
+		
+		return getNoteForPage(true, noteDto, countSize);
+	}
+	
+	/**
+	 * 加载笔记数据
+	 * @param isOnlySid
+	 * @param noteDto
+	 * @param countSize
+	 * @return
+	 */
+	private PageInfo<List<NoteInfo>> getNoteForPage(boolean isOnlySid, NoteDto noteDto, boolean countSize) {
 		Folder folder = noteDto.getFolder();
 		if (folder == null || folder.getUserId() == null) {
 			return null;
@@ -193,12 +204,17 @@ public class NoteService implements INoteService {
 		int offset = paramPageInfo.calcPageOffset();
 		noteDto.setOffset(offset);
 		noteDto.setLimit(paramPageInfo.getPageSize());
-		List<NoteInfo> noteInfos = noteDao.selectNoteInfos(noteDto);
+		List<NoteInfo> noteInfos = null;
+		if (isOnlySid) {	//只加载sid和少部分数据
+			noteInfos = noteDao.selectNoteSids(noteDto);
+		} else {
+			noteInfos = noteDao.selectNoteInfos(noteDto);
+		}
 		
 		long count = 0;
 		if (countSize && !CollectionUtils.isEmpty(noteInfos)) {	//有笔记,加载笔记的总数量
 			count = noteDao.selectCount(userId);
-			logger.info("get notes count:" + count);
+			logger.info("get note list count:" + count);
 		}
 		
 		PageInfo<List<NoteInfo>> pageInfo = new PageInfo<>();
@@ -208,6 +224,28 @@ public class NoteService implements INoteService {
 		pageInfo.setCount(count);
 		
 		return pageInfo;
+	}
+
+	@Override
+	public List<NoteInfo> getNotes(List<Integer> idList) {
+		List<NoteInfo> list = null;
+		try {
+			if (idList.size() == 1) {	//只有一条记录
+				NoteInfo param = new NoteInfo();
+				param.setId(idList.get(0));
+				
+				NoteInfo noteInfo = getById(param);
+				if (noteInfo != null) {
+					list = new ArrayList<>();
+					list.add(noteInfo);
+				}
+			} else {	//多条记录
+				list = noteDao.selectFilterNotes(idList);
+			}
+		} catch (Exception e) {
+			logger.error("get notes by id list error:" + e.getMessage());
+		}
+		return list;
 	}
 
 }
