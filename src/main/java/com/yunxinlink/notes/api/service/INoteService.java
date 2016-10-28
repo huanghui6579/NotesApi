@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.dto.PageInfo;
+import com.yunxinlink.notes.api.model.DetailList;
 import com.yunxinlink.notes.api.model.NoteInfo;
 
 /**
@@ -35,11 +36,18 @@ public interface INoteService {
 	public boolean deleteNote(NoteInfo noteInfo);
 	
 	/**
-	 * 根据笔记的id来获取笔记
+	 * 根据笔记的id来获取笔记，包含清单和附件的信息
 	 * @param noteInfo
 	 * @return
 	 */
 	public NoteInfo getById(NoteInfo noteInfo);
+	
+	/**
+	 * 只获取笔记的信息，清单和附件的不获取
+	 * @param noteInfo
+	 * @return
+	 */
+	public NoteInfo getSimpleById(NoteInfo noteInfo);
 	
 	/**
 	 * 获取用户的笔记，每次加载20条
@@ -58,9 +66,17 @@ public interface INoteService {
 	public PageInfo<List<NoteInfo>> getNoteSids(NoteDto noteDto, boolean countSize);
 	
 	/**
-	 * 获取指定的笔记信息
+	 * 获取指定的笔记信息,包含清单和附件的信息
+	 * @param idList
+	 * @param simple 是否只加载基本的笔记数据，清单和附件不加载
+	 * @return
+	 */
+	public List<NoteInfo> getNotes(List<Integer> idList, boolean simple);
+	
+	/**
+	 * 获取指定清单的数据
 	 * @param idList
 	 * @return
 	 */
-	public List<NoteInfo> getNotes(List<Integer> idList);
+	public List<DetailList> getFilterDetailList(List<Integer> idList);
 }

@@ -13,6 +13,14 @@ import com.yunxinlink.notes.api.model.NoteInfo;
  * @date 2016年10月6日 上午10:52:30
  */
 public interface NoteDao extends BaseDao<NoteInfo> {
+	
+	/**
+	 * 仅获取笔记的基本信息，不包含清单和附件信息
+	 * @param noteInfo
+	 * @return
+	 */
+	public NoteInfo selectBasicById(NoteInfo noteInfo);
+	
 	/**
 	 * 批量添加笔记
 	 * @param list
@@ -42,9 +50,16 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	public long selectCount(@Param(value="userId") int userId);
 	
 	/**
-	 * 获取指定的笔记信息
+	 * 获取指定的笔记信息,包含清单和附件的基本信息
 	 * @param list
 	 * @return
 	 */
 	public List<NoteInfo> selectFilterNotes(@Param(value="list") List<Integer> list);
+	
+	/**
+	 * 获取指定的笔记信息，不包含清单和附件的基本信息
+	 * @param list
+	 * @return
+	 */
+	public List<NoteInfo> selectBasicFilterNotes(@Param(value="list") List<Integer> list);
 }

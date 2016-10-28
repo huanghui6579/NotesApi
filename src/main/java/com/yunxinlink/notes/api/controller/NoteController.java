@@ -36,6 +36,7 @@ import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.Attach;
+import com.yunxinlink.notes.api.model.DetailList;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.model.NoteInfo;
 import com.yunxinlink.notes.api.model.User;
@@ -368,11 +369,12 @@ public class NoteController extends BaseController {
 	 * 获取指定的笔记ID集合的笔记信息，包含附件和清单的信息
 	 * @param userSid
 	 * @param idStr
+	 * @param simple 是否只加载基本数据，不包含清单的和附件的
 	 * @return
 	 */
 	@RequestMapping(value = "{userSid}/list/filter", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<List<NoteInfo>> filterNotes(@PathVariable String userSid, String idStr) {
+	public ActionResult<List<NoteInfo>> filterNotes(@PathVariable String userSid, String idStr, Boolean simple) {
 		ActionResult<List<NoteInfo>> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
@@ -413,8 +415,8 @@ public class NoteController extends BaseController {
 				actionResult.setReason("参数错误");
 				return actionResult;
 			}
-			
-			List<NoteInfo> noteList = noteService.getNotes(idList);
+			boolean loadSimple = simple == null ? false : simple;
+			List<NoteInfo> noteList = noteService.getNotes(idList, loadSimple);
 			
 			if (CollectionUtils.isEmpty(noteList)) {
 				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
@@ -430,6 +432,146 @@ public class NoteController extends BaseController {
 			actionResult.setResultCode(ActionResult.RESULT_ERROR);
 			actionResult.setReason("服务器错误");
 			logger.error("down note filter notes error:" + e.getMessage());
+			e.printStackTrace();
+		}
+		return actionResult;
+	}
+	
+	/**
+	 * 获取指定的清单ID集合的清单信息
+	 * @param userSid
+	 * @param idStr
+	 * @return
+	 */
+	@RequestMapping(value = "{userSid}/detaillist/filter", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<List<DetailList>> filterDetailLists(@PathVariable String userSid, String idStr) {
+		ActionResult<List<DetailList>> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		
+		User user = new User();
+		user.setSid(userSid);
+		
+		user = userService.getUserById(user);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {
+			return actionResult;
+		}
+		
+		try {
+			//id之间用,分隔
+			String[] idStrs = idStr.split(Constant.TAG_COMMA);
+			if (idStrs == null) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			
+			List<Integer> idList = new ArrayList<>();
+			for (String str : idStrs) {
+				try {
+					int id = Integer.parseInt(str);
+					idList.add(id);
+				} catch (Exception e) {
+					logger.error("down detail filter notes parse id:" + str + ", error:" + e.getMessage());
+				}
+			}
+			
+			if (idList.size() == 0) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			List<DetailList> detailLists = noteService.getFilterDetailList(idList);
+			
+			if (CollectionUtils.isEmpty(detailLists)) {
+				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+				actionResult.setReason("没有清单");
+				logger.info("filter detail this user no note :" + userSid);
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+				actionResult.setData(detailLists);
+				actionResult.setReason("获取成功");
+			}
+			
+		} catch (Exception e) {
+			actionResult.setResultCode(ActionResult.RESULT_ERROR);
+			actionResult.setReason("服务器错误");
+			logger.error("down detail list filter error:" + e.getMessage());
+			e.printStackTrace();
+		}
+		return actionResult;
+	}
+	
+	/**
+	 * 获取指定的附件ID集合的附件信息
+	 * @param userSid
+	 * @param idStr
+	 * @return
+	 */
+	@RequestMapping(value = "{userSid}/attach/filter", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<List<Attach>> filterAttachs(@PathVariable String userSid, String idStr) {
+		ActionResult<List<Attach>> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		
+		User user = new User();
+		user.setSid(userSid);
+		
+		user = userService.getUserById(user);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {
+			return actionResult;
+		}
+		
+		try {
+			//id之间用,分隔
+			String[] idStrs = idStr.split(Constant.TAG_COMMA);
+			if (idStrs == null) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			
+			List<Integer> idList = new ArrayList<>();
+			for (String str : idStrs) {
+				try {
+					int id = Integer.parseInt(str);
+					idList.add(id);
+				} catch (Exception e) {
+					logger.error("down attach filter notes parse id:" + str + ", error:" + e.getMessage());
+				}
+			}
+			
+			if (idList.size() == 0) {	//
+				actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+				actionResult.setReason("参数错误");
+				return actionResult;
+			}
+			List<Attach> detailLists = attachService.getFilterAttachs(idList);
+			
+			if (CollectionUtils.isEmpty(detailLists)) {
+				actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+				actionResult.setReason("没有附件");
+				logger.info("filter attach this user no note :" + userSid);
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+				actionResult.setData(detailLists);
+				actionResult.setReason("获取成功");
+			}
+			
+		} catch (Exception e) {
+			actionResult.setResultCode(ActionResult.RESULT_ERROR);
+			actionResult.setReason("服务器错误");
+			logger.error("down attach list filter error:" + e.getMessage());
 			e.printStackTrace();
 		}
 		return actionResult;

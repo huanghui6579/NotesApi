@@ -1,5 +1,6 @@
 package com.yunxinlink.notes.api.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -105,6 +106,28 @@ public class AttachService implements IAttachService {
 			list = attachDao.selectByNote(noteId);
 		} catch (Exception e) {
 			logger.error("get attachs by note error:" + e.getMessage());
+		}
+		return list;
+	}
+	
+	@Override
+	public List<Attach> getFilterAttachs(List<Integer> idList) {
+		List<Attach> list = null;
+		try {
+			if (idList.size() == 1) {	//只有一条记录
+				Attach param = new Attach();
+				param.setId(idList.get(0));
+				
+				Attach attach = attachDao.selectById(param);
+				if (attach != null) {
+					list = new ArrayList<>();
+					list.add(attach);
+				}
+			} else {	//多条记录
+				list = attachDao.selectFilterAttachs(idList);
+			}
+		} catch (Exception e) {
+			logger.error("get attachs by id list error:" + e.getMessage());
 		}
 		return list;
 	}

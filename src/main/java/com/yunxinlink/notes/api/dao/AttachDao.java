@@ -2,6 +2,8 @@ package com.yunxinlink.notes.api.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yunxinlink.notes.api.model.Attach;
 
 /**
@@ -15,14 +17,14 @@ public interface AttachDao extends BaseDao<Attach> {
 	 * @param noteId
 	 * @return
 	 */
-	public List<Attach> selectByNote(int noteId);
+	public List<Attach> selectByNote(@Param("noteId") int noteId);
 	
 	/**
 	 * 根据笔记的id删除笔记
 	 * @param noteId
 	 * @return
 	 */
-	public int deleteByNote(int noteId);
+	public int deleteByNote(@Param("noteId") int noteId);
 	
 	/**
 	 * 删除一组附件
@@ -36,5 +38,12 @@ public interface AttachDao extends BaseDao<Attach> {
 	 * @param list
 	 * @return
 	 */
-	public int addBatch(List<Attach> list);
+	public int addBatch(@Param("list") List<Attach> list);
+	
+	/**
+	 * 获取指定的附件信息
+	 * @param list
+	 * @return
+	 */
+	public List<Attach> selectFilterAttachs(@Param("list") List<Integer> list);
 }

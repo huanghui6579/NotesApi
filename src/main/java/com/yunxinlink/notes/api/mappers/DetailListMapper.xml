@@ -88,6 +88,13 @@
 	<select id="selectByNote" resultType="DetailList" parameterType="int">
 		select * from t_detail_list where noteId = #{noteId}
 	</select>
+	
+	<select id="selectFilterDetail" resultType="DetailList">
+		select * from t_detail_list where id in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</select>
 		
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
 	    select * from t_detail_list limit #{pageOffset}, #{pageSize}

@@ -227,23 +227,65 @@ public class NoteService implements INoteService {
 	}
 
 	@Override
-	public List<NoteInfo> getNotes(List<Integer> idList) {
+	public List<NoteInfo> getNotes(List<Integer> idList, boolean simple) {
 		List<NoteInfo> list = null;
 		try {
 			if (idList.size() == 1) {	//只有一条记录
 				NoteInfo param = new NoteInfo();
 				param.setId(idList.get(0));
 				
-				NoteInfo noteInfo = getById(param);
+				NoteInfo noteInfo = null;
+				if (simple) {
+					noteInfo = getSimpleById(param);
+				} else {
+					noteInfo = getById(param);
+				}
 				if (noteInfo != null) {
 					list = new ArrayList<>();
 					list.add(noteInfo);
 				}
 			} else {	//多条记录
-				list = noteDao.selectFilterNotes(idList);
+				if (simple) {
+					list = noteDao.selectBasicFilterNotes(idList);
+				} else {
+					list = noteDao.selectFilterNotes(idList);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("get notes by id list error:" + e.getMessage());
+		}
+		return list;
+	}
+
+	@Override
+	public NoteInfo getSimpleById(NoteInfo noteInfo) {
+		NoteInfo result = null;
+		try {
+			result = noteDao.selectBasicById(noteInfo);
+		} catch (Exception e) {
+			logger.error("get note basic info by id error:" + e.getMessage());
+		}
+		return result;
+	}
+
+	@Override
+	public List<DetailList> getFilterDetailList(List<Integer> idList) {
+		List<DetailList> list = null;
+		try {
+			if (idList.size() == 1) {	//只有一条记录
+				DetailList param = new DetailList();
+				param.setId(idList.get(0));
+				
+				DetailList detailList = detailListDao.selectById(param);
+				if (detailList != null) {
+					list = new ArrayList<>();
+					list.add(detailList);
+				}
+			} else {	//多条记录
+				list = detailListDao.selectFilterDetail(idList);
+			}
+		} catch (Exception e) {
+			logger.error("get detail list by id list error:" + e.getMessage());
 		}
 		return list;
 	}

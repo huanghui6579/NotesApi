@@ -2,6 +2,8 @@ package com.yunxinlink.notes.api.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yunxinlink.notes.api.model.DetailList;
 
 /**
@@ -15,26 +17,33 @@ public interface DetailListDao extends BaseDao<DetailList> {
 	 * @param list
 	 * @return
 	 */
-	public int addBatch(List<DetailList> list);
+	public int addBatch(@Param("list") List<DetailList> list);
 	
 	/**
 	 * 批量删除
 	 * @param list
 	 * @return
 	 */
-	public int deleteBatch(List<DetailList> list);
+	public int deleteBatch(@Param("list") List<DetailList> list);
 	
 	/**
 	 * 根据笔记的id删除该笔记的清单
 	 * @param noteId
 	 * @return
 	 */
-	public int deleteByNote(int noteId);
+	public int deleteByNote(@Param("noteId") int noteId);
 	
 	/**
 	 * 根据笔记的id查询该笔记下的清单
 	 * @param noteId
 	 * @return
 	 */
-	public List<DetailList> selectByNote(int noteId);
+	public List<DetailList> selectByNote(@Param("noteId") int noteId);
+	
+	/**
+	 * 获取制定ID的清单
+	 * @param list
+	 * @return
+	 */
+	public List<DetailList> selectFilterDetail(@Param(value="list") List<Integer> list);
 }

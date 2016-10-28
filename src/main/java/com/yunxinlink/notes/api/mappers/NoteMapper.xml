@@ -157,11 +157,30 @@
 	    </choose>
 	</select>
 	
+	<select id="selectBasicById" resultType="NoteInfo" parameterType="NoteInfo">
+		SELECT * from t_note_info where 
+		<choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</select>
+	
 	<select id="selectFilterNotes" resultMap="noteInfoResultMap">
 	    SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
 	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
 	    d.deleteState d_deleteState, d.hash d_hash, d.modifyTime d_modifyTime, d.sid d_sid, d.sort, d.title d_title 
 		FROM t_note_info n LEFT JOIN t_attach a ON n.sid = a.noteSid LEFT JOIN t_detail_list d on n.sid = d.noteSid where n.id in 
+	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</select>
+	
+	<select id="selectBasicFilterNotes" resultType="NoteInfo">
+	    SELECT * FROM t_note_info where id in 
 	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 	    	#{item}
 	    </foreach>

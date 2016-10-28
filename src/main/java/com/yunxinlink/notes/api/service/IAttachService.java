@@ -65,4 +65,11 @@ public interface IAttachService {
 	 * @return
 	 */
 	public List<Attach> getByNote(int noteId);
+	
+	/**
+	 * 获取指定附件
+	 * @param list
+	 * @return
+	 */
+	public List<Attach> getFilterAttachs(List<Integer> list);
 }

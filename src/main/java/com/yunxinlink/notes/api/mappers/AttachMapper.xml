@@ -89,6 +89,13 @@
 	    </choose>
 	</select>
 	
+	<select id="selectFilterAttachs" resultType="Attach">
+	    SELECT * FROM t_attach where id in 
+	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</select>
+	
 	<select id="selectByNote" resultType="Attach" parameterType="int">
 		select * from t_attach where noteId = #{noteId}
 	</select>
