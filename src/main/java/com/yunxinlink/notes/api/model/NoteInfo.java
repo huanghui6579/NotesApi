@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.yunxinlink.notes.api.util.Constant;
 
 /**
  * 笔记的基本信息
@@ -233,7 +234,7 @@ public class NoteInfo implements Serializable {
 	 * @return
 	 */
 	public String generateHash() {
-		String spliter = ";";
+		String spliter = Constant.TAG_SEMICOLON;
 		String title = this.title == null ? "" : this.title;
 		String content = this.content == null ? "" : this.content;
 		String folderSid = this.folderSid == null ? "" : this.folderSid;

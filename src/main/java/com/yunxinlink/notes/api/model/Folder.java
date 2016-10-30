@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.yunxinlink.notes.api.util.Constant;
 
 /**
  * 笔记的分类文件夹
@@ -213,7 +214,7 @@ public class Folder implements Cloneable, Comparator<Folder>, Serializable {
 		if (StringUtils.isBlank(name)) {
 			return null;
 		}
-		String spliter = ";";
+		String spliter = Constant.TAG_SEMICOLON;
 		boolean isLock = this.isLock == null ? false : this.isLock;
 		int sort = this.sort == null ? 0 : this.sort;
 		int deleteState = this.deleteState == null ? 0 : this.deleteState;

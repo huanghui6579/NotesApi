@@ -611,7 +611,7 @@ public class NoteController extends BaseController {
 		
 		noteDto.setFolder(folder);
 		try {
-			boolean needCount = (countSize != null && countSize == 1) ? false : true;
+			boolean needCount = (countSize != null && countSize == 1) ? true : false;
 			PageInfo<List<NoteInfo>> pageInfo = null;
 			if (onlySid) {	//只加载笔记的sid等基本信息
 				pageInfo = noteService.getNoteSids(noteDto, needCount);
