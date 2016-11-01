@@ -15,7 +15,7 @@
     	<result column="a_deleteState" property="deleteState" />
     	<result column="a_createTime" property="createTime" />
     	<result column="a_modifyTime" property="modifyTime" />
-    	<!-- <result column="size" property="size" /> -->
+    	<result column="size" property="size" />
     	<result column="mimeType" property="mimeType" />
     	<result column="a_hash" property="hash" />
 	</resultMap>
@@ -115,7 +115,7 @@
 	
 	<select id="selectNoteInfos" resultMap="noteInfoResultMap" parameterType="NoteDto">
 	    SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
-	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
+	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.size, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
 	    d.deleteState d_deleteState, d.hash d_hash, d.modifyTime d_modifyTime, d.sid d_sid, d.sort, d.title d_title 
 		FROM t_note_info n LEFT JOIN t_attach a ON n.sid = a.noteSid LEFT JOIN t_detail_list d on n.sid = d.noteSid 
 	    <trim prefix="where" prefixOverrides="AND | OR">
@@ -123,9 +123,11 @@
 	    		and userId = #{folder.userId}
 	    	</if>
 	    </trim>
+	    order by n.modifyTime desc
 	    <if test="offset != null and limit !=null">
              limit #{offset},#{limit}
         </if>
+        
 	</select>
 	
 	<select id="selectNoteSids" resultMap="noteInfoResultMap" parameterType="NoteDto">
@@ -143,7 +145,7 @@
 	
 	<select id="selectById" resultMap="noteInfoResultMap" parameterType="NoteInfo">
 		SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
-	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
+	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.size, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
 	    d.deleteState d_deleteState, d.hash d_hash, d.modifyTime d_modifyTime, d.sid d_sid, d.sort, d.title d_title 
 		FROM t_note_info n LEFT JOIN t_attach a ON n.sid = a.noteSid LEFT JOIN t_detail_list d on n.sid = d.noteSid
 		where 
@@ -171,12 +173,13 @@
 	
 	<select id="selectFilterNotes" resultMap="noteInfoResultMap">
 	    SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
-	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
+	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.size, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 
 	    d.deleteState d_deleteState, d.hash d_hash, d.modifyTime d_modifyTime, d.sid d_sid, d.sort, d.title d_title 
 		FROM t_note_info n LEFT JOIN t_attach a ON n.sid = a.noteSid LEFT JOIN t_detail_list d on n.sid = d.noteSid where n.id in 
 	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 	    	#{item}
 	    </foreach>
+	    order by n.modifyTime desc
 	</select>
 	
 	<select id="selectBasicFilterNotes" resultType="NoteInfo">
