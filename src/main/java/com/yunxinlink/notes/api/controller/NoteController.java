@@ -716,7 +716,7 @@ public class NoteController extends BaseController {
 	
 	@RequestMapping("att/{sid}")
     @ResponseBody
-	public ResponseEntity<InputStreamResource> downloadAvatar(@PathVariable String sid, @RequestParam(name = "userSid", required = true) String userSid, HttpServletRequest request) {
+	public ResponseEntity<InputStreamResource> downloadAttach(@PathVariable String sid, @RequestParam(name = "userSid", required = true) String userSid, HttpServletRequest request) {
 		boolean hasContent = false;
 		InputStreamResource inputStreamResource = null;
 		HttpHeaders headers = new HttpHeaders();
@@ -733,7 +733,7 @@ public class NoteController extends BaseController {
 				attach = attachService.getById(attach);
 				if (attach != null && StringUtils.isNotBlank(attach.getLocalPath())) {	//附件存在
 					String attLocalPath = attach.getLocalPath();
-					File file = getAttachrFile(attLocalPath);
+					File file = getAttachFile(attLocalPath);
 					if (file != null && file.exists()) {	//文件存在
 						String filename = attach.getFilename();
 						String mime = attach.getMimeType();
@@ -800,7 +800,7 @@ public class NoteController extends BaseController {
 	 * @param avatarFilename
 	 * @return
 	 */
-	private File getAttachrFile(String avatarFilename) {
+	private File getAttachFile(String avatarFilename) {
 		String rootDir = SystemCache.getUploadPath();
 		File file = new File(rootDir, SystemUtil.generateAttachFilePath(AttachUsage.ATTACH, avatarFilename));
 		return file;
