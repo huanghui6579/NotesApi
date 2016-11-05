@@ -779,6 +779,40 @@ public class NoteController extends BaseController {
 	}
 	
 	/**
+	 * 只改变笔记的删除状态
+	 * @param userSid 用户的sid
+	 * @param noteList 笔记列表
+	 * @return
+	 */
+	@RequestMapping("state/{userSid}/change")
+	@ResponseBody
+	public ActionResult<Void> changeNoteState(@PathVariable String userSid, @RequestBody List<NoteInfo> noteList) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid) || CollectionUtils.isEmpty(noteList)) {	//参数为空
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		User user = new User();
+		user.setSid(userSid);
+		
+		user = userService.getUserById(user);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {	//检查用户状态
+			return actionResult;
+		}
+		boolean success = noteService.updateState(noteList);
+		if (success) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("更新成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("更新失败");
+		}
+		return actionResult;
+	}
+	
+	/**
 	 * @param avatarPath 头像的相对路径，存在数据库里的
 	 * @param sid
 	 * @param ext 文件的后缀，不带.

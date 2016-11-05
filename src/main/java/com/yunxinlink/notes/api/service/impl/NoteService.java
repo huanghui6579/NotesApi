@@ -290,4 +290,30 @@ public class NoteService implements INoteService {
 		return list;
 	}
 
+	@Override
+	public boolean updateState(NoteInfo noteInfo) {
+		int count = 0;
+		try {
+			count = noteDao.updateState(noteInfo);
+		} catch (Exception e) {
+			logger.error("update note delete state error:" + e.getMessage());
+		}
+		return count > 0;
+	}
+
+	@Override
+	public boolean updateState(List<NoteInfo> noteList) {
+		int count = 0;
+		try {
+			if (noteList.size() == 1) {	//只有一条记录
+				count = noteDao.updateState(noteList.get(0));
+			} else {
+				count = noteDao.updateStateList(noteList);
+			}
+		} catch (Exception e) {
+			logger.error("update note list delete state error:" + e.getMessage());
+		}
+		return count > 0;
+	}
+
 }

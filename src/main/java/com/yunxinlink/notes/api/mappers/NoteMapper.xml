@@ -113,6 +113,30 @@
 	    </choose>
 	</update>
 	
+	<update id="updateState" parameterType="NoteInfo">
+		update t_note_info set deleteState = #{deleteState} 
+		<if test="modifyTime != null">
+            , modifyTime = #{modifyTime}
+        </if>
+		where 
+	    <choose>
+	    	<when test="id != null">
+		    	id = #{id}
+	    	</when>
+	    	<otherwise>
+	    		sid = #{sid}
+	    	</otherwise>
+	    </choose>
+	</update>
+	
+	<!-- 根据sid来更新 -->
+	<update id="updateStateList">
+		update t_note_info set deleteState = #{deleteState}, modifyTime = #{modifyTime} where sid in
+	    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+	    	#{item}
+	    </foreach>
+	</update>
+	
 	<select id="selectNoteInfos" resultMap="noteInfoResultMap" parameterType="NoteDto">
 	    SELECT n.*, a.sid a_sid, a.createTime a_createTime, a.deleteState a_deleteState, a.description, a.filename, a.id a_id, 
 	    a.mimeType, a.modifyTime a_modifyTime, a.type, a.size, a.hash a_hash, d.id d_id, d.checked, d.createTime d_createTime, 

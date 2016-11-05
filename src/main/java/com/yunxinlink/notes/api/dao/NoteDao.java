@@ -62,4 +62,18 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	 * @return
 	 */
 	public List<NoteInfo> selectBasicFilterNotes(@Param(value="list") List<Integer> list);
+	
+	/**
+	 * 更新一条笔记的删除状态
+	 * @param noteInfo
+	 * @return
+	 */
+	public int updateState(NoteInfo noteInfo);
+	
+	/**
+	 * 更新一组笔记的删除状态
+	 * @param noteList
+	 * @return
+	 */
+	public int updateStateList(List<NoteInfo> noteList);
 }

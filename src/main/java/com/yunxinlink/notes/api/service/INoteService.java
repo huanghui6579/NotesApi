@@ -79,4 +79,18 @@ public interface INoteService {
 	 * @return
 	 */
 	public List<DetailList> getFilterDetailList(List<Integer> idList);
+	
+	/**
+	 * 更新笔记的删除状态
+	 * @param noteInfo
+	 * @return
+	 */
+	public boolean updateState(NoteInfo noteInfo);
+	
+	/**
+	 * 更新一组笔记id删除状态
+	 * @param noteList
+	 * @return
+	 */
+	public boolean updateState(List<NoteInfo> noteList);
 }
