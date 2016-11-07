@@ -256,6 +256,14 @@ public class NoteInfo implements Serializable {
 	public boolean checkDetailListNote() {
 		return kind != null && kind == NoteKind.DETAILED_LIST;
 	}
+	
+	/**
+	 * 判断该笔记是否是完全删除
+	 * @return
+	 */
+	public boolean checkDeleteDone() {
+		return deleteState != null && deleteState == DeleteState.DELETE_DONE;
+	}
 
 	@Override
 	public String toString() {

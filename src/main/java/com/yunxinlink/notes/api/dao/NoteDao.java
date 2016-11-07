@@ -75,5 +75,29 @@ public interface NoteDao extends BaseDao<NoteInfo> {
 	 * @param noteList
 	 * @return
 	 */
-	public int updateStateList(List<NoteInfo> noteList);
+	public int updateStateList(@Param("list") List<String> list);
+	
+	/**
+	 * 根据sid的集合删除对应的笔记
+	 * @param list
+	 * @return
+	 */
+	public int deleteSidList(@Param("list") List<String> list);
+	
+
+	/**
+	 * 根据id的集合删除对应的笔记
+	 * @param list
+	 * @return
+	 */
+	public int deleteIdList(@Param("list") List<Integer> list);
+	
+	
+	/**
+	 * 根据sid的集合删除对应的笔记
+	 * @param list
+	 * @return
+	 */
+	public int deleteList(@Param("list") List<NoteInfo> list);
+	
 }
