@@ -76,7 +76,13 @@ public class NoteService implements INoteService {
 			logger.info("add note and update folder not has notes sid:" + folderSid);
 			return rowCount > 0;
 		}
+		//需要删除的笔记列表
+		List<NoteInfo> removeList = new ArrayList<>();
 		for (NoteInfo info : list) {
+			if (info.checkDeleteDone()) {	//需要完全删除
+				removeList.add(info);
+				continue;
+			}
 			if (info.checkDetailListNote()) {
 				List<DetailList> detailLists = info.getDetails();
 				if (!CollectionUtils.isEmpty(detailLists)) {
@@ -112,6 +118,18 @@ public class NoteService implements INoteService {
 				info.setHash(hash);
 			}
 		}
+		
+		if (!CollectionUtils.isEmpty(removeList)) {	//有需要删除的笔记
+			logger.info("add or note has any removeable notes and will remove these size:" + removeList.size());
+			noteDao.deleteList(removeList);
+			list.removeAll(removeList);
+		}
+		
+		if (CollectionUtils.isEmpty(list)) {	//没有笔记
+			logger.info("add or note remove note list end but no more notes will delete folder sid:" + folderSid);
+			return true;
+		}
+		
 		if (list.size() == 1) {	//只有一个笔记
 			NoteInfo info = list.get(0);
 			rowCount = noteDao.add(info);
@@ -306,9 +324,29 @@ public class NoteService implements INoteService {
 		int count = 0;
 		try {
 			if (noteList.size() == 1) {	//只有一条记录
-				count = noteDao.updateState(noteList.get(0));
-			} else {
-				count = noteDao.updateStateList(noteList);
+				NoteInfo noteInfo = noteList.get(0);
+				if (noteInfo.checkDeleteDone()) {	//完全删除，则直接将其数据库记录移除
+					count = noteDao.delete(noteInfo);
+				} else {
+					count = noteDao.updateState(noteInfo);
+				}
+			} else {	//多条记录
+				//完全删除的列表
+				List<String> deleteList = new ArrayList<>();
+				List<String> updateList = new ArrayList<>();
+				for (NoteInfo noteInfo : noteList) {
+					if (noteInfo.checkDeleteDone()) {	//完全删除的
+						deleteList.add(noteInfo.getSid());
+					} else {
+						updateList.add(noteInfo.getSid());
+					}
+				}
+				if (!CollectionUtils.isEmpty(deleteList)) {
+					count = noteDao.deleteSidList(deleteList);
+				}
+				if (!CollectionUtils.isEmpty(updateList)) {
+					count = noteDao.updateStateList(updateList);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("update note list delete state error:" + e.getMessage());

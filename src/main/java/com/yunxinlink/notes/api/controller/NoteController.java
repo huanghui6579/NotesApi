@@ -144,7 +144,7 @@ public class NoteController extends BaseController {
 		boolean success = false;
 		try {
 			success = noteService.addNote(noteDto);
-			logger.info("add note result:" + success + ", note:" + noteDto);
+			logger.info("add or note result:" + success + ", note:" + noteDto);
 			if (success) {
 				actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 				actionResult.setReason("添加成功");
