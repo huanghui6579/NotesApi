@@ -5,11 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import com.yunxinlink.notes.api.dto.UserDto;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.AccountType;
 import com.yunxinlink.notes.api.model.OpenApi;
+import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IOpenApiService;
 import com.yunxinlink.notes.api.service.IUserService;
@@ -403,6 +407,63 @@ public class UserController extends BaseController {
 			httpStatus = HttpStatus.OK;
 		}
 		return new ResponseEntity<InputStreamResource>(inputStreamResource, headers, httpStatus);
+	}
+	
+	/**
+	 * 发送找回密码的邮件
+	 * @param account 账号，目前是邮箱，以后可能还有其他值
+	 * @return
+	 */
+	@RequestMapping("{account}/forget")
+    @ResponseBody
+	public ActionResult<Void> forgetPassword(@PathVariable String account, HttpServletRequest request) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		//根据账号来查询该用户的信息
+		User param = new User();
+		param.setEmail(account);
+		User user = userService.getUser(param);
+		if (user == null) {
+			actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+			actionResult.setReason("用户不存在");
+		} else if (!user.checkState()) {	//用户状态不可用
+			actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
+			actionResult.setReason("用户被禁用");
+		} else {
+			PasswordResetInfo resetInfo = new PasswordResetInfo();
+			String secretKey = UUID.randomUUID().toString();  //密钥  
+			//60*60*1000 = 3600000
+	        Timestamp outDate = new Timestamp(System.currentTimeMillis() + 3600000);//60分钟后过期  
+	        long date = outDate.getTime() / 1000 * 1000;	//忽略毫秒数  
+	        
+	        resetInfo.setAccount(account);
+	        resetInfo.setValidataCode(secretKey);
+	        resetInfo.setOutDate(outDate);
+	        //保存到数据库
+	        
+	        boolean success = userService.addPasswordResetInfo(resetInfo);
+	        
+	        if (!success) {
+	        	actionResult.setResultCode(ActionResult.RESULT_FAILED);
+	        	actionResult.setReason("发送失败");
+	        	logger.info("forget password add or update info failed");
+			} else {
+				String key = resetInfo.generateKey(date);
+		        //MD5加密
+		        String digitalSignature = DigestUtils.md5Hex(key);
+		        
+		        String emailTitle = "云信笔记密码找回";  
+		        String path = request.getContextPath();  
+		        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";  
+		        String resetPassHref = basePath + "user/resetPassword?sid=" + digitalSignature + "&account=" + account;
+		        String emailContent = "请勿回复本邮件.点击下面的链接,重设密码<br/><a href=" + resetPassHref +" target='_BLANK'>点击我重新设置密码</a>" +  
+		                "<br/>tips:本邮件超过60分钟,链接将会失效，需要重新申请'找回密码'" + key + "\t" + digitalSignature; 
+		        logger.info("forget password reset password href:" + resetPassHref);
+		        //TODO 发送邮件
+		        actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+		        actionResult.setReason("邮件已发送");
+			}
+		}
+		return actionResult;
 	}
 	
 	/**

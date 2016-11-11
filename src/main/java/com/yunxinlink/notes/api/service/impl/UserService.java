@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.yunxinlink.notes.api.dao.UserDao;
 import com.yunxinlink.notes.api.init.IdGenerator;
+import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.State;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IUserService;
@@ -124,6 +125,28 @@ public class UserService implements IUserService {
 			logger.error("get user avatar error:" + e.getMessage());
 		}
 		return avatar;
+	}
+
+	@Override
+	public User getUser(User user) {
+		User result = null;
+		try {
+			result = userDao.selectUser(user);
+		} catch (Exception e) {
+			logger.error("get user error:" + e.getMessage());
+		}
+		return result;
+	}
+
+	@Override
+	public boolean addPasswordResetInfo(PasswordResetInfo resetInfo) {
+		int rowCount = 0;
+		try {
+			rowCount = userDao.addPwdResetInfo(resetInfo);
+		} catch (Exception e) {
+			logger.error("add or update password reset info error:" + e.getMessage());
+		}
+		return rowCount > 0;
 	}
 
 }
