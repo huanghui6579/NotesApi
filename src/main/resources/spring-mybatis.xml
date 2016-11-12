@@ -52,27 +52,38 @@
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
 	</bean>
 	
-	<!-- JavaMail相关配置 -->
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" >
-		<property name="host" value="smtp.163.com"></property>
-		<property name="username" value="huanghui6579@163.com"></property>
-		<property name="password" value="hui9114795719"></property>
+	<!-- freemarker -->
+	<bean id="freeMarker" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">  
+      <property name="templateLoaderPath" value="classpath:mailTemplate"/><!--指定模板文件目录-->   
+      <property name="freemarkerSettings"><!-- 设置FreeMarker环境属性-->   
+          <props>  
+              <prop key="template_update_delay">1800</prop><!--刷新模板的周期，单位为秒-->   
+              <prop key="default_encoding">UTF-8</prop><!--模板的编码格式 -->  
+              <prop key="locale">zh_CN</prop><!-- 本地化设置-->  
+          </props>  
+      </property>  
+    </bean>
+    
+    <!-- 邮件发送的服务 -->
+    <bean id="emailService" class="com.yunxinlink.notes.api.service.impl.EmailService">
+    	<property name="freeMarkerConfigurer" ref="freeMarker"/>
+		
+		<property name="host" value="smtp.mxhichina.com"></property>
+		<property name="username" value="accounts@yunxinlink.com"></property>
+		<property name="password" value="1q2w3e4r5t@"></property>
+		<property name="fromAddress" value="accounts@yunxinlink.com"></property>
+		<property name="nickname" value="云信笔记"></property>
 		<property name="protocol" value="smtp"></property>
 		<property name="defaultEncoding" value="utf-8"></property>
-		<property name="javaMailProperties">
-		   <props>
-		       <prop key="mail.smtp.auth">true</prop>
-		       <prop key="mail.smtp.from">huanghui6579@163.com</prop>
-		       <prop key="mail.debug">true</prop>
-		   </props>
-		</property>
-	</bean>
+		<!-- 邮件的模板文件名 -->
+		<property name="templeteName" value="reset-password.ftl"></property>
+    </bean>
 	
 	<!-- similarly, don't forget the PlatformTransactionManager -->
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="apiDataSource"/>
     </bean>
-
+	
 	<!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean below) -->
     <tx:advice id="txAdvice" transaction-manager="txManager">
         <!-- the transactional semantics... -->
@@ -84,7 +95,8 @@
             <tx:method name="has*" read-only="true"/>
             <tx:method name="is*" read-only="true"/>
             <tx:method name="list*" read-only="true"/>
-            <tx:method name="select*" read-only="true"/>
+            <tx:method name="select*" read-only="true" />
+            <tx:method name="sendEmail" read-only="true" propagation="NOT_SUPPORTED"/>
             <!-- other methods use the default transaction settings (see below) -->
             <tx:method name="*"/>
         </tx:attributes>

@@ -36,6 +36,7 @@ import com.yunxinlink.notes.api.model.AccountType;
 import com.yunxinlink.notes.api.model.OpenApi;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.User;
+import com.yunxinlink.notes.api.service.IEmailService;
 import com.yunxinlink.notes.api.service.IOpenApiService;
 import com.yunxinlink.notes.api.service.IUserService;
 import com.yunxinlink.notes.api.util.AttachUsage;
@@ -54,6 +55,9 @@ public class UserController extends BaseController {
 	
 	@Autowired
 	private IUserService userService;
+	
+	@Autowired
+	private IEmailService emailService;
 	
 	@RequestMapping(value = {"index"})
 	public String index() {
@@ -462,6 +466,25 @@ public class UserController extends BaseController {
 		        actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 		        actionResult.setReason("邮件已发送");
 			}
+		}
+		return actionResult;
+	}
+	
+	/**
+	 * 发送邮件
+	 * @param email
+	 * @return
+	 */
+	@RequestMapping("{email}/mail")
+	@ResponseBody
+	public ActionResult<Void> sendMail(@PathVariable String email) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		boolean success = emailService.sendEmail(email);
+		if (success) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("邮件发送成功");
+		} else {
+			actionResult.setReason("邮件发送失败");
 		}
 		return actionResult;
 	}
