@@ -30,4 +30,9 @@ public class Constant {
 	 * 英文的分号：";"
 	 */
 	public static final String TAG_SEMICOLON = ";";
+	
+	/**
+	 * 安全码的分隔符："$"
+	 */
+	public static final String TAG_KEY_SPLITER = "$";
 }

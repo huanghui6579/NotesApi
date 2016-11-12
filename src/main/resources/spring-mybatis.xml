@@ -52,6 +52,22 @@
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
 	</bean>
 	
+	<!-- JavaMail相关配置 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" >
+		<property name="host" value="smtp.163.com"></property>
+		<property name="username" value="huanghui6579@163.com"></property>
+		<property name="password" value="hui9114795719"></property>
+		<property name="protocol" value="smtp"></property>
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="javaMailProperties">
+		   <props>
+		       <prop key="mail.smtp.auth">true</prop>
+		       <prop key="mail.smtp.from">huanghui6579@163.com</prop>
+		       <prop key="mail.debug">true</prop>
+		   </props>
+		</property>
+	</bean>
+	
 	<!-- similarly, don't forget the PlatformTransactionManager -->
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="apiDataSource"/>

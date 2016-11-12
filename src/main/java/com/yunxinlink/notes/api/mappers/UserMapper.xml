@@ -112,6 +112,33 @@
 		</choose>
 	</select>
 	
+	<select id="selectUser" resultType="User" parameterType="User">
+		select * from t_user where 
+		<choose>
+			<when test="id != null and id > 0">
+				id = #{id}
+			</when>
+			<when test="sid != null">
+				sid = #{sid}
+			</when>
+			<when test="username != null">
+				username = #{username}
+			</when>
+			<when test="email != null">
+				email = #{email}
+			</when>
+			<otherwise>
+				mobile = #{mobile}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="addPwdResetInfo" parameterType="PasswordResetInfo" keyProperty="id">
+		insert into t_reset_pwd (account, validataCode, outDate) values 
+	    (#{account}, #{validataCode}, #{outDate}) 
+	    ON DUPLICATE KEY UPDATE validataCode=values(validataCode), outDate=values(outDate)
+	</insert>
+	
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
 	    select * from t_user limit #{pageOffset}, #{pageSize}
 	</select> -->

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50625
 File Encoding         : 65001
 
-Date: 2016-10-19 17:51:20
+Date: 2016-11-11 19:47:22
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -73,7 +73,7 @@ CREATE TABLE `t_device_info` (
   `modifyTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `imei` (`imei`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for t_folder
@@ -118,7 +118,7 @@ CREATE TABLE `t_note_info` (
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `userId` (`userId`),
   KEY `folderSid` (`folderSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COMMENT='笔记表';
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8 COMMENT='笔记表';
 
 -- ----------------------------
 -- Table structure for t_open_api
@@ -138,6 +138,19 @@ CREATE TABLE `t_open_api` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for t_reset_pwd
+-- ----------------------------
+DROP TABLE IF EXISTS `t_reset_pwd`;
+CREATE TABLE `t_reset_pwd` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `account` varchar(255) DEFAULT NULL COMMENT '账号，一般是邮箱，以后可能是手机号',
+  `validataCode` varchar(255) DEFAULT NULL COMMENT '加密后的校验码',
+  `outDate` timestamp NULL DEFAULT NULL COMMENT '过期时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `account` (`account`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='重置密码的记录表';
+
+-- ----------------------------
 -- Table structure for t_user
 -- ----------------------------
 DROP TABLE IF EXISTS `t_user`;
@@ -148,7 +161,6 @@ CREATE TABLE `t_user` (
   `mobile` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `nickname` varchar(255) DEFAULT NULL,
-  `userId` int(11) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `gender` tinyint(4) DEFAULT NULL,
   `createTime` datetime DEFAULT NULL,
@@ -191,6 +203,14 @@ CREATE TRIGGER `tri_update_folder` AFTER UPDATE ON `t_note_info` FOR EACH ROW BE
 	ELSE 
 		UPDATE t_folder SET modifyTime = NEW.modifyTime WHERE sid = NEW.folderSid;
 	END IF;
+END
+;;
+DELIMITER ;
+DROP TRIGGER IF EXISTS `tri_delete_note`;
+DELIMITER ;;
+CREATE TRIGGER `tri_delete_note` AFTER DELETE ON `t_note_info` FOR EACH ROW BEGIN
+	DELETE FROM t_attach WHERE noteSid = OLD.sid;
+	DELETE FROM t_detail_list WHERE noteSid = OLD.sid;
 END
 ;;
 DELIMITER ;
