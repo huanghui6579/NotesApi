@@ -134,9 +134,9 @@
 	</select>
 	
 	<insert id="addPwdResetInfo" parameterType="PasswordResetInfo" keyProperty="id">
-		insert into t_reset_pwd (account, validataCode, outDate) values 
-	    (#{account}, #{validataCode}, #{outDate}) 
-	    ON DUPLICATE KEY UPDATE validataCode=values(validataCode), outDate=values(outDate)
+		insert into t_reset_pwd (userSid, account, validataCode, outDate) values 
+	    (#{userSid}, #{account}, #{validataCode}, #{outDate}) 
+	    ON DUPLICATE KEY UPDATE account=values(account), validataCode=values(validataCode), outDate=values(outDate)
 	</insert>
 	
 	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >

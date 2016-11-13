@@ -19,6 +19,11 @@ public class PasswordResetInfo implements Serializable {
 	private int id;
 	
 	/**
+	 * 用户的sid
+	 */
+	private String userSid;
+	
+	/**
 	 * 账号，目前主要是邮箱
 	 */
 	private String account;
@@ -65,11 +70,19 @@ public class PasswordResetInfo implements Serializable {
 		this.validataCode = validataCode;
 	}
 	
+	public String getUserSid() {
+		return userSid;
+	}
+
+	public void setUserSid(String userSid) {
+		this.userSid = userSid;
+	}
+
 	/**
-	 * 生成密钥：格式为：account + $ + date + secretKey
+	 * 生成密钥：格式为：userSid + $ + account + $ + date + secretKey
 	 * @return
 	 */
 	public String generateKey(long date) {
-		return account + Constant.TAG_KEY_SPLITER + date + Constant.TAG_KEY_SPLITER + validataCode;  
+		return userSid + Constant.TAG_KEY_SPLITER + account + Constant.TAG_KEY_SPLITER + date + Constant.TAG_KEY_SPLITER + validataCode;  
 	}
 }

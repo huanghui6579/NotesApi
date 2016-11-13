@@ -24,7 +24,7 @@
 					</p>
 				</div>
 				<div style="margin: 32px 0;">
-					<a href="http://www.yunxinlink.com" target="_blank"  style="text-decoration: none;color: #ffffff;padding:0 25px;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:bold;-webkit-text-size-adjust:none;mso-hide:all; letter-spacing:.5px; min-width:150px;background-color:#2196f3;border:1px solid #2196f3;border:1px solid #2196f3;border-radius:4px;line-height:40px;text-align:center;display:inline-block;cursor: pointer;">重置密码</a>
+					<a href="${resetUrl}" target="_blank"  style="text-decoration: none;color: #ffffff;padding:0 25px;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:bold;-webkit-text-size-adjust:none;mso-hide:all; letter-spacing:.5px; min-width:150px;background-color:#2196f3;border:1px solid #2196f3;border:1px solid #2196f3;border-radius:4px;line-height:40px;text-align:center;display:inline-block;cursor: pointer;">重置密码</a>
 				</div>
 			</section>
 			<footer>

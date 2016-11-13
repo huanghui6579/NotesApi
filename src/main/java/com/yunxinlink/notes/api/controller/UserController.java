@@ -423,6 +423,11 @@ public class UserController extends BaseController {
 	public ActionResult<Void> forgetPassword(@PathVariable String account, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
 		//根据账号来查询该用户的信息
+		if (!SystemUtil.isEmailAddress(account)) {	//判断是否是邮箱地址
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("不是正确的邮箱地址");
+			return actionResult;
+		}
 		User param = new User();
 		param.setEmail(account);
 		User user = userService.getUser(param);
@@ -439,6 +444,7 @@ public class UserController extends BaseController {
 	        Timestamp outDate = new Timestamp(System.currentTimeMillis() + 3600000);//60分钟后过期  
 	        long date = outDate.getTime() / 1000 * 1000;	//忽略毫秒数  
 	        
+	        resetInfo.setUserSid(user.getSid());
 	        resetInfo.setAccount(account);
 	        resetInfo.setValidataCode(secretKey);
 	        resetInfo.setOutDate(outDate);
@@ -455,19 +461,34 @@ public class UserController extends BaseController {
 		        //MD5加密
 		        String digitalSignature = DigestUtils.md5Hex(key);
 		        
-		        String emailTitle = "云信笔记密码找回";  
 		        String path = request.getContextPath();  
 		        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";  
 		        String resetPassHref = basePath + "user/resetPassword?sid=" + digitalSignature + "&account=" + account;
-		        String emailContent = "请勿回复本邮件.点击下面的链接,重设密码<br/><a href=" + resetPassHref +" target='_BLANK'>点击我重新设置密码</a>" +  
-		                "<br/>tips:本邮件超过60分钟,链接将会失效，需要重新申请'找回密码'" + key + "\t" + digitalSignature; 
+
 		        logger.info("forget password reset password href:" + resetPassHref);
-		        //TODO 发送邮件
-		        actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
-		        actionResult.setReason("邮件已发送");
+		        
+		        success = emailService.sendEmail(account, resetPassHref);
+		        
+		        if (success) {
+		        	actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+		        	actionResult.setReason("邮件已发送");
+				} else {
+					actionResult.setResultCode(ActionResult.RESULT_FAILED);
+		        	actionResult.setReason("邮件发送失败");
+				}
 			}
 		}
 		return actionResult;
+	}
+	
+	/**
+	 * 跳转到重置密码的界面
+	 * @param sid
+	 * @param account
+	 * @return
+	 */
+	public String resetPassword(String sid, String account) {
+		return "user/reset-pwd";
 	}
 	
 	/**
@@ -479,7 +500,7 @@ public class UserController extends BaseController {
 	@ResponseBody
 	public ActionResult<Void> sendMail(@PathVariable String email) {
 		ActionResult<Void> actionResult = new ActionResult<>();
-		boolean success = emailService.sendEmail(email);
+		boolean success = emailService.sendEmail(email, "http://www.yunxinlink.com");
 		if (success) {
 			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 			actionResult.setReason("邮件发送成功");

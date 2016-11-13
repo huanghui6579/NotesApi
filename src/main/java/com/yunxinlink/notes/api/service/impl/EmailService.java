@@ -242,7 +242,7 @@ public class EmailService implements IEmailService {
 	}
 
 	@Override
-	public boolean sendEmail(String toAddress) {
+	public boolean sendEmail(String toAddress, String resetUrl) {
 		Transport transport = null;
 		try {
 			Properties properties = getDefaultProperties();
@@ -256,6 +256,7 @@ public class EmailService implements IEmailService {
 			Map<String, Object> map = new HashMap<>();
 			
 			map.put("email", toAddress);
+			map.put("resetUrl", resetUrl);
 			
 			// 设置邮件内容  
 			String content = getMailText(map);
