@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.yunxinlink.notes.api.dto.ActionResult;
+import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.dto.UserDto;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.AccountType;
@@ -412,13 +414,25 @@ public class UserController extends BaseController {
 		}
 		return new ResponseEntity<InputStreamResource>(inputStreamResource, headers, httpStatus);
 	}
+	/**
+	 * 发送邮件
+	 * @param account
+	 * @return
+	 */
+	@RequestMapping(value = "showForget", method = RequestMethod.GET)
+	public String forgetPassword(String account, Model model) {
+		if (StringUtils.isNotBlank(account)) {
+			model.addAttribute("account", account);
+		}
+		return "user/send-mail";
+	}
 	
 	/**
 	 * 发送找回密码的邮件
 	 * @param account 账号，目前是邮箱，以后可能还有其他值
 	 * @return
 	 */
-	@RequestMapping("{account}/forget")
+	@RequestMapping(value = "{account}/forget", method = RequestMethod.POST)
     @ResponseBody
 	public ActionResult<Void> forgetPassword(@PathVariable String account, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
@@ -442,14 +456,15 @@ public class UserController extends BaseController {
 			String secretKey = UUID.randomUUID().toString();  //密钥  
 			//60*60*1000 = 3600000
 	        Timestamp outDate = new Timestamp(System.currentTimeMillis() + 3600000);//60分钟后过期  
-	        long date = outDate.getTime() / 1000 * 1000;	//忽略毫秒数  
+	        long date = getOutTime(outDate);	//忽略毫秒数  
 	        
 	        resetInfo.setUserSid(user.getSid());
 	        resetInfo.setAccount(account);
 	        resetInfo.setValidataCode(secretKey);
+	        outDate.setTime(date);
 	        resetInfo.setOutDate(outDate);
 	        //保存到数据库
-	        
+	        logger.info("send mail outDate:" + outDate);
 	        boolean success = userService.addPasswordResetInfo(resetInfo);
 	        
 	        if (!success) {
@@ -459,10 +474,10 @@ public class UserController extends BaseController {
 			} else {
 				String key = resetInfo.generateKey(date);
 		        //MD5加密
+				logger.info("send mail key:" + key);
 		        String digitalSignature = DigestUtils.md5Hex(key);
 		        
-		        String path = request.getContextPath();  
-		        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";  
+		        String basePath = getBasePath(request);  
 		        String resetPassHref = basePath + "user/resetPassword?sid=" + digitalSignature + "&account=" + account;
 
 		        logger.info("forget password reset password href:" + resetPassHref);
@@ -487,27 +502,136 @@ public class UserController extends BaseController {
 	 * @param account
 	 * @return
 	 */
-	public String resetPassword(String sid, String account) {
-		return "user/reset-pwd";
+	@RequestMapping(value = "resetPassword", method = RequestMethod.GET)
+	public String showResetPassword(String sid, String account, Model model, HttpServletRequest request) {
+		String toUrl = "user/reset-pwd";
+		ActionResult<Void> actionResult = new ActionResult<>();
+		String basePath = getBasePath(request);  
+		String errorTipUrl = basePath + "user/showForget?account=" + account;
+		model.addAttribute("errorTipUrl", errorTipUrl);
+		if (StringUtils.isBlank(sid) || StringUtils.isBlank(account)) {
+			actionResult.setReason("链接无效");
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			model.addAttribute("actionResult", actionResult);
+			logger.info("reset password sid or account is empty");
+			return toUrl;
+		}
+		
+		PasswordResetInfoDto resetInfoDto = userService.getPwdResetInfo(account);
+		if (resetInfoDto == null) {	//记录不存在
+			actionResult.setReason("链接无效");
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			model.addAttribute("actionResult", actionResult);
+			logger.info("reset password reset info is null");
+			return toUrl;
+		}
+		
+		if (!resetInfoDto.checkUserState()) {	//用户状态不可用，用户被禁用了
+			actionResult.setReason("用户被禁用了");
+			actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
+			model.addAttribute("actionResult", actionResult);
+			logger.info("reset password user is disable");
+			return toUrl;
+		}
+		
+		Timestamp outDate = resetInfoDto.getOutDate();
+		if (outDate.getTime() <= System.currentTimeMillis()) {	//已过期
+			actionResult.setReason("链接已过期");
+			actionResult.setResultCode(ActionResult.RESULT_OUT_DATE);
+			model.addAttribute("actionResult", actionResult);
+			logger.info("reset password reset info is out date");
+			return toUrl;
+		}
+		
+		long date = getOutTime(outDate);	//忽略毫秒数  
+		logger.info("rest password mail outDate:" + outDate);
+		String key = resetInfoDto.generateKey(date);          //数字签名
+		logger.info("rest password mail key:" + key);
+		String digitalSignature = DigestUtils.md5Hex(key);
+		logger.info("reset password sid: " + sid + ", digitalSignature: " + digitalSignature);
+		if(!sid.equals(digitalSignature)) {  
+			actionResult.setReason("链接已失效");
+			actionResult.setResultCode(ActionResult.RESULT_OUT_DATE);
+			model.addAttribute("actionResult", actionResult);
+			logger.info("reset password url is not validate");
+			return toUrl;
+		}
+		actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+		model.addAttribute("actionResult", actionResult);
+		model.addAttribute("isSuccess", true);
+		model.addAttribute("account", account);
+		model.addAttribute("userSid", resetInfoDto.getUserSid());
+		return toUrl;
 	}
 	
 	/**
-	 * 发送邮件
-	 * @param email
+	 * 重置密码
+	 * @param userSid 用户的sid
+	 * @param password 新密码
+	 * @param confirmPassword 确认新密码
 	 * @return
 	 */
-	@RequestMapping("{email}/mail")
+	@RequestMapping(value = "resetPassword", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<Void> sendMail(@PathVariable String email) {
+	public ActionResult<Void> resetPassword(@RequestParam(name = "userSid", required = true) String userSid, String password, String confirmPassword) {
 		ActionResult<Void> actionResult = new ActionResult<>();
-		boolean success = emailService.sendEmail(email, "http://www.yunxinlink.com");
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(password) || StringUtils.isBlank(confirmPassword)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		if (!password.equals(confirmPassword)) {	//两次输入的密码不一致
+			actionResult.setResultCode(ActionResult.RESULT_NOT_EQUALS);
+			actionResult.setReason("两次输入的密码不一致");
+			return actionResult;
+		}
+		
+		User param = new User();
+		param.setSid(userSid);
+		
+		User user = userService.getUserById(param);
+		boolean isOk = checkUser(actionResult, user);
+		if (!isOk) {
+			return actionResult;
+		}
+		
+		param = new User();
+		param.setSid(userSid);
+		param.setPassword(password);
+		//修改新密码
+		boolean success = false;
+		try {
+			success = userService.updatePassword(param);
+		} catch (Exception e) {
+			logger.error("modify password param:" + param + ", error:" + e.getMessage());
+		}
 		if (success) {
 			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
-			actionResult.setReason("邮件发送成功");
+			actionResult.setReason("密码修改成功");
 		} else {
-			actionResult.setReason("邮件发送失败");
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("密码修改失败");
 		}
 		return actionResult;
+	}
+	
+	/**
+	 * 检查用户的合法性
+	 * @param actionResult
+	 * @param user
+	 */
+	private boolean checkUser(ActionResult<?> actionResult, User user) {
+		boolean isok = false;
+		if (user == null || user.getId() == null) {	//用户不存在
+			actionResult.setResultCode(ActionResult.RESULT_DATA_NOT_EXISTS);
+			actionResult.setReason("该用户不存在");
+		} else if (!user.checkState()) {//用户被禁用了
+			actionResult.setResultCode(ActionResult.RESULT_STATE_DISABLE);
+			actionResult.setReason("该用户已被禁用");
+		} else {
+			isok = true;
+		}
+		return isok;
 	}
 	
 	/**
@@ -536,5 +660,24 @@ public class UserController extends BaseController {
 		String rootDir = SystemCache.getUploadPath();
 		File file = new File(rootDir, SystemUtil.generateAttachFilePath(AttachUsage.AVATAR, avatarFilename));
 		return file;
+	}
+	
+	/**
+	 * 忽略毫秒数
+	 * @param date
+	 * @return
+	 */
+	private long getOutTime(Date date) {
+		return date.getTime() / 1000 * 1000;
+	}
+	
+	/**
+	 * 获取基本的链接地址
+	 * @param request
+	 * @return
+	 */
+	public String getBasePath(HttpServletRequest request) {
+		String path = request.getContextPath();  
+		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
 	}
 }

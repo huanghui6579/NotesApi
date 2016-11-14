@@ -3,6 +3,7 @@ package com.yunxinlink.notes.api.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.User;
 
@@ -52,5 +53,19 @@ public interface UserDao extends BaseDao<User> {
 	 * @param resetInfo
 	 * @return
 	 */
-	public int addPwdResetInfo(PasswordResetInfo resetInfo);
+	public int insertPwdResetInfo(PasswordResetInfo resetInfo);
+	
+	/**
+	 * 查询重置密码的记录
+	 * @param account 一般有邮箱
+	 * @return
+	 */
+	public PasswordResetInfoDto selectPwdResetInfo(String account);
+	
+	/**
+	 * 删除重置密码的记录
+	 * @param resetInfo
+	 * @return
+	 */
+	public int deletePwdResetInfo(PasswordResetInfo resetInfo);
 }

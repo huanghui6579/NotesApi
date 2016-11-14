@@ -2,6 +2,8 @@ package com.yunxinlink.notes.test;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,6 +85,24 @@ public class TestUUID {
 		boolean isEmail = SystemUtil.isEmailAddress(email);
 		long endtime = System.currentTimeMillis();
 		logger.info("isEmail:" + isEmail + ", time:" + (endtime - starttime));
+	}
+	
+	@Test
+	public void testDate() {
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis() + 3600000);
+		logger.info("timestamp:" + timestamp.getTime());
+		
+		long outDate = getOutTime(timestamp);
+		logger.info("outDate:" + outDate);
+	}
+	
+	/**
+	 * 忽略毫秒数
+	 * @param date
+	 * @return
+	 */
+	private long getOutTime(Date date) {
+		return date.getTime() / 1000 * 1000;
 	}
 }
 

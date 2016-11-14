@@ -46,6 +46,11 @@ public class ActionResult<T> {
 	public static final int RESULT_DATA_REPEAT = 206;
 	
 	/**
+	 * 已过期
+	 */
+	public static final int RESULT_OUT_DATE = 207;
+	
+	/**
 	 * 返回码
 	 */
 	private int resultCode = RESULT_ERROR;

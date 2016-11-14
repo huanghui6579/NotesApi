@@ -2,6 +2,7 @@ package com.yunxinlink.notes.api.service;
 
 import java.util.List;
 
+import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.User;
 
@@ -79,4 +80,18 @@ public interface IUserService {
 	 * @return
 	 */
 	public boolean addPasswordResetInfo(PasswordResetInfo resetInfo); 
+	
+	/**
+	 * 查询重置密码的记录
+	 * @param account 一般有邮箱
+	 * @return
+	 */
+	public PasswordResetInfoDto getPwdResetInfo(String account);
+	
+	/**
+	 * 修改用户密码
+	 * @param user
+	 * @return
+	 */
+	public boolean updatePassword(User user);
 }
