@@ -35,4 +35,6 @@ public class Constant {
 	 * 安全码的分隔符："$"
 	 */
 	public static final String TAG_KEY_SPLITER = "$";
+	
+	public static final String RESET_PWD_SUBJECT = "云信笔记密码重置请求";
 }

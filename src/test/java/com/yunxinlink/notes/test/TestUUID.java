@@ -13,6 +13,8 @@ import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.util.IdGenerator;
 import org.springframework.util.SimpleIdGenerator;
 
+import com.yunxinlink.notes.api.util.SystemUtil;
+
 public class TestUUID {
 	private static final Logger logger = LoggerFactory.getLogger(TestUUID.class);
 
@@ -72,6 +74,15 @@ public class TestUUID {
 	        e.printStackTrace();
 	    }
 	    return null;
+	}
+	
+	@Test
+	public void testEmailAddress() {
+		String email = "dsfdfs@163.com";
+		long starttime = System.currentTimeMillis();
+		boolean isEmail = SystemUtil.isEmailAddress(email);
+		long endtime = System.currentTimeMillis();
+		logger.info("isEmail:" + isEmail + ", time:" + (endtime - starttime));
 	}
 }
 

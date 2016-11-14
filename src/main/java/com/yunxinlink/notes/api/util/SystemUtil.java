@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -40,6 +42,10 @@ public class SystemUtil {
      * 头像文件夹的时间格式化，格式为:yyyy/MM/dd
      */
     private static SimpleDateFormat attachFormat = new SimpleDateFormat("yyyy/MM/dd");
+    
+    //邮箱的正则表达式
+    private static final String EMAIL_REGEX = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+    private static Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
 	
 	/**
      * 获取系统的system.properties文件
@@ -302,4 +308,38 @@ public class SystemUtil {
 		return type;
 	}
 
+	/**
+	 * <pre>
+	 * 合法E-mail地址：     
+	1. 必须包含一个并且只有一个符号“@”     
+	2. 第一个字符不得是“@”或者“.”     
+	3. 不允许出现“@.”或者.@     
+	4. 结尾不得是字符“@”或者“.”     
+	5. 允许“@”前的字符中出现“＋”     
+	6. 不允许“＋”在最前面，或者“＋@”     
+	    
+	正则表达式如下：     
+	-----------------------------------------------------------------------     
+	^(\w+((-\w+)|(\.\w+))*)\+\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$     
+	-----------------------------------------------------------------------     
+	    
+	字符描述：     
+	^ ：匹配输入的开始位置。     
+	\：将下一个字符标记为特殊字符或字面值。     
+	* ：匹配前一个字符零次或几次。     
+	+ ：匹配前一个字符一次或多次。     
+	(pattern) 与模式匹配并记住匹配。     
+	x|y：匹配 x 或 y。     
+	[a-z] ：表示某个范围内的字符。与指定区间内的任何字符匹配。     
+	\w ：与任何单词字符匹配，包括下划线。     
+	$ ：匹配输入的结尾。 
+		</pre>
+	 * @param addess
+	 * @return
+	 */
+	public static boolean isEmailAddress(String addess) {
+		Matcher matcher = emailPattern.matcher(addess);
+		return matcher.matches();
+	}
+	
 }
