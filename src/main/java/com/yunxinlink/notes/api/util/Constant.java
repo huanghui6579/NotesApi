@@ -17,6 +17,11 @@ public class Constant {
 	public static final String ATTACH_ROOT = "att";
 	
 	/**
+	 * 意见反馈的文件目录
+	 */
+	public static final String FEEDBACK_ROOT = "feedback";
+	
+	/**
 	 * 默认的每页记录条数，默认20条
 	 */
 	public static final int PAGE_SIZE_DEFAULT = 20;

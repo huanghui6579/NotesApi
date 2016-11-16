@@ -1,7 +1,10 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>重置密码</title>
@@ -9,7 +12,7 @@
     <!-- Bootstrap -->
     <link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="../css/reset-pwd.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/reset-pwd.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,28 +27,24 @@
         <div class="navbar-header">
           
           <a class="navbar-brand" href="http://www.yunxinlink.com">
-          	<img src="../img/ic_logo_nav.gif" alt="云信笔记" title="云信笔记" />
+          	<img src="${pageContext.request.contextPath}/resources/img/ic_logo_nav.gif" alt="云信笔记" title="云信笔记" />
           </a>
         </div>
         
       </div>
     </nav>
-    <!-- <div class="jumbotron">
-      <div class="container">
-        <h1>Hello, world!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
-      </div>
-    </div> -->
     <div class="container content-body ">
       <div class="panel panel-default">
         <h2 class="pannel-header">忘记密码？</h2>
-        <div class="row">
-          <div class="col-md-6">
-            <div>
+        <div id="alert-info" class="alert alert-info" role="alert" style="display: none;">
+   			的话就是记得发货的师傅
+   		</div>
+        <div id="content-row" class="row">
+          <div class="col-md-4">
+            <div class="fun-tip">
               <p>请输入您注册的电子邮箱。</p>
               <p>
-                您将收到一封重置密码的邮件，可以重新设置密码。
+              	您将收到一封重置密码的邮件，可以重新设置密码。
               </p>
             </div>
           </div>
@@ -53,11 +52,11 @@
             <form id="send-form" class="form-submit" role="form" method="post">
               <div class="form-group">
                 <label for="email">电子邮箱</label>
-                <input id="email" name="email" class="form-control input-lg" placeholder="电子邮箱" required="" autofocus="" type="email">
+                <input id="email" name="email" value="${account }" class="form-control input-lg" placeholder="电子邮箱" required="" autofocus="" type="email">
                 <!-- <span class="glyphicon glyphicon-ok form-control-feedback"></span>-->
               </div>
               <div class="form-group">
-                <button class="btn btn-lg btn-primary btn-block vertical-space" data-loading-text="发送中..." autocomplete="off" type="submit">发送邮件</button>
+                <button id="send-button" class="btn btn-lg btn-primary btn-block vertical-space" data-loading-text="发送中..." autocomplete="off" type="submit">发送邮件</button>
               </div>
 
             </form>
@@ -79,7 +78,7 @@
     <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="http://cdn.bootcss.com/jquery-validate/1.15.1/jquery.validate.min.js"></script>
 
-    <script type="text/javascript" src="../js/form.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/form.js"></script>
 
   </body>
 </html>

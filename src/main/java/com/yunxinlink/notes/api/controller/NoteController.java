@@ -3,6 +3,7 @@ package com.yunxinlink.notes.api.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -34,13 +35,17 @@ import com.yunxinlink.notes.api.dto.AttachDto;
 import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.dto.NoteDto;
 import com.yunxinlink.notes.api.dto.PageInfo;
+import com.yunxinlink.notes.api.init.IdGenerator;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.Attach;
 import com.yunxinlink.notes.api.model.DetailList;
+import com.yunxinlink.notes.api.model.FeedbackAttach;
+import com.yunxinlink.notes.api.model.FeedbackInfo;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.model.NoteInfo;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IAttachService;
+import com.yunxinlink.notes.api.service.IFeedbackService;
 import com.yunxinlink.notes.api.service.IFolderService;
 import com.yunxinlink.notes.api.service.INoteService;
 import com.yunxinlink.notes.api.service.IUserService;
@@ -68,6 +73,9 @@ public class NoteController extends BaseController {
 	
 	@Autowired
 	private IAttachService attachService;
+	
+	@Autowired
+	private IFeedbackService feedbackService;
 	
 	@RequestMapping(value = {"index"})
 	public String index() {
@@ -813,19 +821,105 @@ public class NoteController extends BaseController {
 	}
 	
 	/**
+	 * 添加用户反馈记录
+	 * @param feedbackInfo 反馈的记录
+	 * @param files 反馈的附加
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "feedback/new", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<Void> addFeedback(@RequestParam(name = "json", required = true) String json, @RequestParam(value = "attachFile", required = false) MultipartFile[] files, HttpServletRequest request) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		if (StringUtils.isEmpty(json)) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		
+		FeedbackInfo feedbackInfo = null;
+		try {
+			feedbackInfo = SystemUtil.json2obj(json, FeedbackInfo.class);
+		} catch (IOException e1) {
+			logger.error("add feedback format json error:" + e1.getMessage());
+		}
+		
+		if (feedbackInfo == null || !feedbackInfo.checkContent()) {	//参数为空
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		List<FeedbackAttach> attachs = null;
+		if (files != null && files.length > 0) {	//有附件
+			attachs = new ArrayList<>();
+			for (MultipartFile multipartFile : files) {
+				String originalFilename = multipartFile.getOriginalFilename();
+				//文件的后缀
+				String ext = FilenameUtils.getExtension(originalFilename);
+				String sid = IdGenerator.generateUUID();
+				String attachFilename = SystemUtil.generateAttachFilename(sid, ext);
+				File saveFile = getAttachSaveFile(attachFilename, AttachUsage.FEEDBACK_ATTACH);
+				boolean saveResult = false;
+				if (saveFile != null) {
+					saveResult = saveFile(multipartFile, saveFile);
+				}
+				if (saveResult) {	//保存成功
+					
+					String filePath = saveFile.getAbsolutePath();
+					
+					FeedbackAttach attach = new FeedbackAttach();
+					attach.setFilename(originalFilename);
+					attach.setLocalPath(attachFilename);
+					attach.setSize(saveFile.length());
+					String mime = SystemUtil.getMime(filePath);
+					attach.setMime(mime);
+					
+					attachs.add(attach);
+					
+					logger.info("add feedback attach file path:" + filePath);
+				}
+			}
+		}
+		feedbackInfo.setCreateTime(new Date());
+		feedbackInfo.setAttachs(attachs);
+		boolean success = false;
+		try {
+			success = feedbackService.addFeedback(feedbackInfo);
+		} catch (Exception e) {
+			logger.error("add feedback error:" + e.getMessage());
+		}
+		if (success) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("反馈成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("反馈失败");
+		}
+		return actionResult;
+	}
+	
+	/**
 	 * @param avatarPath 头像的相对路径，存在数据库里的
-	 * @param sid
-	 * @param ext 文件的后缀，不带.
 	 * @return
 	 */
 	private File getAttachSaveFile(String avatarFilename) {
+		return getAttachSaveFile(avatarFilename, AttachUsage.ATTACH);
+	}
+	
+	/**
+	 * 获取保存在本地磁盘的文件路径
+	 * @param avatarFilename
+	 * @param usage 文件的类型
+	 * @return
+	 */
+	private File getAttachSaveFile(String avatarFilename, AttachUsage usage) {
 		String rootDir = SystemCache.getUploadPath();
-		File file = new File(rootDir, SystemUtil.generateAttachFilePath(AttachUsage.ATTACH, avatarFilename));
+		File file = new File(rootDir, SystemUtil.generateAttachFilePath(usage, avatarFilename));
 		File parent = file.getParentFile();
 		if (parent != null && !parent.exists()) {
 			parent.mkdirs();
 		}
-		logger.info("note controller get avatar save file:" + file);
+		logger.info("note controller get attach " + usage + " save file:" + file);
 		return file;
 	}
 	

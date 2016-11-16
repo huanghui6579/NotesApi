@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yunxinlink.notes.api.dao.UserDao;
+import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.init.IdGenerator;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
 import com.yunxinlink.notes.api.model.State;
@@ -142,9 +143,36 @@ public class UserService implements IUserService {
 	public boolean addPasswordResetInfo(PasswordResetInfo resetInfo) {
 		int rowCount = 0;
 		try {
-			rowCount = userDao.addPwdResetInfo(resetInfo);
+			rowCount = userDao.insertPwdResetInfo(resetInfo);
 		} catch (Exception e) {
 			logger.error("add or update password reset info error:" + e.getMessage());
+		}
+		return rowCount > 0;
+	}
+
+	@Override
+	public PasswordResetInfoDto getPwdResetInfo(String account) {
+		PasswordResetInfoDto resetInfoDto = null;
+		try {
+			resetInfoDto = userDao.selectPwdResetInfo(account);
+		} catch (Exception e) {
+			logger.error("get reset info error:" + e.getMessage());
+		}
+		return resetInfoDto;
+	}
+
+	@Override
+	public boolean updatePassword(User user) {
+		int rowCount = 0;
+		String password = user.getPassword();
+		String encodePwd = DigestUtils.md5Hex(password);
+		user.setPassword(encodePwd);
+		rowCount = userDao.update(user);
+		if (rowCount > 0) {
+			PasswordResetInfo resetInfo = new PasswordResetInfo();
+			resetInfo.setUserSid(user.getSid());
+			//删除重置密码的记录
+			rowCount = userDao.deletePwdResetInfo(resetInfo);
 		}
 		return rowCount > 0;
 	}

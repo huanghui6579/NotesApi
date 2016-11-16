@@ -13,5 +13,10 @@ public enum AttachUsage {
 	/**
 	 * 笔记的附件
 	 */
-	ATTACH
+	ATTACH,
+	
+	/**
+	 * 意见反馈的附件
+	 */
+	FEEDBACK_ATTACH,
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.FeedbackDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="FeedbackInfo" useGeneratedKeys="true" keyProperty="id">
+	    insert into t_feedbak_info (userSid, content, imei, os, osVersion, phoneModel, brand, appVersionCode, appVersionName, contactWay, createTime, state) values 
+	    (#{userSid}, #{content}, #{imei}, #{os}, #{osVersion}, #{phoneModel}, #{brand}, #{appVersionCode}, #{appVersionName}, #{contactWay}, #{createTime}, #{state}) 
+	</insert>
+	
+	<insert id="addAttach" parameterType="FeedbackAttach" useGeneratedKeys="true" keyProperty="id">
+	    insert into t_feedback_attach (feedbackId, filename, localPath, mime, size) values 
+	    (#{feedbackId}, #{filename}, #{localPath}, #{mime}, #{size}) 
+	</insert>
+	
+	<insert id="addAttachBatch"  parameterType="java.util.List" keyProperty="id">
+	    insert into t_feedback_attach (feedbackId, filename, localPath, mime, size) values 
+	    <foreach collection="list" item="item" index="index" separator="," >
+		    (#{item.feedbackId}, #{item.filename}, #{item.localPath}, #{item.mime}, #{item.size}) 
+	    </foreach>
+	</insert>
+	
+	<delete id="delete" parameterType="FeedbackInfo">
+	    delete from t_feedbak_info where id = #{id}
+	</delete>
+	
+	<delete id="deleteAttach" parameterType="FeedbackAttach">
+	    delete from t_feedback_attach where id = #{id}
+	</delete>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_device_info limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

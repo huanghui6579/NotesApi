@@ -180,6 +180,9 @@ public class SystemUtil {
 		case ATTACH:
 			dir = Constant.ATTACH_ROOT + File.separator;
 			break;
+		case FEEDBACK_ATTACH:	//意见反馈的附件
+			dir = Constant.FEEDBACK_ROOT + File.separator;
+			break;
 		default:
 			break;
 		}

@@ -5,8 +5,9 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="DeviceInfo" useGeneratedKeys="true" keyProperty="id">
-	    insert into t_device_info (imei, os, osVersion, phoneModel, brand, createTime, modifyTime) values (#{imei}, #{os}, #{osVersion}, #{phoneModel}, #{brand}, #{createTime}, #{modifyTime}) 
-	    ON DUPLICATE KEY UPDATE osVersion=values(osVersion), phoneModel=values(phoneModel), brand=values(brand), modifyTime=values(modifyTime)
+	    insert into t_device_info (imei, os, osVersion, phoneModel, brand, appVersionCode, appVersionName, createTime, modifyTime) 
+	    values (#{imei}, #{os}, #{osVersion}, #{phoneModel}, #{brand}, #{appVersionCode}, #{appVersionName}, #{createTime}, #{modifyTime}) 
+	    ON DUPLICATE KEY UPDATE osVersion=values(osVersion), phoneModel=values(phoneModel), brand=values(brand), appVersionCode=values(appVersionCode), appVersionName=values(appVersionName), modifyTime=values(modifyTime)
 	</insert>
 	
 	<delete id="delete" parameterType="DeviceInfo">
@@ -24,6 +25,12 @@
             </if>
             <if test="brand != null">
                 brand = #{brand}
+            </if>
+            <if test="appVersionCode != null and appVersionCode > 0">
+                appVersionCode = #{appVersionCode}
+            </if>
+            <if test="appVersionName != null">
+                appVersionName = #{appVersionName}
             </if>
             <if test="modifyTime != null">
                 modifyTime = #{modifyTime}
