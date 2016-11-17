@@ -19,4 +19,9 @@ public enum AttachUsage {
 	 * 意见反馈的附件
 	 */
 	FEEDBACK_ATTACH,
+	
+	/**
+	 * 软件包
+	 */
+	SOFT_ATTACH
 }

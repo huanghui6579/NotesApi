@@ -3,6 +3,8 @@ package com.yunxinlink.notes.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 软件的版本信息
  * @author huanghui-iri
@@ -136,6 +138,14 @@ public class VersionInfo implements Serializable {
 
 	public void setHash(String hash) {
 		this.hash = hash;
+	}
+	
+	/**
+	 * 是否有内容，true：有更新日志内容
+	 * @return
+	 */
+	public boolean checkContent() {
+		return StringUtils.isNotBlank(content);
 	}
 
 	@Override

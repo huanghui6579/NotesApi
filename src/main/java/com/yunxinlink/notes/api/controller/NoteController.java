@@ -907,23 +907,6 @@ public class NoteController extends BaseController {
 	}
 	
 	/**
-	 * 获取保存在本地磁盘的文件路径
-	 * @param avatarFilename
-	 * @param usage 文件的类型
-	 * @return
-	 */
-	private File getAttachSaveFile(String avatarFilename, AttachUsage usage) {
-		String rootDir = SystemCache.getUploadPath();
-		File file = new File(rootDir, SystemUtil.generateAttachFilePath(usage, avatarFilename));
-		File parent = file.getParentFile();
-		if (parent != null && !parent.exists()) {
-			parent.mkdirs();
-		}
-		logger.info("note controller get attach " + usage + " save file:" + file);
-		return file;
-	}
-	
-	/**
 	 * 根据头像名称获取头像在本地磁盘的物理地址
 	 * @param avatarFilename
 	 * @return

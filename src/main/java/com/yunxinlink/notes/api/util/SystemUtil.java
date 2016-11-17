@@ -183,6 +183,9 @@ public class SystemUtil {
 		case FEEDBACK_ATTACH:	//意见反馈的附件
 			dir = Constant.FEEDBACK_ROOT + File.separator;
 			break;
+		case SOFT_ATTACH:	//软件包
+			dir = Constant.SOFT_PACKAGE_ROOT + File.separator;
+			break;
 		default:
 			break;
 		}

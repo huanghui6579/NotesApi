@@ -22,6 +22,11 @@ public class Constant {
 	public static final String FEEDBACK_ROOT = "feedback";
 	
 	/**
+	 * 软件包的存放目录
+	 */
+	public static final String SOFT_PACKAGE_ROOT = "soft";
+	
+	/**
 	 * 默认的每页记录条数，默认20条
 	 */
 	public static final int PAGE_SIZE_DEFAULT = 20;
@@ -42,4 +47,8 @@ public class Constant {
 	public static final String TAG_KEY_SPLITER = "$";
 	
 	public static final String RESET_PWD_SUBJECT = "云信笔记密码重置请求";
+	
+	public static final String ANDROID = "Android";
+	
+	public static final String IOS = "IOS";
 }

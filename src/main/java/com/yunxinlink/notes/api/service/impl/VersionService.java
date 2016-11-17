@@ -1,6 +1,8 @@
 package com.yunxinlink.notes.api.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,10 +53,16 @@ public class VersionService implements IVersionService {
 	}
 
 	@Override
-	public List<VersionInfo> getVersionList() {
+	public List<VersionInfo> getVersionList(VersionInfo versionInfo, Integer offset, Integer limit) {
 		List<VersionInfo> list = null;
 		try {
-			list = versionDao.selectVersions();
+			Map<String, Object> map = new HashMap<>();
+			map.put("platform", versionInfo.getPlatform());
+			if (offset != null && limit != null) {
+				map.put("offset", offset);
+				map.put("limit", limit);
+			}
+			list = versionDao.selectVersions(map);
 		} catch (Exception e) {
 			logger.error("list version info error:" + e.getMessage());
 		}

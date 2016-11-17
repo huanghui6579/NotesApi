@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.model.DeviceInfo;
+import com.yunxinlink.notes.api.model.VersionInfo;
 import com.yunxinlink.notes.api.service.IDeviceInfoService;
 
 /**
@@ -56,6 +57,22 @@ public class DeviceController extends BaseController {
 				actionResult.setReason("添加失败，该设备已存在");
 			}
 		}
+		return actionResult;
+	}
+	
+	/**
+	 * 获取最新的版本信息
+	 * @param versionInfo 查询参数
+	 * @return
+	 */
+	public ActionResult<VersionInfo> getAppVersionInfo(VersionInfo versionInfo) {
+		ActionResult<VersionInfo> actionResult = new ActionResult<>();
+		if (versionInfo == null || versionInfo.getPlatform() <= 0) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		//TODO 待完成
 		return actionResult;
 	}
 	

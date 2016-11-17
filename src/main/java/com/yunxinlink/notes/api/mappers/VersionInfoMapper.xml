@@ -13,7 +13,16 @@
 	    delete from t_version_info where id = #{id}
 	</delete>
 		
-	<select id="selectVersions" resultType="VersionInfo" >
-	    select * from t_device_info
+	<select id="selectVersions" resultType="VersionInfo" parameterType="java.util.Map" >
+	    select * from t_device_info 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="platform != null">
+	    		platform = #{platform}
+	    	</if>
+	    </trim>
+	    order by createTime desc
+	    <if test="offset != null and limit != null">
+             limit #{offset},#{limit}
+        </if>
 	</select>
 </mapper>

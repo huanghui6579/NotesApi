@@ -28,5 +28,5 @@ public interface IVersionService {
 	 * 查询版本的记录列表
 	 * @return
 	 */
-	public List<VersionInfo> getVersionList();
+	public List<VersionInfo> getVersionList(VersionInfo versionInfo, Integer offset, Integer limit);
 }
