@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50625
 File Encoding         : 65001
 
-Date: 2016-11-16 19:08:39
+Date: 2016-11-18 11:25:09
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -36,7 +36,7 @@ CREATE TABLE `t_attach` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `noteSid` (`noteSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COMMENT='附件表';
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='附件表';
 
 -- ----------------------------
 -- Table structure for t_detail_list
@@ -156,7 +156,7 @@ CREATE TABLE `t_note_info` (
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `userId` (`userId`),
   KEY `folderSid` (`folderSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8 COMMENT='笔记表';
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COMMENT='笔记表';
 
 -- ----------------------------
 -- Table structure for t_open_api
@@ -229,7 +229,7 @@ CREATE TABLE `t_version_info` (
   `localPath` varchar(255) DEFAULT NULL COMMENT '软件的本地路径',
   `hash` varchar(255) DEFAULT NULL COMMENT '文件的md5 hash值',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='软件的更新记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='软件的更新记录表';
 DROP TRIGGER IF EXISTS `tri_delete_feedback`;
 DELIMITER ;;
 CREATE TRIGGER `tri_delete_feedback` AFTER DELETE ON `t_feedbak_info` FOR EACH ROW BEGIN

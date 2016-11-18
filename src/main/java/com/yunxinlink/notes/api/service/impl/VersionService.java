@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.yunxinlink.notes.api.dao.VersionDao;
 import com.yunxinlink.notes.api.model.VersionInfo;
@@ -67,6 +68,28 @@ public class VersionService implements IVersionService {
 			logger.error("list version info error:" + e.getMessage());
 		}
 		return list;
+	}
+
+	@Override
+	public VersionInfo getLastVersion(VersionInfo versionInfo, Integer offset, Integer limit) {
+		List<VersionInfo> versionInfos = getVersionList(versionInfo, offset, limit);
+		if (CollectionUtils.isEmpty(versionInfos)) {
+			return null;
+		}
+		return versionInfos.get(0);
+	}
+
+	@Override
+	public VersionInfo getVersionInfo(int id) {
+		VersionInfo info = null;
+		VersionInfo param = new VersionInfo();
+		param.setId(id);
+		try {
+			info = versionDao.selectById(param);
+		} catch (Exception e) {
+			logger.error("get version into error:" + e.getMessage());
+		}
+		return info;
 	}
 
 }

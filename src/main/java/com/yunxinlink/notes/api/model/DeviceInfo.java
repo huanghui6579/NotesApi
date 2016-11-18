@@ -47,12 +47,12 @@ public class DeviceInfo implements Serializable {
 	/**
 	 * 客户端软件的版本号
 	 */
-	private Integer versionCode;
+	private Integer appVersionCode;
 	
 	/**
 	 * 客户端软件的版本名名称
 	 */
-	private String versionName;
+	private String appVersionName;
 	
 	/**
 	 * 创建时间
@@ -111,21 +111,21 @@ public class DeviceInfo implements Serializable {
 	public void setBrand(String brand) {
 		this.brand = brand;
 	}
-	
-	public Integer getVersionCode() {
-		return versionCode;
+
+	public Integer getAppVersionCode() {
+		return appVersionCode;
 	}
 
-	public void setVersionCode(Integer versionCode) {
-		this.versionCode = versionCode;
+	public void setAppVersionCode(Integer appVersionCode) {
+		this.appVersionCode = appVersionCode;
 	}
 
-	public String getVersionName() {
-		return versionName;
+	public String getAppVersionName() {
+		return appVersionName;
 	}
 
-	public void setVersionName(String versionName) {
-		this.versionName = versionName;
+	public void setAppVersionName(String appVersionName) {
+		this.appVersionName = appVersionName;
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class DeviceInfo implements Serializable {
 	@Override
 	public String toString() {
 		return "DeviceInfo [id=" + id + ", imei=" + imei + ", os=" + os + ", osVersion=" + osVersion + ", phoneModel="
-				+ phoneModel + ", brand=" + brand + ", versionCode=" + versionCode + ", versionName=" + versionName
-				+ ", createTime=" + createTime + ", modifyTime=" + modifyTime + "]";
+				+ phoneModel + ", brand=" + brand + ", appVersionCode=" + appVersionCode + ", appVersionName="
+				+ appVersionName + ", createTime=" + createTime + ", modifyTime=" + modifyTime + "]";
 	}
 }

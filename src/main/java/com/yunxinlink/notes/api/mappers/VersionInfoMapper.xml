@@ -12,9 +12,13 @@
 	<delete id="delete" parameterType="VersionInfo">
 	    delete from t_version_info where id = #{id}
 	</delete>
+	
+	<select id="selectById" resultType="VersionInfo" parameterType="VersionInfo" >
+	    select * from t_version_info where id = #{id}
+	</select>
 		
 	<select id="selectVersions" resultType="VersionInfo" parameterType="java.util.Map" >
-	    select * from t_device_info 
+	    select * from t_version_info 
 	    <trim prefix="where" prefixOverrides="AND | OR">
 	    	<if test="platform != null">
 	    		platform = #{platform}

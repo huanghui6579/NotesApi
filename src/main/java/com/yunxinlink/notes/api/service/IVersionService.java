@@ -25,8 +25,24 @@ public interface IVersionService {
 	public boolean deleteVersionInfo(int id);
 	
 	/**
+	 * 查询版本的详细信息
+	 * @param id
+	 * @return
+	 */
+	public VersionInfo getVersionInfo(int id);
+	
+	/**
 	 * 查询版本的记录列表
 	 * @return
 	 */
 	public List<VersionInfo> getVersionList(VersionInfo versionInfo, Integer offset, Integer limit);
+	
+	/**
+	 * 获取最新的软件信息
+	 * @param versionInfo
+	 * @param offset
+	 * @param limit
+	 * @return
+	 */
+	public VersionInfo getLastVersion(VersionInfo versionInfo, Integer offset, Integer limit);
 }

@@ -742,34 +742,9 @@ public class NoteController extends BaseController {
 				if (attach != null && StringUtils.isNotBlank(attach.getLocalPath())) {	//附件存在
 					String attLocalPath = attach.getLocalPath();
 					File file = getAttachFile(attLocalPath);
-					if (file != null && file.exists()) {	//文件存在
-						String filename = attach.getFilename();
-						String mime = attach.getMimeType();
-						String encodeFilename = null;
-						try {
-							encodeFilename = URLEncoder.encode(filename, "UTF-8");
-						} catch (UnsupportedEncodingException e1) {
-							e1.printStackTrace();
-							encodeFilename = filename;
-						}
-						MediaType mediaType = null;
-				        try {
-				            mediaType = MediaType.parseMediaType(mime);
-				        } catch (Exception e) {
-				            e.printStackTrace();
-				        }
-						
-						headers.setContentType(mediaType);
-				        headers.setContentLength(file.length());
-				        StringBuilder sb = new StringBuilder();
-				        sb.append("attachment;filename=").append(encodeFilename).append(";filename*=UTF-8''").append(encodeFilename);
-				        headers.add(HttpHeaders.CONTENT_DISPOSITION, sb.toString());
-				        try {
-							inputStreamResource = new InputStreamResource(new FileInputStream(file));
-							hasContent = true;
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
+					inputStreamResource = parseFile(file, attach, headers);
+					if (inputStreamResource != null) {
+						hasContent = true;
 					}
 				}
 			} else {	//用户不存在或者用户被禁用

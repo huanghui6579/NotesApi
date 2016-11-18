@@ -1,18 +1,20 @@
-package com.yunxinlink.notes.api.model;
+package com.yunxinlink.notes.api.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.yunxinlink.notes.api.dto.VersionInfoDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.yunxinlink.notes.api.model.Platform;
 
 /**
  * 软件的版本信息
  * @author huanghui-iri
  * @date 2016年11月16日 下午5:53:23
  */
-public class VersionInfo implements Serializable {
+@JsonInclude(Include.NON_NULL)
+public class VersionInfoDto implements Serializable {
 	private static final long serialVersionUID = -1881931781373622924L;
 	
 	private int id;
@@ -40,7 +42,7 @@ public class VersionInfo implements Serializable {
 	/**
 	 * 更新时间
 	 */
-	private Date createTime;
+	private long createTime;
 	
 	/**
 	 * 是否是里程碑
@@ -51,11 +53,6 @@ public class VersionInfo implements Serializable {
 	 * 软件包的大小
 	 */
 	private long size;
-	
-	/**
-	 * 软件版本的本地路径
-	 */
-	private String localPath;
 	
 	/**
 	 * 软件的hash值-MD5
@@ -98,18 +95,6 @@ public class VersionInfo implements Serializable {
 		return platform;
 	}
 
-	public void setPlatform(Integer platform) {
-		this.platform = platform;
-	}
-
-	public Date getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
 	public boolean isMilestone() {
 		return isMilestone;
 	}
@@ -126,14 +111,6 @@ public class VersionInfo implements Serializable {
 		this.size = size;
 	}
 
-	public String getLocalPath() {
-		return localPath;
-	}
-
-	public void setLocalPath(String localPath) {
-		this.localPath = localPath;
-	}
-
 	public String getHash() {
 		return hash;
 	}
@@ -142,39 +119,27 @@ public class VersionInfo implements Serializable {
 		this.hash = hash;
 	}
 	
+	public long getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
+	}
+
+	public void setVersionCode(Integer versionCode) {
+		this.versionCode = versionCode;
+	}
+
+	public void setPlatform(int platform) {
+		this.platform = platform;
+	}
+
 	/**
 	 * 是否有内容，true：有更新日志内容
 	 * @return
 	 */
 	public boolean checkContent() {
 		return StringUtils.isNotBlank(content);
-	}
-	
-	/**
-	 * 转换成版本信息
-	 * @return
-	 */
-	public VersionInfoDto convert2Dto() {
-		VersionInfoDto infoDto = new VersionInfoDto();
-		infoDto.setContent(content);
-		if (createTime != null) {
-			infoDto.setCreateTime(createTime.getTime());
-		}
-		infoDto.setHash(hash);
-		infoDto.setMilestone(isMilestone);
-		infoDto.setId(id);
-		infoDto.setPlatform(platform);
-		infoDto.setSize(size);
-		infoDto.setVersionCode(versionCode);
-		infoDto.setVersionName(versionName);
-		
-		return infoDto;
-	}
-
-	@Override
-	public String toString() {
-		return "VersionInfo [id=" + id + ", content=" + content + ", versionCode=" + versionCode + ", versionName="
-				+ versionName + ", platform=" + platform + ", createTime=" + createTime + ", isMilestone=" + isMilestone
-				+ ", size=" + size + ", localPath=" + localPath + ", hash=" + hash + "]";
 	}
 }

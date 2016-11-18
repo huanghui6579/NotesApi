@@ -18,7 +18,6 @@ import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.model.Platform;
 import com.yunxinlink.notes.api.model.VersionInfo;
 import com.yunxinlink.notes.api.service.IVersionService;
-import com.yunxinlink.notes.api.service.impl.VersionService;
 import com.yunxinlink.notes.api.util.AttachUsage;
 import com.yunxinlink.notes.api.util.Constant;
 import com.yunxinlink.notes.api.util.SystemUtil;
@@ -53,7 +52,8 @@ public class AdminController extends BaseController {
 			return actionResult;
 		}
 		String originalFilename = multipartFile.getOriginalFilename();
-		File file = generateAppFile(versionInfo.getPlatform(), originalFilename);
+		String localPath = generateAppFilename(originalFilename);
+		File file = generateAppFile(versionInfo.getPlatform(), localPath);
 		if (file == null) {
 			actionResult.setReason("不支持的系统平台");
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
@@ -68,7 +68,7 @@ public class AdminController extends BaseController {
 		}
 		//保存记录到数据库
 		//该localPath是相对路径
-		String localPath = generateAppFilename(originalFilename);
+		
 		versionInfo.setLocalPath(localPath);
 		versionInfo.setCreateTime(new Date());
 		
@@ -90,13 +90,11 @@ public class AdminController extends BaseController {
 	}
 	
 	/**
-	 * 
-	 * @param platform 系统的平台，如Android、IOS
-	 * @param filename
-	 * @see Platform
+	 * 根据软件的平台获取不同的文件夹
+	 * @param platform
 	 * @return
 	 */
-	private File generateAppFile(int platform, String filename) {
+	private String getAppPrefix(int platform) {
 		String prefix = null;
 		switch (platform) {
 		case Platform.PLATFORM_ANDROID:	//Android的软件包
@@ -109,12 +107,25 @@ public class AdminController extends BaseController {
 		default:
 			break;
 		}
+		return prefix;
+	}
+	
+	/**
+	 * 生成app包的本地文件路径
+	 * @param platform 系统的平台，如Android、IOS
+	 * @param filename
+	 * @see Platform
+	 * @return
+	 */
+	private File generateAppFile(int platform, String filename) {
+		String prefix = getAppPrefix(platform);
 		if (prefix == null) {
 			return null;
 		}
 		filename = prefix + File.separator + filename;
 		return getAttachSaveFile(filename, AttachUsage.SOFT_ATTACH);
 	}
+	
 	
 	/**
 	 * 生成软件包的名称
@@ -123,6 +134,7 @@ public class AdminController extends BaseController {
 	 */
 	private String generateAppFilename(String filename) {
 		Calendar calendar = Calendar.getInstance();
-		return calendar.get(Calendar.YEAR) + File.separator + filename;
+		int year = calendar.get(Calendar.YEAR);
+		return year + File.separator + filename;
 	}
 }
