@@ -1,5 +1,6 @@
 package com.yunxinlink.notes.api.model;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -168,6 +169,18 @@ public class VersionInfo implements Serializable {
 		infoDto.setVersionCode(versionCode);
 		infoDto.setVersionName(versionName);
 		
+		if (StringUtils.isNotBlank(localPath)) {
+			int index = localPath.lastIndexOf(File.separator);
+			if (index != -1) {
+				String filename = null;
+				try {
+					filename = localPath.substring(index + 1);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				infoDto.setFilename(filename);
+			}
+		}
 		return infoDto;
 	}
 

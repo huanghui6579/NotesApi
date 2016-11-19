@@ -58,6 +58,11 @@ public class VersionInfoDto implements Serializable {
 	 * 软件的hash值-MD5
 	 */
 	private String hash;
+	
+	/**
+	 * 文件名
+	 */
+	private String filename;
 
 	public int getId() {
 		return id;
@@ -133,6 +138,14 @@ public class VersionInfoDto implements Serializable {
 
 	public void setPlatform(int platform) {
 		this.platform = platform;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 	/**

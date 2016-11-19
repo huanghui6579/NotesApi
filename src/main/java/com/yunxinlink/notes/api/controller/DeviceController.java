@@ -94,7 +94,7 @@ public class DeviceController extends BaseController {
 			actionResult.setReason("获取成功");
 		} else {
 			actionResult.setResultCode(ActionResult.RESULT_FAILED);
-			actionResult.setReason("获取失败");
+			actionResult.setReason("没有新版本");
 		}
 		return actionResult;
 	}
