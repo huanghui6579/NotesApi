@@ -104,5 +104,13 @@ public class TestUUID {
 	private long getOutTime(Date date) {
 		return date.getTime() / 1000 * 1000;
 	}
+	
+	@Test
+	public void testPercent() {
+		long read = 4461999;
+		long count = 4639744;
+		int percent = (int) (read * 100 / count);
+		logger.info("percent:" + percent);
+	}
 }
 
