@@ -40,9 +40,7 @@ public interface IVersionService {
 	/**
 	 * 获取最新的软件信息
 	 * @param versionInfo
-	 * @param offset
-	 * @param limit
 	 * @return
 	 */
-	public VersionInfo getLastVersion(VersionInfo versionInfo, Integer offset, Integer limit);
+	public VersionInfo getLastVersion(VersionInfo versionInfo);
 }

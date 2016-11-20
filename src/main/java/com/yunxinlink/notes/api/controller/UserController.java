@@ -670,14 +670,4 @@ public class UserController extends BaseController {
 	private long getOutTime(Date date) {
 		return date.getTime() / 1000 * 1000;
 	}
-	
-	/**
-	 * 获取基本的链接地址
-	 * @param request
-	 * @return
-	 */
-	public String getBasePath(HttpServletRequest request) {
-		String path = request.getContextPath();  
-		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
-	}
 }

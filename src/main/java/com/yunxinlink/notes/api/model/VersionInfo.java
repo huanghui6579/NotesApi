@@ -36,7 +36,7 @@ public class VersionInfo implements Serializable {
 	/**
 	 * 用户的系统平台，0:Android, 1:IOS
 	 */
-	private int platform = Platform.PLATFORM_ANDROID;
+	private Integer platform;
 	
 	/**
 	 * 更新时间

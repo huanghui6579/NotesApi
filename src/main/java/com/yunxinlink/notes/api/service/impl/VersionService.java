@@ -71,8 +71,8 @@ public class VersionService implements IVersionService {
 	}
 
 	@Override
-	public VersionInfo getLastVersion(VersionInfo versionInfo, Integer offset, Integer limit) {
-		List<VersionInfo> versionInfos = getVersionList(versionInfo, offset, limit);
+	public VersionInfo getLastVersion(VersionInfo versionInfo) {
+		List<VersionInfo> versionInfos = getVersionList(versionInfo, 0, 1);
 		if (CollectionUtils.isEmpty(versionInfos)) {
 			return null;
 		}

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -126,5 +128,15 @@ public abstract class BaseController {
 			logger.info("get app file but fil eis not exists:" + file);
 		}
 		return inputStreamResource;
+	}
+	
+	/**
+	 * 获取基本的链接地址,如：http://localhost:8080/noteapi/
+	 * @param request
+	 * @return
+	 */
+	protected String getBasePath(HttpServletRequest request) {
+		String path = request.getContextPath();  
+		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
 	}
 }
