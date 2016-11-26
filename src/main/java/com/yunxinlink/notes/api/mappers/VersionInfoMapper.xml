@@ -5,8 +5,8 @@
 	
 	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
 	<insert id="add" parameterType="VersionInfo" useGeneratedKeys="true" keyProperty="id">
-	    insert into t_version_info (content, versionCode, versionName, platform, createTime, isMilestone, size, localPath, hash) values 
-	    (#{content}, #{versionCode}, #{versionName}, #{platform}, #{createTime}, #{isMilestone}, #{size}, #{localPath}, #{hash}) 
+	    insert into t_version_info (title, content, versionCode, versionName, platform, createTime, isMilestone, size, localPath, hash) values 
+	    (#{title}, #{content}, #{versionCode}, #{versionName}, #{platform}, #{createTime}, #{isMilestone}, #{size}, #{localPath}, #{hash}) 
 	</insert>
 	
 	<delete id="delete" parameterType="VersionInfo">

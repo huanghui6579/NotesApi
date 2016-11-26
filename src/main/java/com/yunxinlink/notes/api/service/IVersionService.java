@@ -38,6 +38,13 @@ public interface IVersionService {
 	public List<VersionInfo> getVersionList(VersionInfo versionInfo, Integer offset, Integer limit);
 	
 	/**
+	 * 查询指定平台的版本记录列表
+	 * @param versionInfo
+	 * @return
+	 */
+	public List<VersionInfo> getVersionsByPlatform(VersionInfo versionInfo);
+	
+	/**
 	 * 获取最新的软件信息
 	 * @param versionInfo
 	 * @return

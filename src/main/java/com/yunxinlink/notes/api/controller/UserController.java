@@ -255,6 +255,53 @@ public class UserController extends BaseController {
 	}
 	
 	/**
+	 * 绑定用户，当用户不存在时，则创建，存在时，则根据用户账号和密码进行校验
+	 * @param userDto
+	 * @return
+	 */
+	@RequestMapping(value = {"bind"}, method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<UserDto> bindUser(UserDto userDto) {
+		ActionResult<UserDto> actionResult = new ActionResult<>();
+		if (userDto == null || userDto.getUser() == null || userDto.getUser().getPassword() == null) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		User user = userDto.getUser();
+		String email = user.getEmail();
+		String mobile = user.getMobile();
+		if (StringUtils.isBlank(email) && StringUtils.isBlank(mobile)) {	//账号为空
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("账号不能为空");
+			return actionResult;
+		}
+		String encodePwd = DigestUtils.md5Hex(user.getPassword());
+		User u = userService.getUser(user);
+		boolean success = false;
+		if (u != null) {	//校验密码，可视为登录
+			success = encodePwd.equals(u.getPassword());
+			if (success) {
+				user = u;
+			}
+		} else {	//创建用户，可视为注册
+			success = userService.addUser(user);
+		}
+		if (success) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			UserDto resultDto = new UserDto();
+			resultDto.setType(AccountType.TYPE_LOCAL);
+			resultDto.setUser(user);
+			actionResult.setData(resultDto);
+			actionResult.setReason("绑定成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("绑定失败");
+		}
+		return actionResult;
+	}
+	
+	/**
 	 * 修改用户信息
 	 * @param sid 用户的sid
 	 * @param userDto

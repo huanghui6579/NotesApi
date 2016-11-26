@@ -1,6 +1,14 @@
 package com.yunxinlink.notes.api.controller;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,17 +20,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.dto.VersionInfoDto;
+import com.yunxinlink.notes.api.dto.VersionLog;
 import com.yunxinlink.notes.api.model.Platform;
 import com.yunxinlink.notes.api.model.VersionInfo;
 import com.yunxinlink.notes.api.service.IVersionService;
 import com.yunxinlink.notes.api.util.AttachUsage;
 import com.yunxinlink.notes.api.util.Constant;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 @Controller
 @RequestMapping()
@@ -33,10 +47,7 @@ public class IndexController extends BaseController {
 	
 	@RequestMapping(value = {"/", ""})
 	public String index(Model model, HttpServletRequest request) {
-		VersionInfo param = new VersionInfo();
-		//暂时只有andriod 版本
-		param.setPlatform(Platform.PLATFORM_ANDROID);
-		VersionInfo versionInfo = versionService.getLastVersion(param);
+		VersionInfo versionInfo = getVersionInfo(null);
 		if (versionInfo != null) {
 			String baseUrl = getBasePath(request);
 			String downloadUrl = baseUrl + "app/download?platform=0";
@@ -85,12 +96,7 @@ public class IndexController extends BaseController {
 		HttpHeaders headers = new HttpHeaders();
 		HttpStatus httpStatus = null;
 		if (versionInfo != null) {
-			int id = versionInfo.getId();
-			if (id > 0) {
-				versionInfo = versionService.getVersionInfo(versionInfo.getId());
-			} else if (versionInfo.getPlatform() != null) {
-				versionInfo = versionService.getLastVersion(versionInfo);
-			}
+			versionInfo = getVersionInfo(versionInfo);
 			if (versionInfo != null && StringUtils.isNotBlank(versionInfo.getLocalPath())) {
 				String localPath = versionInfo.getLocalPath();
 				File file = getAppFile(versionInfo.getPlatform(), localPath);
@@ -107,8 +113,88 @@ public class IndexController extends BaseController {
 	}
 	
 	@RequestMapping(value = "updateLog", method = RequestMethod.GET)
-	public String showVersionLog(Model model) {
-		return "app-log";
+	public String showVersionLog(VersionInfo versionInfo, Model model) {
+		String url = "app-log";
+		String cacheKey = "logList";
+		List<VersionLog> logList = null;
+		CacheManager cacheManager = CacheManager.getInstance();
+		Cache cache = cacheManager.getCache(Constant.DEFAULT_CACHE);
+		if (cache != null) {
+			Element element = cache.get(cacheKey);
+			if (element != null) {
+				logList = (List<VersionLog>) element.getObjectValue();
+				model.addAttribute("logList", logList);
+				Calendar calendar = Calendar.getInstance();
+				model.addAttribute("curYear", calendar.get(Calendar.YEAR));
+				logger.info("show version log from cache");
+				return url;
+			}
+		}
+		List<VersionInfo> versionInfos = versionService.getVersionsByPlatform(versionInfo);
+		if (!CollectionUtils.isEmpty(versionInfos)) {
+			Calendar calendar = Calendar.getInstance();
+			Map<Integer, List<VersionInfo>> versionMap = new HashMap<>();
+			for (VersionInfo info : versionInfos) {
+				Date createTime = info.getCreateTime();
+				String content = info.getContent();
+				if (createTime == null || content == null) {
+					continue;
+				}
+				calendar.setTime(createTime);
+				int year = calendar.get(Calendar.YEAR);
+				List<VersionInfo> list = versionMap.get(year);
+				if (list == null) {
+					list = new ArrayList<>();
+					versionMap.put(year, list);
+				}
+				
+				info.setSubLineList(info.formatLog());
+				
+				list.add(info);
+			}
+			if (!versionMap.isEmpty()) {
+				logList = new ArrayList<>();
+				Set<Integer> keys = versionMap.keySet();
+				List<Integer> keyList = new ArrayList<>(keys);
+				if (keyList.size() > 1) {
+					Collections.sort(keyList);
+					Collections.reverse(keyList);
+				}
+				for (Integer key : keyList) {
+					List<VersionInfo> list = versionMap.get(key);
+					VersionLog log = new VersionLog();
+					log.setYear(key);
+					log.setVersionInfos(list);
+					logList.add(log);
+				}
+				if (cache != null) {
+					Element element = new Element(cacheKey, logList);
+					cache.put(element);
+				}
+				model.addAttribute(cacheKey, logList);
+				calendar.setTime(new Date());
+				model.addAttribute("curYear", calendar.get(Calendar.YEAR));
+			}
+		}
+		return url;
+	}
+	
+	/**
+	 * 根据条件查询版本信息
+	 * @param versionInfo
+	 * @return
+	 */
+	private VersionInfo getVersionInfo(VersionInfo param) {
+		VersionInfo versionInfo = null;
+		if (param == null || param.getId() <= 0) {
+			param = new VersionInfo();
+			//暂时只有Android平台
+			param.setPlatform(Platform.PLATFORM_ANDROID);
+			versionInfo = versionService.getLastVersion(param);
+		} else {
+			versionInfo = versionService.getVersionInfo(param.getId());
+		}
+		return versionInfo;
 	}
 	
 	/**

@@ -156,6 +156,9 @@ div,form,input,textarea,p,ul,li,dl,dt,dd,h1,table,h2 {
 .content .highlight-text{
      color: #ec6a13;
 }
+.content .highlight .intro-fa{
+     color: #ec6a13;
+}
  .content .main .year .list ul li.highlight .date, .content .main .year .list ul li.highlight .intro {
     color: #ec6a13;
 } 
@@ -179,7 +182,7 @@ div,form,input,textarea,p,ul,li,dl,dt,dd,h1,table,h2 {
     margin-left: 100px;
     line-height: 24px;
 }
-.content .main .year .list ul li .intro {
+.content .main .year .list ul li .intro, .intro-fa {
     font-size: 18px;
     line-height: 32px;
     margin-left: 43px;

@@ -7,12 +7,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.yunxinlink.notes.api.dao.VersionDao;
 import com.yunxinlink.notes.api.model.VersionInfo;
 import com.yunxinlink.notes.api.service.IVersionService;
+import com.yunxinlink.notes.api.util.Constant;
 
 /**
  * 软件版本更新记录的服务层
@@ -27,6 +30,7 @@ public class VersionService implements IVersionService {
 	@Autowired
 	private VersionDao versionDao;
 
+	@CacheEvict(value = Constant.DEFAULT_CACHE, key = "'appVersion_' + #versionInfo.platform")
 	@Override
 	public boolean addVersionInfo(VersionInfo versionInfo) {
 		int rowCount = 0;
@@ -38,6 +42,7 @@ public class VersionService implements IVersionService {
 		return rowCount > 0;
 	}
 
+	@CacheEvict(value = Constant.DEFAULT_CACHE, key = "'appVersion_' + #id")
 	@Override
 	public boolean deleteVersionInfo(int id) {
 		VersionInfo info = new VersionInfo();
@@ -70,15 +75,17 @@ public class VersionService implements IVersionService {
 		return list;
 	}
 
+	@Cacheable(value = Constant.DEFAULT_CACHE, key = "'appVersion_' + #versionInfo.platform")
 	@Override
 	public VersionInfo getLastVersion(VersionInfo versionInfo) {
-		List<VersionInfo> versionInfos = getVersionList(versionInfo, 0, 1);
+		List<VersionInfo> versionInfos = getVersionsByPlatform(versionInfo);
 		if (CollectionUtils.isEmpty(versionInfos)) {
 			return null;
 		}
 		return versionInfos.get(0);
 	}
 
+	@Cacheable(value = Constant.DEFAULT_CACHE, key = "'appVersion_' + #id")
 	@Override
 	public VersionInfo getVersionInfo(int id) {
 		VersionInfo info = null;
@@ -90,6 +97,12 @@ public class VersionService implements IVersionService {
 			logger.error("get version into error:" + e.getMessage());
 		}
 		return info;
+	}
+
+	@Cacheable(value = Constant.DEFAULT_CACHE, key = "'appVersionList_' + #versionInfo.platform")
+	@Override
+	public List<VersionInfo> getVersionsByPlatform(VersionInfo versionInfo) {
+		return getVersionList(versionInfo, null, null);
 	}
 
 }

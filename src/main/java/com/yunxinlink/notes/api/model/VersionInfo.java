@@ -3,6 +3,7 @@ package com.yunxinlink.notes.api.model;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,6 +18,11 @@ public class VersionInfo implements Serializable {
 	private static final long serialVersionUID = -1881931781373622924L;
 	
 	private int id;
+	
+	/**
+	 * 更新记录的标题
+	 */
+	private String title;
 	
 	/**
 	 * 更新的记录
@@ -62,6 +68,11 @@ public class VersionInfo implements Serializable {
 	 * 软件的hash值-MD5
 	 */
 	private String hash;
+	
+	/**
+	 * 将content以“\n”分隔成一条条
+	 */
+	private String[] subLineList;
 
 	public int getId() {
 		return id;
@@ -69,6 +80,14 @@ public class VersionInfo implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getContent() {
@@ -79,11 +98,11 @@ public class VersionInfo implements Serializable {
 		this.content = content;
 	}
 
-	public int getVersionCode() {
+	public Integer getVersionCode() {
 		return versionCode;
 	}
 
-	public void setVersionCode(int versionCode) {
+	public void setVersionCode(Integer versionCode) {
 		this.versionCode = versionCode;
 	}
 
@@ -143,6 +162,14 @@ public class VersionInfo implements Serializable {
 		this.hash = hash;
 	}
 	
+	public String[] getSubLineList() {
+		return subLineList;
+	}
+
+	public void setSubLineList(String[] subLineList) {
+		this.subLineList = subLineList;
+	}
+
 	/**
 	 * 是否有内容，true：有更新日志内容
 	 * @return
@@ -183,11 +210,20 @@ public class VersionInfo implements Serializable {
 		}
 		return infoDto;
 	}
+	
+	/**
+	 * 格式化更新的日志，以“\n”分隔
+	 * @return
+	 */
+	public String[] formatLog() {
+		return content.split("\n");
+	}
 
 	@Override
 	public String toString() {
-		return "VersionInfo [id=" + id + ", content=" + content + ", versionCode=" + versionCode + ", versionName="
-				+ versionName + ", platform=" + platform + ", createTime=" + createTime + ", isMilestone=" + isMilestone
-				+ ", size=" + size + ", localPath=" + localPath + ", hash=" + hash + "]";
+		return "VersionInfo [id=" + id + ", title=" + title + ", content=" + content + ", versionCode=" + versionCode
+				+ ", versionName=" + versionName + ", platform=" + platform + ", createTime=" + createTime
+				+ ", isMilestone=" + isMilestone + ", size=" + size + ", localPath=" + localPath + ", hash=" + hash
+				+ "]";
 	}
 }

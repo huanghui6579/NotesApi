@@ -51,4 +51,9 @@ public class Constant {
 	public static final String ANDROID = "Android";
 	
 	public static final String IOS = "IOS";
+	
+	/**
+	 * 默认ehcache名称
+	 */
+	public static final String DEFAULT_CACHE = "dbCache";
 }
