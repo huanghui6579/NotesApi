@@ -86,8 +86,8 @@ public class UserService implements IUserService {
 			String email = user.getEmail();
 			String password = user.getPassword();
 			Map<String, String> map = new HashMap<>();
-			String encodePwd = DigestUtils.md5Hex(password);
-			map.put("password", encodePwd);
+//			String encodePwd = DigestUtils.md5Hex(password);
+			map.put("password", password);
 			if (StringUtils.isNotBlank(mobile)) {
 				map.put("mobile", mobile);
 			} else if (StringUtils.isNotBlank(email)) {

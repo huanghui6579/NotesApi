@@ -53,7 +53,24 @@ public class Constant {
 	public static final String IOS = "IOS";
 	
 	/**
+	 * 生成token的密钥
+	 */
+	public static final String TOKEN_KEY_SALT = "ncjhjdekjrkh!@#%$fdsfdj%$65152757_~fdskf!@#$$%35m=jfksj%$#^ldsifl";
+	/**
+	 * token 的签发者
+	 */
+	public static final String TOKEN_ISSUER = "notes.yunxinlink.com";
+	/**
+	 * token的有效期，7天=3600 x 1000 x 24 x 7,单位毫秒
+	 */
+	public static final long TOKEN_EXP_TIME = 604800000L;
+	
+	/**
 	 * 默认ehcache名称
 	 */
 	public static final String DEFAULT_CACHE = "dbCache";
+	/**
+	 * 用户token的缓存
+	 */
+	public static final String DEFAULT_TOKEN_CACHE = "tokenCache";
 }

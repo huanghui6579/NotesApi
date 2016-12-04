@@ -29,6 +29,16 @@
     
     <mvc:resources mapping="/resources/**" location="/resources/"/>
     
+    <mvc:interceptors>  
+	    <!-- 使用bean定义一个Interceptor，直接定义在mvc:interceptors根下面的Interceptor将拦截所有的请求 -->  
+	      
+	    <mvc:interceptor>  
+	        <mvc:mapping path="/api/**"/>  
+	        <!-- 定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的 -->  
+	        <bean class="com.yunxinlink.notes.api.interceptor.APIInterceptor"/>
+	    </mvc:interceptor>  
+	</mvc:interceptors>  
+    
     <!-- 定义跳转的文件的前后缀 ，视图模式配置-->  
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
         <!-- 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 -->  

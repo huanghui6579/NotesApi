@@ -51,6 +51,16 @@ public class ActionResult<T> {
 	public static final int RESULT_OUT_DATE = 207;
 	
 	/**
+	 * 用户密码校验失败
+	 */
+	public static final int RESULT_VALIDATE_FAILED = 208;
+	
+	/**
+	 * token校验失败
+	 */
+	public static final int RESULT_TOKEN_UNAUTHOZIED = 401;
+	
+	/**
 	 * 返回码
 	 */
 	private int resultCode = RESULT_ERROR;

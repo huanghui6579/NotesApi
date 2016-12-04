@@ -59,7 +59,7 @@ import com.yunxinlink.notes.api.util.SystemUtil;
  * @date 2016年10月6日 上午11:14:53
  */
 @Controller
-@RequestMapping("/note")
+@RequestMapping("/api/note")
 public class NoteController extends BaseController {
 	
 	@Autowired

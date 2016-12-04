@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.yunxinlink.notes.api.annotation.TokenIgnore;
 import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.dto.UserDto;
@@ -37,12 +38,18 @@ import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.AccountType;
 import com.yunxinlink.notes.api.model.OpenApi;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
+import com.yunxinlink.notes.api.model.Token;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IEmailService;
 import com.yunxinlink.notes.api.service.IOpenApiService;
 import com.yunxinlink.notes.api.service.IUserService;
 import com.yunxinlink.notes.api.util.AttachUsage;
+import com.yunxinlink.notes.api.util.Constant;
 import com.yunxinlink.notes.api.util.SystemUtil;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * 用户的控制器
@@ -50,7 +57,7 @@ import com.yunxinlink.notes.api.util.SystemUtil;
  *
  */
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController extends BaseController {
 	@Autowired
 	private IOpenApiService openApiService;
@@ -74,6 +81,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = {"login"}, method = RequestMethod.POST)
 	@ResponseBody
+	@TokenIgnore
 	public ActionResult<UserDto> login(UserDto userDto, Integer autoCreate) {
 		ActionResult<UserDto> actionResult = new ActionResult<>();
 		if (userDto == null) {
@@ -86,6 +94,8 @@ public class UserController extends BaseController {
 		boolean success = false;
 		int code = ActionResult.RESULT_ERROR;
 		String reason = null;
+		//是否需要创建token
+		boolean createToken = false;
 		if (type != null && type > 0) {	//第三方账号登录
 			String openUserId = userDto.getOpenUserId();
 			if (StringUtils.isBlank(openUserId)) {	//参数错误
@@ -124,6 +134,7 @@ public class UserController extends BaseController {
 					actionResult.setData(result);
 					code = ActionResult.RESULT_SUCCESS;
 					reason = "登录成功";
+					createToken = true;
 				} else {
 					code = ActionResult.RESULT_ERROR;
 					reason = "登录失败";
@@ -151,6 +162,7 @@ public class UserController extends BaseController {
 					} else {
 						code = ActionResult.RESULT_SUCCESS;
 						reason = "登录成功";
+						createToken = shouldCreateToken(userDto.getUser());
 					}
 					UserDto result = new UserDto();
 					result.setUser(user);
@@ -181,12 +193,17 @@ public class UserController extends BaseController {
 				} else {
 					code = ActionResult.RESULT_SUCCESS;
 					reason = "登录成功";
+					createToken = shouldCreateToken(user);
 				}
 				UserDto result = new UserDto();
 				result.setUser(u);
 				result.setType(AccountType.TYPE_LOCAL);
 				actionResult.setData(result);
 			}
+		}
+		if (createToken && actionResult.getData() != null && actionResult.getData().getUser() != null) {
+			User resultUser = actionResult.getData().getUser();
+			saveToken(resultUser);
 		}
 		actionResult.setResultCode(code);
 		actionResult.setReason(reason);
@@ -201,6 +218,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = {"register"}, method = RequestMethod.POST)
 	@ResponseBody
+	@TokenIgnore
 	public ActionResult<UserDto> register(UserDto userDto, String confirmPassword) {
 		ActionResult<UserDto> actionResult = new ActionResult<>();
 		if (userDto == null || userDto.getUser() == null || StringUtils.isBlank(confirmPassword)) {	//参数错误
@@ -240,9 +258,13 @@ public class UserController extends BaseController {
 		if (success) {
 			user.setAvatar(null);
 			user.setPassword(null);
+			
+			saveToken(user);
+			
 			UserDto resultDto = new UserDto();
 			resultDto.setType(AccountType.TYPE_LOCAL);
 			resultDto.setUser(user);
+			
 			actionResult.setData(resultDto);
 			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
 			actionResult.setReason("注册成功");
@@ -261,6 +283,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = {"bind"}, method = RequestMethod.POST)
 	@ResponseBody
+	@TokenIgnore
 	public ActionResult<UserDto> bindUser(UserDto userDto) {
 		ActionResult<UserDto> actionResult = new ActionResult<>();
 		if (userDto == null || userDto.getUser() == null || userDto.getUser().getPassword() == null) {
@@ -277,18 +300,29 @@ public class UserController extends BaseController {
 			return actionResult;
 		}
 		String encodePwd = DigestUtils.md5Hex(user.getPassword());
+		String tokenStr = user.getToken();
 		User u = userService.getUser(user);
 		boolean success = false;
 		if (u != null) {	//校验密码，可视为登录
 			success = encodePwd.equals(u.getPassword());
 			if (success) {
 				user = u;
+			} else {
+				actionResult.setResultCode(ActionResult.RESULT_VALIDATE_FAILED);
+				actionResult.setReason("密码错误");
+				return actionResult;
 			}
 		} else {	//创建用户，可视为注册
 			success = userService.addUser(user);
 		}
 		if (success) {
 			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			user.setToken(tokenStr);
+			boolean createToken = shouldCreateToken(user);
+			if (createToken) {
+				saveToken(u);
+			}
+			
 			UserDto resultDto = new UserDto();
 			resultDto.setType(AccountType.TYPE_LOCAL);
 			resultDto.setUser(user);
@@ -663,6 +697,47 @@ public class UserController extends BaseController {
 	}
 	
 	/**
+	 * 校验用户的合法性，主要通过账号和密码来验证类似于登录
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping(value = {"validate"}, method = RequestMethod.POST)
+	@ResponseBody
+	@TokenIgnore
+	public ActionResult<UserDto> validateUser(User user) {
+		ActionResult<UserDto> actionResult = new ActionResult<>();
+		if (user == null) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		int code = 0;
+		String reason = null;
+		
+		User u = userService.getUserByAccount(user);
+		if (u == null) {
+			code = ActionResult.RESULT_VALIDATE_FAILED;
+			reason = "用户账号或密码错误";
+		} else {
+			u.setAvatar(null);
+			u.setPassword(null);
+			if (!u.checkState()) {	//用户不可用
+				code = ActionResult.RESULT_STATE_DISABLE;
+				reason = "当前账号已被禁用";
+			} else {
+				code = ActionResult.RESULT_SUCCESS;
+				reason = "验证成功";
+			}
+			UserDto result = new UserDto();
+			result.setUser(u);
+			actionResult.setData(result);
+		}
+		actionResult.setResultCode(code);
+		actionResult.setReason(reason);
+		return actionResult;
+	}
+	
+	/**
 	 * 检查用户的合法性
 	 * @param actionResult
 	 * @param user
@@ -716,5 +791,48 @@ public class UserController extends BaseController {
 	 */
 	private long getOutTime(Date date) {
 		return date.getTime() / 1000 * 1000;
+	}
+	
+	/**
+	 * 是否需要创建token，当用户没有token或者token过期时，需要创建
+	 * @param user
+	 * @return
+	 */
+	private boolean shouldCreateToken(User user) {
+		if (user == null) {
+			return false;
+		}
+		boolean createToken = false;
+		if (StringUtils.isNotBlank(user.getToken())) {	//用户当前有token
+			Token token = SystemUtil.parseToken(user.getToken());
+			if (token == null || token.isExpired()) {
+				logger.info("user has no token or token is expired:" + token);
+				
+				createToken = true;
+			}
+		} else {
+			createToken = true;
+		}
+		return createToken;
+	}
+	
+	/**
+	 * 生成并保存token
+	 * @param user
+	 */
+	private void saveToken(User user) {
+		Token token = SystemUtil.generateToken(user.getSid());
+		if (token != null) {
+			user.setToken(token.getContent());
+			CacheManager cacheManager = CacheManager.getInstance();
+			Cache cache = cacheManager.getCache(Constant.DEFAULT_TOKEN_CACHE);
+			if (cache != null) {
+				Element element = new Element(token.getId(), token.getContent());
+				cache.put(element);
+				logger.info("user save token sid:" + user.getSid() + ", generate new token:" + token.getContent());
+			} else {
+				logger.error("user save token but tolen cache is null");
+			}
+		}
 	}
 }

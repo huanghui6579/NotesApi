@@ -8,13 +8,16 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +31,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yunxinlink.notes.api.crypto.TokenKeyProvider;
 import com.yunxinlink.notes.api.model.Attach;
+import com.yunxinlink.notes.api.model.Token;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 public class SystemUtil {
 	private final static Logger logger = LoggerFactory.getLogger(SystemUtil.class);
@@ -346,6 +360,79 @@ public class SystemUtil {
 	public static boolean isEmailAddress(String addess) {
 		Matcher matcher = emailPattern.matcher(addess);
 		return matcher.matches();
+	}
+	
+	/**
+	 * 生成token
+	 * @param userSid 用户的sid
+	 * @return
+	 */
+	public static Token generateToken(String userSid) {
+		if (StringUtils.isBlank(userSid)) {
+			return null;
+		}
+		try {
+			//The JWT signature algorithm we will be using to sign the token
+			SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS512;
+			
+			String key = Constant.TOKEN_KEY_SALT;
+ 
+			long nowMillis = System.currentTimeMillis();
+			Date now = new Date(nowMillis);
+			//We will sign our JWT with our ApiKey secret
+			Key signingKey = TokenKeyProvider.generateKey(signatureAlgorithm, key);
+			String id = UUID.randomUUID().toString();
+			//Let's set the JWT Claims
+			JwtBuilder builder = Jwts.builder().setId(id)
+			                            .setIssuedAt(now)
+			                            .setSubject(userSid)
+			                            .setIssuer(Constant.TOKEN_ISSUER)
+			                            .signWith(signatureAlgorithm, signingKey);
+ 
+			//if it has been specified, let's add the expiration
+			long expMillis = nowMillis + Constant.TOKEN_EXP_TIME;
+			Date exp = new Date(expMillis);
+			builder.setExpiration(exp);
+ 
+			//Builds the JWT and serializes it to a compact, URL-safe string
+			String tokenStr = builder.compact();
+			Token token = new Token();
+			token.setId(id);
+			token.setIssuer(Constant.TOKEN_ISSUER);
+			token.setExpiration(exp);
+			token.setSubject(userSid);
+			token.setContent(tokenStr);
+			return token;
+		} catch (Exception e) {
+			logger.error("generate token error:" + e.getMessage());
+		}
+		return null;
+	}
+	
+	/**
+	 * 解析token
+	 * @param jwt
+	 */
+	//Sample method to validate and read the JWT
+	public static Token parseToken(String tokenStr) {
+	 
+	    //This line will throw an exception if it is not a signed JWS (as expected)
+	    Token token = null;
+		try {
+			Claims claims = Jwts.parser()         
+			   .setSigningKey(DatatypeConverter.parseBase64Binary(Constant.TOKEN_KEY_SALT))
+			   .parseClaimsJws(tokenStr).getBody();
+			token = new Token();
+			token.setId(claims.getId());
+			token.setSubject(claims.getSubject());
+			token.setIssuer(claims.getIssuer());
+			token.setExpiration(claims.getExpiration());
+		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException
+				| IllegalArgumentException e) {
+			logger.error("parse token error:" + e.getMessage());
+		}
+	    
+	    return token;
 	}
 	
 }

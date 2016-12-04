@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="true"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="true"
          monitoring="autodetect">
     <!--
     <diskStore path="java.io.tmpdir" /> -->
@@ -13,4 +13,15 @@
            maxElementsOnDisk="1000" eternal="false" overflowToDisk="true"
            diskSpoolBufferSizeMB="20" timeToIdleSeconds="300" timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU" />
+           
+    <cache name="tokenCache"
+           maxEntriesLocalHeap="10000"
+           maxEntriesLocalDisk="1000"
+           eternal="false"
+           diskSpoolBufferSizeMB="20"
+           timeToIdleSeconds="0" timeToLiveSeconds="604800"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+    	<persistence strategy="localTempSwap" />
+    </cache>
 </ehcache>

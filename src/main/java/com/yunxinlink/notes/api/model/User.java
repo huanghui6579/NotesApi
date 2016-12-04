@@ -74,6 +74,11 @@ public class User implements Serializable {
      * 头像的hash值
      */
     private String avatarHash;
+    
+    /**
+     * 用户的token
+     */
+    private String token;
 	
 	public Integer getId() {
 		return id;
@@ -171,6 +176,14 @@ public class User implements Serializable {
 		this.avatarHash = avatarHash;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	/**
 	 * 检查该用户是否可用
 	 * @return
@@ -183,7 +196,7 @@ public class User implements Serializable {
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", nickname=" + nickname
 				+ ", mobile=" + mobile + ", email=" + email + ", sid=" + sid + ", avatar=" + avatar + ", gender="
-				+ gender + ", createTime=" + createTime + ", state=" + state + ", avatarHash=" + avatarHash
-				+ "]";
+				+ gender + ", createTime=" + createTime + ", state=" + state + ", avatarHash=" + avatarHash + ", token="
+				+ token + "]";
 	}
 }

@@ -20,7 +20,7 @@ import com.yunxinlink.notes.api.service.IDeviceInfoService;
  *
  */
 @Controller
-@RequestMapping("/device")
+@RequestMapping("/api/device")
 public class DeviceController extends BaseController {
 	@Autowired
 	private IDeviceInfoService deviceInfoService;
