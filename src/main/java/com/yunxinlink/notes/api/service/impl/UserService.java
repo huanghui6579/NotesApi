@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yunxinlink.notes.api.dao.UserDao;
+import com.yunxinlink.notes.api.dto.PasswordDto;
 import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.init.IdGenerator;
 import com.yunxinlink.notes.api.model.PasswordResetInfo;
@@ -173,6 +174,17 @@ public class UserService implements IUserService {
 			resetInfo.setUserSid(user.getSid());
 			//删除重置密码的记录
 			rowCount = userDao.deletePwdResetInfo(resetInfo);
+		}
+		return rowCount > 0;
+	}
+
+	@Override
+	public boolean updatePassword(PasswordDto passwordDto) {
+		int rowCount = 0;
+		try {
+			rowCount = userDao.updatePassword(passwordDto);
+		} catch (Exception e) {
+			logger.error("user update password error:" + e.getMessage());
 		}
 		return rowCount > 0;
 	}

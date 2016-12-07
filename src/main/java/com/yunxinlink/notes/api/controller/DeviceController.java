@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.yunxinlink.notes.api.annotation.TokenIgnore;
 import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.model.DeviceInfo;
 import com.yunxinlink.notes.api.service.IDeviceInfoService;
@@ -32,6 +33,7 @@ public class DeviceController extends BaseController {
 	 */
 	@RequestMapping(value = {"activate"}, method = RequestMethod.POST)
 	@ResponseBody
+	@TokenIgnore
 	public ActionResult<Void> addDevice(DeviceInfo deviceInfo, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
 		if (deviceInfo == null) {

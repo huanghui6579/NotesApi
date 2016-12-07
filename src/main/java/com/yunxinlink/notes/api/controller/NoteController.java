@@ -120,9 +120,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/up", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<Void> upNote(@PathVariable String userSid, @RequestBody NoteDto noteDto) {
+	public ActionResult<Void> upNote(@PathVariable String userSid, @RequestBody NoteDto noteDto, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<Void> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || noteDto == null || noteDto.checkEmpty()) {	//笔记不可用，参数为空
+		if (StringUtils.isBlank(userSid) || noteDto == null || noteDto.checkEmpty() || !userSid.equals(tokenSubject)) {	//笔记不可用，参数为空
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -176,9 +177,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/folders", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<PageInfo<List<Folder>>> listFolders(@PathVariable String userSid, FolderDto folderDto) {
+	public ActionResult<PageInfo<List<Folder>>> listFolders(@PathVariable String userSid, FolderDto folderDto, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<PageInfo<List<Folder>>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid)) {
+		if (StringUtils.isBlank(userSid) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -233,9 +235,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/folders/filter", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<List<Folder>> filterFolders(@PathVariable String userSid, String idStr) {
+	public ActionResult<List<Folder>> filterFolders(@PathVariable String userSid, String idStr, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<List<Folder>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -302,9 +305,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/folder/sids", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<PageInfo<List<Folder>>> listFolderSids(@PathVariable String userSid, FolderDto folderDto) {
+	public ActionResult<PageInfo<List<Folder>>> listFolderSids(@PathVariable String userSid, FolderDto folderDto, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<PageInfo<List<Folder>>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid)) {
+		if (StringUtils.isBlank(userSid) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -356,8 +360,8 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<PageInfo<List<NoteInfo>>> listNotes(@PathVariable String userSid, NoteDto noteDto, Integer countSize) {
-		return getNotes(false, userSid, noteDto, countSize);
+	public ActionResult<PageInfo<List<NoteInfo>>> listNotes(@PathVariable String userSid, NoteDto noteDto, Integer countSize, HttpServletRequest request) {
+		return getNotes(false, userSid, noteDto, countSize, request);
 	}
 	
 	/**
@@ -369,8 +373,8 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/sids", method = RequestMethod.GET)
 	@ResponseBody
-	public ActionResult<PageInfo<List<NoteInfo>>> listNoteSids(@PathVariable String userSid, NoteDto noteDto, Integer countSize) {
-		return getNotes(true, userSid, noteDto, countSize);
+	public ActionResult<PageInfo<List<NoteInfo>>> listNoteSids(@PathVariable String userSid, NoteDto noteDto, Integer countSize, HttpServletRequest request) {
+		return getNotes(true, userSid, noteDto, countSize, request);
 	}
 	
 	/**
@@ -382,9 +386,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/list/filter", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<List<NoteInfo>> filterNotes(@PathVariable String userSid, String idStr, Boolean simple) {
+	public ActionResult<List<NoteInfo>> filterNotes(@PathVariable String userSid, String idStr, Boolean simple, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<List<NoteInfo>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -453,9 +458,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/detaillist/filter", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<List<DetailList>> filterDetailLists(@PathVariable String userSid, String idStr) {
+	public ActionResult<List<DetailList>> filterDetailLists(@PathVariable String userSid, String idStr, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<List<DetailList>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -523,9 +529,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping(value = "{userSid}/attach/filter", method = RequestMethod.POST)
 	@ResponseBody
-	public ActionResult<List<Attach>> filterAttachs(@PathVariable String userSid, String idStr) {
+	public ActionResult<List<Attach>> filterAttachs(@PathVariable String userSid, String idStr, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<List<Attach>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr)) {
+		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(idStr) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -593,9 +600,10 @@ public class NoteController extends BaseController {
 	 * @param countSize
 	 * @return
 	 */
-	private ActionResult<PageInfo<List<NoteInfo>>> getNotes(boolean onlySid ,String userSid, NoteDto noteDto, Integer countSize) {
+	private ActionResult<PageInfo<List<NoteInfo>>> getNotes(boolean onlySid ,String userSid, NoteDto noteDto, Integer countSize, HttpServletRequest request) {
 		ActionResult<PageInfo<List<NoteInfo>>> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid)) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
+		if (StringUtils.isBlank(userSid) || !userSid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -729,7 +737,8 @@ public class NoteController extends BaseController {
 		InputStreamResource inputStreamResource = null;
 		HttpHeaders headers = new HttpHeaders();
 		HttpStatus httpStatus = null;
-		if (StringUtils.isNotBlank(sid) && StringUtils.isNotBlank(userSid)) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
+		if (StringUtils.isNotBlank(sid) && StringUtils.isNotBlank(userSid) && userSid.equals(tokenSubject)) {
 			User user = new User();
 			user.setSid(userSid);
 			user = userService.getUserById(user);
@@ -769,9 +778,10 @@ public class NoteController extends BaseController {
 	 */
 	@RequestMapping("state/{userSid}/change")
 	@ResponseBody
-	public ActionResult<Void> changeNoteState(@PathVariable String userSid, @RequestBody List<NoteInfo> noteList) {
+	public ActionResult<Void> changeNoteState(@PathVariable String userSid, @RequestBody List<NoteInfo> noteList, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(userSid) || CollectionUtils.isEmpty(noteList)) {	//参数为空
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
+		if (StringUtils.isBlank(userSid) || CollectionUtils.isEmpty(noteList) || !userSid.equals(tokenSubject)) {	//参数为空
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;

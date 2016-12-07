@@ -66,6 +66,10 @@
 	     
 	</update>
 	
+	<update id="updatePassword" parameterType="PasswordDto">
+		update t_user set password = #{newPassword} where sid = #{userSid} and password = #{oldPassword}
+	</update>
+	
 	<select id="selectUsers" resultType="User">
 	    select * from t_user
 	</select>

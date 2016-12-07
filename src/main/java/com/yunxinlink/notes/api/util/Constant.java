@@ -73,4 +73,9 @@ public class Constant {
 	 * 用户token的缓存
 	 */
 	public static final String DEFAULT_TOKEN_CACHE = "tokenCache";
+	
+	/**
+	 * request中的token subject
+	 */
+	public static final String KEY_TOKEN_SUBJECT = "tokenSubject";
 }

@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.yunxinlink.notes.api.annotation.TokenIgnore;
 import com.yunxinlink.notes.api.dto.ActionResult;
+import com.yunxinlink.notes.api.dto.PasswordDto;
 import com.yunxinlink.notes.api.dto.PasswordResetInfoDto;
 import com.yunxinlink.notes.api.dto.UserDto;
 import com.yunxinlink.notes.api.init.SystemCache;
@@ -162,7 +163,7 @@ public class UserController extends BaseController {
 					} else {
 						code = ActionResult.RESULT_SUCCESS;
 						reason = "登录成功";
-						createToken = shouldCreateToken(userDto.getUser());
+						createToken = shouldCreateToken(user);
 					}
 					UserDto result = new UserDto();
 					result.setUser(user);
@@ -207,6 +208,7 @@ public class UserController extends BaseController {
 		}
 		actionResult.setResultCode(code);
 		actionResult.setReason(reason);
+		logger.info("login user:" + actionResult.getData());
 		return actionResult;
 	}
 	
@@ -346,8 +348,9 @@ public class UserController extends BaseController {
 	@RequestMapping(value = {"{sid}/modify"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ActionResult<Void> modifyUser(@PathVariable String sid, UserDto userDto, @RequestParam(value = "avatarFile", required = false) MultipartFile[] files, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<Void> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(sid) || userDto == null || userDto.getUser() == null) {
+		if (StringUtils.isBlank(sid) || userDto == null || userDto.getUser() == null || !sid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 			return actionResult;
@@ -403,6 +406,36 @@ public class UserController extends BaseController {
 		return actionResult;
 	}
 	
+	@RequestMapping(value = "{sid}/pwd/modify", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<Void> modifyPassword(@PathVariable String sid, PasswordDto passwordDto, HttpServletRequest request) {
+		ActionResult<Void> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(sid) || passwordDto == null || !passwordDto.hasPassword()) {
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		String password = passwordDto.getNewPassword();
+		String confirmPassword = passwordDto.getConfirmPassword();
+		if (!password.equals(confirmPassword)) {	//两次输入的密码不一致
+			actionResult.setResultCode(ActionResult.RESULT_NOT_EQUALS);
+			actionResult.setReason("两次输入的密码不一致");
+			return actionResult;
+		}
+		
+		passwordDto.setUserSid(sid);
+		
+		boolean success = userService.updatePassword(passwordDto);
+		if (success) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("密码修改成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("密码修改失败");
+		}
+		return actionResult;
+	}
+	
 	/**
 	 * 获取用户基本信息
 	 * @param sid 用户的sid
@@ -410,9 +443,10 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = {"{sid}/info"})
 	@ResponseBody
-	public ActionResult<User> getUserInfo(@PathVariable String sid) {
+	public ActionResult<User> getUserInfo(@PathVariable String sid, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		ActionResult<User> actionResult = new ActionResult<>();
-		if (StringUtils.isBlank(sid)) {
+		if (StringUtils.isBlank(sid) || !sid.equals(tokenSubject)) {
 			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
 			actionResult.setReason("参数错误");
 		} else {
@@ -451,9 +485,10 @@ public class UserController extends BaseController {
 		param.setSid(sid);
 		String avatarName = userService.getUserAvatar(param);
 		boolean hasContent = false;
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
 		InputStreamResource inputStreamResource = null;
 		HttpHeaders headers = new HttpHeaders();
-		if (!StringUtils.isBlank(avatarName)) {	//用户头像存在
+		if (!StringUtils.isBlank(avatarName) && sid.equals(tokenSubject)) {	//用户头像存在
 			File file = getAvatarFile(avatarName);
 			if (file != null && file.exists()) {	//文件存在
 				String filePath = file.getAbsolutePath();
@@ -501,6 +536,7 @@ public class UserController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "showForget", method = RequestMethod.GET)
+	@TokenIgnore
 	public String forgetPassword(String account, Model model) {
 		if (StringUtils.isNotBlank(account)) {
 			model.addAttribute("account", account);
@@ -515,6 +551,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = "{account}/forget", method = RequestMethod.POST)
     @ResponseBody
+    @TokenIgnore
 	public ActionResult<Void> forgetPassword(@PathVariable String account, HttpServletRequest request) {
 		ActionResult<Void> actionResult = new ActionResult<>();
 		//根据账号来查询该用户的信息
@@ -584,6 +621,7 @@ public class UserController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "resetPassword", method = RequestMethod.GET)
+	@TokenIgnore
 	public String showResetPassword(String sid, String account, Model model, HttpServletRequest request) {
 		String toUrl = "user/reset-pwd";
 		ActionResult<Void> actionResult = new ActionResult<>();
@@ -654,6 +692,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = "resetPassword", method = RequestMethod.POST)
 	@ResponseBody
+	@TokenIgnore
 	public ActionResult<Void> resetPassword(@RequestParam(name = "userSid", required = true) String userSid, String password, String confirmPassword) {
 		ActionResult<Void> actionResult = new ActionResult<>();
 		if (StringUtils.isBlank(userSid) || StringUtils.isBlank(password) || StringUtils.isBlank(confirmPassword)) {

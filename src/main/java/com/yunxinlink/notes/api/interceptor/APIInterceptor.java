@@ -35,10 +35,15 @@ public class APIInterceptor extends HandlerInterceptorAdapter {
 			throws Exception {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         
+        String url = request.getRequestURI();
+        
+        logger.info("api interceptor request url:" + url);
+        
         TokenIgnore tokenIgnore = handlerMethod.getMethodAnnotation(TokenIgnore.class);
         if (tokenIgnore != null) {	//直接放过
 			return true;
 		}
+        
 		final String tokenStr = request.getHeader("Authorization");
 		if (StringUtils.isBlank(tokenStr)) {
 			logger.info("api request token is empty");
@@ -58,6 +63,7 @@ public class APIInterceptor extends HandlerInterceptorAdapter {
 			validateTokenFailed(response);
 			return false;
 		}
+		request.setAttribute(Constant.KEY_TOKEN_SUBJECT, token.getSubject());
 		return super.preHandle(request, response, handler);
 	}
 	

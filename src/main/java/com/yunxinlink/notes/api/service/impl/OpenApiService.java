@@ -1,5 +1,7 @@
 package com.yunxinlink.notes.api.service.impl;
 
+import java.util.Date;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,9 @@ public class OpenApiService implements IOpenApiService {
 		//1、先添加用户
 		User user = openApi.getUser();
 		user.setSid(IdGenerator.generateUUID());
+		if (user.getCreateTime() == null) {
+			user.setCreateTime(new Date());
+		}
 		int rowId = userDao.add(user);
 		if (rowId > 0) {	//添加成功
 			rowId = openApiDao.add(openApi);

@@ -18,10 +18,13 @@
             <!-- 如有重名的列名，此处应写查询时各自的别名 -->
             <result column="username" property="username"/>
             <result column="mobile" property="mobile"/>
+            <result column="password" property="password"/>
             <result column="sid" property="sid"/>
+            <result column="email" property="email"/>
             <result column="avatar" property="avatar"/>
             <result column="gender" property="gender"/>
             <result column="state" property="state"/>
+            <result column="avatarHash" property="avatarHash"/>
         </association>
     </resultMap>
 	
@@ -60,12 +63,12 @@
 	</select>
 	
 	<select id="selectByOpenUserId" resultMap="openApiResultMap" parameterType="OpenApi">
-		SELECT o.*, u.id uid, u.username, u.mobile, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state from t_open_api o, t_user u 
+		SELECT o.*, u.id uid, u.username, u.password, u.mobile, u.email, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state, u.avatarHash from t_open_api o, t_user u 
 		WHERE o.userId = u.id AND o.openUserId = #{openUserId}
 	</select>
 	
 	<select id="selectByUserId" resultMap="openApiResultMap" parameterType="User">
-		SELECT o.*, u.id uid, u.username, u.mobile, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state from t_open_api o, t_user u 
+		SELECT o.*, u.id uid, u.username, u.password, u.mobile, u.email, u.nickname, u.sid, u.avatar, u.gender, u.createTime ucreateTime, u.state, u.avatarHash from t_open_api o, t_user u 
 		WHERE o.userId = u.id AND o.userId = #{id}
 	</select>
 		
