@@ -1,11 +1,7 @@
 package com.yunxinlink.notes.api.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
@@ -34,7 +29,6 @@ import com.yunxinlink.notes.api.dto.ActionResult;
 import com.yunxinlink.notes.api.dto.AttachDto;
 import com.yunxinlink.notes.api.dto.FolderDto;
 import com.yunxinlink.notes.api.dto.NoteDto;
-import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.init.IdGenerator;
 import com.yunxinlink.notes.api.init.SystemCache;
 import com.yunxinlink.notes.api.model.Attach;
@@ -43,6 +37,7 @@ import com.yunxinlink.notes.api.model.FeedbackAttach;
 import com.yunxinlink.notes.api.model.FeedbackInfo;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.model.NoteInfo;
+import com.yunxinlink.notes.api.model.PageInfo;
 import com.yunxinlink.notes.api.model.User;
 import com.yunxinlink.notes.api.service.IAttachService;
 import com.yunxinlink.notes.api.service.IFeedbackService;
@@ -167,6 +162,39 @@ public class NoteController extends BaseController {
 			logger.error("create note add error: " + e.getMessage());
 		}
 		
+		return actionResult;
+	}
+	
+	/**
+	 * 更新笔记本的排序
+	 * @param userSid
+	 * @param foderList
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "{userSid}/folder/sort", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult<Void> updateFolderSort(@PathVariable(value = "userSid") String userSid, @RequestBody List<Folder> foderList, HttpServletRequest request) {
+		String tokenSubject = (String) request.getAttribute(Constant.KEY_TOKEN_SUBJECT);
+		ActionResult<Void> actionResult = new ActionResult<>();
+		if (StringUtils.isBlank(userSid) || CollectionUtils.isEmpty(foderList) || !userSid.equals(tokenSubject)) {	//笔记不可用，参数为空
+			actionResult.setResultCode(ActionResult.RESULT_PARAM_ERROR);
+			actionResult.setReason("参数错误");
+			return actionResult;
+		}
+		int count = 0;
+		try {
+			count = folderService.updateSort(foderList);
+		} catch (Exception e) {
+			logger.error("update folder sort list error:" + e);
+		}
+		if (count > 0) {
+			actionResult.setResultCode(ActionResult.RESULT_SUCCESS);
+			actionResult.setReason("更新成功");
+		} else {
+			actionResult.setResultCode(ActionResult.RESULT_FAILED);
+			actionResult.setReason("更新失败");
+		}
 		return actionResult;
 	}
 	
@@ -757,7 +785,7 @@ public class NoteController extends BaseController {
 					}
 				}
 			} else {	//用户不存在或者用户被禁用
-				httpStatus = HttpStatus.UNAUTHORIZED;
+				httpStatus = HttpStatus.NOT_FOUND;
 			}
 		}
 		if (hasContent) {

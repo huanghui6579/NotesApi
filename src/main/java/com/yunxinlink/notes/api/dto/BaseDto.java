@@ -1,5 +1,6 @@
 package com.yunxinlink.notes.api.dto;
 
+import com.yunxinlink.notes.api.model.PageInfo;
 import com.yunxinlink.notes.api.util.Constant;
 
 /**

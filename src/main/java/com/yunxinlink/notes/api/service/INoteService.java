@@ -3,9 +3,9 @@ package com.yunxinlink.notes.api.service;
 import java.util.List;
 
 import com.yunxinlink.notes.api.dto.NoteDto;
-import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.DetailList;
 import com.yunxinlink.notes.api.model.NoteInfo;
+import com.yunxinlink.notes.api.model.PageInfo;
 
 /**
  * 笔记的服务层

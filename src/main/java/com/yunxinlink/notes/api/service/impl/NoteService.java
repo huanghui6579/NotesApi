@@ -16,11 +16,11 @@ import com.yunxinlink.notes.api.dao.DetailListDao;
 import com.yunxinlink.notes.api.dao.FolderDao;
 import com.yunxinlink.notes.api.dao.NoteDao;
 import com.yunxinlink.notes.api.dto.NoteDto;
-import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Attach;
 import com.yunxinlink.notes.api.model.DetailList;
 import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.model.NoteInfo;
+import com.yunxinlink.notes.api.model.PageInfo;
 import com.yunxinlink.notes.api.service.INoteService;
 
 /**

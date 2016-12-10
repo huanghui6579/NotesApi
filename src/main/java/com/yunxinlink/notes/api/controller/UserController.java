@@ -301,12 +301,11 @@ public class UserController extends BaseController {
 			actionResult.setReason("账号不能为空");
 			return actionResult;
 		}
-		String encodePwd = DigestUtils.md5Hex(user.getPassword());
 		String tokenStr = user.getToken();
 		User u = userService.getUser(user);
 		boolean success = false;
 		if (u != null) {	//校验密码，可视为登录
-			success = encodePwd.equals(u.getPassword());
+			success = user.getPassword().equals(u.getPassword());
 			if (success) {
 				user = u;
 			} else {

@@ -26,6 +26,8 @@ public class Constant {
 	 */
 	public static final String SOFT_PACKAGE_ROOT = "soft";
 	
+	public static final String SOFT_BUG_ROOT = "buglog";
+	
 	/**
 	 * 默认的每页记录条数，默认20条
 	 */

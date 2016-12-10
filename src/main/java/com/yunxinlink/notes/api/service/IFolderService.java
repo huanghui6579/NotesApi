@@ -2,9 +2,11 @@ package com.yunxinlink.notes.api.service;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yunxinlink.notes.api.dto.FolderDto;
-import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Folder;
+import com.yunxinlink.notes.api.model.PageInfo;
 
 /**
  * 笔记本的服务层
@@ -74,4 +76,11 @@ public interface IFolderService {
 	 * @return
 	 */
 	public List<Folder> getFolders(List<Integer> idList);
+	
+	/**
+	 * 批量更新笔记本的排序
+	 * @param list
+	 * @return
+	 */
+	public int updateSort(@Param(value="list") List<Folder> list);
 }

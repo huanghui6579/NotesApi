@@ -51,6 +51,35 @@
 	    </choose>
 	</update>
 	
+	<!-- UPDATE course
+	    SET name = CASE id 
+	        WHEN 1 THEN 'name1'
+	        WHEN 2 THEN 'name2'
+	        WHEN 3 THEN 'name3'
+	    END, 
+	    title = CASE id 
+	        WHEN 1 THEN 'New Title 1'
+	        WHEN 2 THEN 'New Title 2'
+	        WHEN 3 THEN 'New Title 3'
+	    END
+	WHERE id IN (1,2,3) -->
+	<update id="updateSort" parameterType="java.util.List">
+		update t_folder 
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="sort = case" suffix="end,">
+				<foreach collection="list" item="i" index="index">
+					<if test="i.sort != null">
+						when sid = #{i.sid} then #{i.sort}
+					</if>
+				</foreach>
+			</trim>
+		</trim>
+		where
+		<foreach collection="list" separator="or" item="i" index="index" >
+			sid=#{i.sid}
+		</foreach>
+	</update>
+	
 	<select id="selectFolders" resultType="Folder" parameterType="FolderDto">
 	    select * from t_folder 
 	    <trim prefix="where" prefixOverrides="AND | OR">

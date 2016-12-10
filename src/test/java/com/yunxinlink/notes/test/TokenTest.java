@@ -1,7 +1,11 @@
 package com.yunxinlink.notes.test;
 
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
@@ -128,5 +132,34 @@ public class TokenTest {
 	    System.out.println("Subject: " + claims.getSubject());
 	    System.out.println("Issuer: " + claims.getIssuer());
 	    System.out.println("Expiration: " + claims.getExpiration());
+	}
+	
+	@Test
+	public void testRegex() {
+		String filename = "Log_934220829.log";
+		String regex = "^Log_[\\w]+.log$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(filename);
+		if (matcher != null) {
+			if (matcher.find()) {
+				String group = matcher.group();
+				logger.info("group:" + group);
+			} else {
+				logger.info("not found");
+			}
+		}
+	}
+	
+	@Test
+	public void testList() {
+		List<Integer> list = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+			list.add(i);
+		}
+		logger.info("original list:" + list);
+		int fromIndex = 1;
+		int toIndex = 5;
+		List<Integer> subList = list.subList(fromIndex, toIndex);
+		logger.info("sub list fromIndex:" + fromIndex + ", toIndex:" + toIndex + ", sub list:" + subList);
 	}
 }

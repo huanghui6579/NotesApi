@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50625
 File Encoding         : 65001
 
-Date: 2016-11-18 11:25:09
+Date: 2016-12-09 20:57:47
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -36,7 +36,25 @@ CREATE TABLE `t_attach` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `noteSid` (`noteSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='附件表';
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COMMENT='附件表';
+
+-- ----------------------------
+-- Table structure for t_bug_report
+-- ----------------------------
+DROP TABLE IF EXISTS `t_bug_report`;
+CREATE TABLE `t_bug_report` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `imei` varchar(255) DEFAULT NULL COMMENT '手机的IMEI编号',
+  `os` varchar(255) DEFAULT NULL COMMENT '手机的系统平台，比如Android、IOS、Windows',
+  `osVersion` varchar(255) DEFAULT NULL COMMENT '系统的版本，如Android 6.0',
+  `phoneModel` varchar(255) DEFAULT NULL COMMENT '手机型号，如1505-A02',
+  `brand` varchar(255) DEFAULT NULL COMMENT '手机的制作厂商，如360、小米、华为',
+  `appVersionCode` int(255) DEFAULT NULL COMMENT 'App的版本号',
+  `appVersionName` varchar(255) DEFAULT NULL COMMENT '软件的版本名称',
+  `logPath` varchar(255) DEFAULT NULL COMMENT '日志的本地存储路径',
+  `createTime` datetime DEFAULT NULL COMMENT '上报时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='bug report 表';
 
 -- ----------------------------
 -- Table structure for t_detail_list
@@ -156,7 +174,7 @@ CREATE TABLE `t_note_info` (
   UNIQUE KEY `sid` (`sid`) USING BTREE,
   KEY `userId` (`userId`),
   KEY `folderSid` (`folderSid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COMMENT='笔记表';
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COMMENT='笔记表';
 
 -- ----------------------------
 -- Table structure for t_open_api
@@ -173,7 +191,7 @@ CREATE TABLE `t_open_api` (
   `modifyTime` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `openUserId` (`openUserId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='第三方账号的表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='第三方账号的表';
 
 -- ----------------------------
 -- Table structure for t_reset_pwd
@@ -187,7 +205,7 @@ CREATE TABLE `t_reset_pwd` (
   `outDate` timestamp NULL DEFAULT NULL COMMENT '过期时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `userSid` (`userSid`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COMMENT='重置密码的记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='重置密码的记录表';
 
 -- ----------------------------
 -- Table structure for t_user
@@ -211,7 +229,7 @@ CREATE TABLE `t_user` (
   UNIQUE KEY `mobile` (`mobile`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `sid` (`sid`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COMMENT='用户表';
 
 -- ----------------------------
 -- Table structure for t_version_info
@@ -219,6 +237,7 @@ CREATE TABLE `t_user` (
 DROP TABLE IF EXISTS `t_version_info`;
 CREATE TABLE `t_version_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `title` varchar(255) DEFAULT NULL COMMENT '更新记录的标题',
   `content` varchar(255) NOT NULL COMMENT '更新的日志',
   `versionCode` int(11) DEFAULT NULL COMMENT '软件的版本号',
   `versionName` varchar(255) DEFAULT NULL COMMENT '版本名称',

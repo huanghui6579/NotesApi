@@ -46,4 +46,11 @@ public interface FolderDao extends BaseDao<Folder> {
 	 * @return
 	 */
 	public List<Folder> selectFilterFolders(@Param(value="list") List<Integer> list);
+	
+	/**
+	 * 批量更新笔记本的排序
+	 * @param list
+	 * @return
+	 */
+	public int updateSort(@Param(value="list") List<Folder> list);
 }

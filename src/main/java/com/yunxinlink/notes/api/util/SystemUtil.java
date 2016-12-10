@@ -200,6 +200,9 @@ public class SystemUtil {
 		case SOFT_ATTACH:	//软件包
 			dir = Constant.SOFT_PACKAGE_ROOT + File.separator;
 			break;
+		case BUG_REPORT:	//上报的bug日志
+			dir = Constant.SOFT_BUG_ROOT + File.separator;
+			break;
 		default:
 			break;
 		}
@@ -216,6 +219,19 @@ public class SystemUtil {
     	String dateDir = attachFormat.format(new Date());
     	String suffix = ext == null ? "" : "." + ext;
     	return dateDir + "/" + sid + suffix;
+    }
+    
+    /**
+     * 格式化附件的文件名
+     * @param filename 原始文件名
+     * @return
+     */
+    public static String formatAttachFilename(String filename) {
+    	if (StringUtils.isEmpty(filename)) {
+			return null;
+		}
+    	String dateDir = attachFormat.format(new Date());
+    	return dateDir + "/" + filename;
     }
     
     /**

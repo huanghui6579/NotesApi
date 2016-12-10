@@ -23,5 +23,10 @@ public enum AttachUsage {
 	/**
 	 * 软件包
 	 */
-	SOFT_ATTACH
+	SOFT_ATTACH,
+	
+	/**
+	 * 上报的bug日志
+	 */
+	BUG_REPORT;
 }

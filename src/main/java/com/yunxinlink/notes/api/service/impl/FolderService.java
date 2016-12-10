@@ -11,8 +11,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.yunxinlink.notes.api.dao.FolderDao;
 import com.yunxinlink.notes.api.dto.FolderDto;
-import com.yunxinlink.notes.api.dto.PageInfo;
 import com.yunxinlink.notes.api.model.Folder;
+import com.yunxinlink.notes.api.model.PageInfo;
 import com.yunxinlink.notes.api.service.IFolderService;
 
 /**
@@ -173,5 +173,10 @@ public class FolderService implements IFolderService {
 			logger.error("get folders by id list error:" + e.getMessage());
 		}
 		return fodlers;
+	}
+
+	@Override
+	public int updateSort(List<Folder> list) {
+		return folderDao.updateSort(list);
 	}
 }

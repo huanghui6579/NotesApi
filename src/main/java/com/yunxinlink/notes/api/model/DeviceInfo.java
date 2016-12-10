@@ -17,47 +17,47 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class DeviceInfo implements Serializable {
 	private static final long serialVersionUID = 5179390087353766133L;
 	
-	private Integer id;
+	protected Integer id;
 	
 	/**
 	 * 设备唯一编号
 	 */
-	private String imei;
+	protected String imei;
 	
 	/**
 	 * 设备平台，如Android、IOS、Windows等
 	 */
-	private String os;
+	protected String os;
 	
 	/**
 	 * 系统的版本号，如Android 6.0
 	 */
-	private String osVersion;
+	protected String osVersion;
 	
 	/**
 	 * 手机型号，如1505-A02
 	 */
-	private String phoneModel;
+	protected String phoneModel;
 	
 	/**
 	 * 手机的厂商，如360 、小米、华为
 	 */
-	private String brand;
+	protected String brand;
 	
 	/**
 	 * 客户端软件的版本号
 	 */
-	private Integer appVersionCode;
+	protected Integer appVersionCode;
 	
 	/**
 	 * 客户端软件的版本名名称
 	 */
-	private String appVersionName;
+	protected String appVersionName;
 	
 	/**
 	 * 创建时间
 	 */
-	private Date createTime;
+	protected Date createTime;
 	
 	/**
 	 * 修改时间

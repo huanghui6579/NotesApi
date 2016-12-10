@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunxinlink.notes.api.dao.BugReportDao">
+	
+	<!-- keyProperty="id" 这个id必须是实体的id，而不是数据表的主键id，否则，得不到正确的返回结果 -->
+	<insert id="add" parameterType="BugReport" useGeneratedKeys="true" keyProperty="id">
+	    insert into t_bug_report (imei, os, osVersion, phoneModel, brand, appVersionCode, appVersionName, createTime, logPath) 
+	    values (#{imei}, #{os}, #{osVersion}, #{phoneModel}, #{brand}, #{appVersionCode}, #{appVersionName}, #{createTime}, #{logPath})
+	</insert>
+	
+	<delete id="delete" parameterType="BugReport">
+	    delete from t_bug_report where id = #{id}
+	</delete>
+	
+	<select id="selectBugs" resultType="BugReport" parameterType="java.util.Map">
+	    select * from t_bug_report 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="bug.os != null">
+	    		and os = #{bug.os}
+	    	</if>
+	    	<if test="bug.osVersion != null">
+	    		and osVersion = #{bug.osVersion}
+	    	</if>
+	    	<if test="bug.brand != null">
+	    		and brand = #{bug.brand}
+	    	</if>
+	    	<if test="bug.appVersionCode != null and bug.appVersionCode > 0">
+	    		and appVersionCode = #{bug.appVersionCode}
+	    	</if>
+	    	<if test="bug.appVersionName != null">
+	    		and appVersionName = #{bug.appVersionName}
+	    	</if>
+	    </trim>
+	    <if test="offset != null and limit !=null">
+             limit #{offset},#{limit}
+        </if>
+	</select>
+	
+	<select id="selectBugCount" resultType="java.lang.Long" parameterType="BugReport">
+	    select count(*) from t_bug_report 
+	    <trim prefix="where" prefixOverrides="AND | OR">
+	    	<if test="bug.os != null">
+	    		and os = #{bug.os}
+	    	</if>
+	    	<if test="bug.osVersion != null">
+	    		and osVersion = #{bug.osVersion}
+	    	</if>
+	    	<if test="bug.brand != null">
+	    		and brand = #{bug.brand}
+	    	</if>
+	    	<if test="bug.appVersionCode != null and bug.appVersionCode > 0">
+	    		and appVersionCode = #{bug.appVersionCode}
+	    	</if>
+	    	<if test="bug.appVersionName != null">
+	    		and appVersionName = #{bug.appVersionName}
+	    	</if>
+	    </trim>
+	</select>
+	
+	<select id="selectById" resultType="BugReport" parameterType="BugReport">
+		select * from t_bug_report where id = #{id}
+	</select>
+		
+	<!-- <select id="getUsersPage" resultMap="usermap" parameterType="UserDto" >
+	    select * from t_device_info limit #{pageOffset}, #{pageSize}
+	</select> -->
+</mapper>

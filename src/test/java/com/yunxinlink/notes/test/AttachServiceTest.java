@@ -17,7 +17,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.yunxinlink.notes.api.init.IdGenerator;
 import com.yunxinlink.notes.api.model.Attach;
 import com.yunxinlink.notes.api.model.DeleteState;
+import com.yunxinlink.notes.api.model.Folder;
 import com.yunxinlink.notes.api.service.IAttachService;
+import com.yunxinlink.notes.api.service.IFolderService;
 
 /**
  * 
@@ -32,6 +34,9 @@ public class AttachServiceTest {
 	
 	@Autowired
 	private IAttachService attachService;
+	
+	@Autowired
+	private IFolderService folderService;
 
 	@Test
 	public void testAddAttach() {
@@ -93,6 +98,32 @@ public class AttachServiceTest {
 	@Test
 	public void testGetByNote() {
 		fail("Not yet implemented");
+	}
+	
+	@Test
+	public void testSortFolder() {
+		List<Folder> list = new ArrayList<>();
+		Folder folder = new Folder();
+		folder.setSid("1570021667785146371");
+		folder.setSort(2);
+		
+		list.add(folder);
+		
+		folder = new Folder();
+		folder.setSid("1570025077284536322");
+		folder.setSort(4);
+		
+		list.add(folder);
+		
+		folder = new Folder();
+		folder.setSid("1570026417356275719");
+		folder.setSort(3);
+		
+		list.add(folder);
+		
+		int count = folderService.updateSort(list);
+		logger.info("update folder sort count:" + count);
+		
 	}
 
 }
