@@ -34,6 +34,20 @@ public class AdminController extends BaseController {
 	@Autowired
 	private IVersionService versionService;
 	
+	@RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
+	public String index() {
+		return "admin/index";
+	}
+	
+	/**
+	 * 概况
+	 * @return
+	 */
+	@RequestMapping(value = "overview", method = RequestMethod.GET)
+	public String overview() {
+		return "admin/overview";
+	}
+	
 	/**
 	 * 发布版本
 	 * @param versionInfo 版本信息
